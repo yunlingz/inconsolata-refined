@@ -1,0 +1,101 @@
+{
+  "family": "Inconsolata Refined",
+  "results": [
+    {
+      "file": "InconsolataRefined-Regular.woff",
+      "style": "Regular",
+      "format": "woff",
+      "glyphs": 966,
+      "sourceSha256": "c3da5f4ffbf7f841e8c3d09471ba28e47e1006c9a9f7e36af763c4ec99469514",
+      "sha256": "ed53b28234580531695879e4aea07d11deef753fe7486122976f88bf40217140",
+      "sanitizer": "pass",
+      "geometry": "identical",
+      "hints": "identical",
+      "metadataAndFeatures": "identical"
+    },
+    {
+      "file": "InconsolataRefined-Regular.woff2",
+      "style": "Regular",
+      "format": "woff2",
+      "glyphs": 966,
+      "sourceSha256": "c3da5f4ffbf7f841e8c3d09471ba28e47e1006c9a9f7e36af763c4ec99469514",
+      "sha256": "278c3452da6bef5e84e6f961e08c67fb8dd8a5fb654b16774355a06dbe76e886",
+      "sanitizer": "pass",
+      "geometry": "identical",
+      "hints": "identical",
+      "metadataAndFeatures": "identical"
+    },
+    {
+      "file": "InconsolataRefined-Italic.woff",
+      "style": "Italic",
+      "format": "woff",
+      "glyphs": 966,
+      "sourceSha256": "cb966999237637603f9e3422a333de5af02de3c9498d199e0b486662d924e554",
+      "sha256": "de55d560f0d5fd4233cc852ccca7fc22807c724d09e01ec3b2649ad38f7ddf08",
+      "sanitizer": "pass",
+      "geometry": "identical",
+      "hints": "identical",
+      "metadataAndFeatures": "identical"
+    },
+    {
+      "file": "InconsolataRefined-Italic.woff2",
+      "style": "Italic",
+      "format": "woff2",
+      "glyphs": 966,
+      "sourceSha256": "cb966999237637603f9e3422a333de5af02de3c9498d199e0b486662d924e554",
+      "sha256": "49bfe3dee99dc90b62e5dae156263af857deca75677b758fcafbc71e0553fd12",
+      "sanitizer": "pass",
+      "geometry": "identical",
+      "hints": "identical",
+      "metadataAndFeatures": "identical"
+    },
+    {
+      "file": "InconsolataRefined-Bold.woff",
+      "style": "Bold",
+      "format": "woff",
+      "glyphs": 966,
+      "sourceSha256": "e364167b58ea834319704376c0f0c51f8690e3b3332a0fa9b8553bf5df1ca8ea",
+      "sha256": "503ab5327c70ae45956f097210b74e63505a6a0b9f74e7113b9427ea9c3e878a",
+      "sanitizer": "pass",
+      "geometry": "identical",
+      "hints": "identical",
+      "metadataAndFeatures": "identical"
+    },
+    {
+      "file": "InconsolataRefined-Bold.woff2",
+      "style": "Bold",
+      "format": "woff2",
+      "glyphs": 966,
+      "sourceSha256": "e364167b58ea834319704376c0f0c51f8690e3b3332a0fa9b8553bf5df1ca8ea",
+      "sha256": "8b216a0d5bc5fb428d8b3e7a095b89568b5c65d0fd3bd736ecfc0f26de19495f",
+      "sanitizer": "pass",
+      "geometry": "identical",
+      "hints": "identical",
+      "metadataAndFeatures": "identical"
+    },
+    {
+      "file": "InconsolataRefined-BoldItalic.woff",
+      "style": "Bold Italic",
+      "format": "woff",
+      "glyphs": 966,
+      "sourceSha256": "f0e4f9170541123e2c8311a8a5cb1e99fba51f92f82963cd12cc7bb2940b8e7c",
+      "sha256": "c1477ef956c7902b22d3990c1369aa4933cea9346222ce04d708de5ad5a86686",
+      "sanitizer": "pass",
+      "geometry": "identical",
+      "hints": "identical",
+      "metadataAndFeatures": "identical"
+    },
+    {
+      "file": "InconsolataRefined-BoldItalic.woff2",
+      "style": "Bold Italic",
+      "format": "woff2",
+      "glyphs": 966,
+      "sourceSha256": "f0e4f9170541123e2c8311a8a5cb1e99fba51f92f82963cd12cc7bb2940b8e7c",
+      "sha256": "c50545fe6b14fdad4a0f7ff4a2f70ea3b178ab39ca83000a583dce1d46681c35",
+      "sanitizer": "pass",
+      "geometry": "identical",
+      "hints": "identical",
+      "metadataAndFeatures": "identical"
+    }
+  ]
+}

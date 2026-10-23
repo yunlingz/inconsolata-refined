@@ -5,15 +5,21 @@
   "type": "module",
   "description": "Four Inconsolata faces sized for Cascadia Code terminal settings and hinted with ttfautohint.",
   "license": "OFL-1.1",
-  "engines": { "node": ">=22" },
+  "engines": {
+    "node": ">=22"
+  },
   "scripts": {
     "bootstrap": "node scripts/bootstrap.mjs",
-    "build": "node scripts/build.mjs",
-    "test": "node scripts/verify.mjs",
+    "build": "node scripts/build.mjs && node scripts/build-web.mjs",
+    "build:web": "node scripts/build-web.mjs",
+    "test": "node scripts/verify.mjs && node scripts/verify-web.mjs",
+    "test:web": "node scripts/verify-web.mjs",
     "preview": "node scripts/preview.mjs"
   },
   "devDependencies": {
     "fontkit": "2.0.4",
-    "pngjs": "7.0.0"
+    "pngjs": "7.0.0",
+    "ttf2woff": "3.0.0",
+    "wawoff2": "2.0.1"
   }
 }

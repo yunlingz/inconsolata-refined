@@ -34,3 +34,15 @@ At fractional pixel line heights, the Cairo specimen can show faint seams betwee
 The visual review found no additional defect that justified redrawing the original letters. At 10 pixels, the small number of available pixels still limits detail; hinting cannot remove that physical limit.
 
 Original character coverage is preserved. Unsupported scripts and symbols continue to depend on the application's fallback fonts.
+
+## Web font follow-up
+
+The four original TTFs remain tracked in Git and byte-for-byte unchanged. The separate `webfonts/` folder contains each face in WOFF and WOFF2, a four-face family stylesheet, an HTML usage example, and the license.
+
+All eight compressed fonts pass OpenType Sanitizer. For every one of the 966 glyphs in each file, decoded geometry, advances, and glyph hint instructions match the source TTF. Other font tables, including features, names, license metadata, and global hint programs, are preserved. WOFF2 may re-encode the outline and location tables and update the head table as part of compression; the decoded geometry and instructions are checked explicitly.
+
+The stylesheet uses weight 400 for Regular/Italic and 700 for Bold/Bold Italic, combined with the CSS styles `normal` and `italic`. All four rules share the family `Inconsolata Refined` and provide WOFF2 followed by WOFF.
+
+The example was tested in Chromium 153.0.8010.12 at 1280×1000 and 375×900. Browser font-loading APIs confirmed all four real faces loaded with their expected descriptors and equal character advances. Blocking WOFF2 requests confirmed successful loading of all four WOFF fallbacks. The size slider works, mobile layout has no horizontal page overflow, and both runs reported no font-decoding or page-script errors. Desktop and mobile screenshots were visually inspected. These checks cover Chromium; Firefox and Safari were not tested.
+
+See [web-validation.json](web-validation.json), [web-browser-validation.json](web-browser-validation.json), and [web-example.png](web-example.png). The browser report records the hashes of the exact font files it tested.

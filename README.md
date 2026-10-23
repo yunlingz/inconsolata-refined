@@ -32,12 +32,35 @@ Upstream Inconsolata supplies upright designs. **Italic and Bold Italic are 12-d
 
 Original glyphs, combining marks, optional ligatures, stylistic sets, alternate zero, and other OpenType features are preserved. The source fonts are stored as lossless `.ttf.gz` inputs, so the only tracked `.ttf` files are the four finished faces.
 
+## Web fonts
+
+The separate [webfonts/](webfonts/) folder contains all four styles in **WOFF2 and WOFF**, plus [inconsolata-refined.css](webfonts/inconsolata-refined.css), [example.html](webfonts/example.html), and the font license. Copy the folder to a website and include the stylesheet:
+
+```html
+<link rel="stylesheet" href="./webfonts/inconsolata-refined.css">
+<style>
+  .sample { font-family: 'Inconsolata Refined', monospace; }
+</style>
+<p class="sample">
+  Regular <em>Italic</em> <strong>Bold</strong>
+  <strong><em>Bold Italic</em></strong>
+</p>
+```
+
+All four faces use the same CSS family. Regular and Italic use `font-weight: 400`; Bold and Bold Italic use `700`. Upright styles use `font-style: normal`, while italic styles use `italic`. CSS `font-weight: normal` equals `400`, and `bold` equals `700`.
+
+The stylesheet tries WOFF2 first, with WOFF as a fallback. The compressed files preserve the hinted TTFs' outlines, metrics, metadata, features, and hint instructions. See [webfonts/README.md](webfonts/README.md) for deployment details.
+
+`npm run build:web` regenerates only the web fonts and stylesheet from the four tracked TTFs. `npm run test:web` verifies all eight web fonts, their hint preservation, and the CSS family mappings. The main build and test commands include the web fonts as well.
+
 ## Preview and review
 
 - [Comparison with Cascadia Code and original Inconsolata](docs/preview.png), at the same 16-pixel size.
 - [All four styles at 10–24 pixels](docs/small-sizes.png).
 - [Review findings and remaining limits](docs/REVIEW.md).
 - [Machine-readable validation results](docs/validation.json).
+- [Web font validation results](docs/web-validation.json).
+- [Website example screenshot](docs/web-example.png) and [Chromium validation results](docs/web-browser-validation.json).
 
 The images use FreeType/Cairo. Windows Terminal uses DirectWrite, so its exact antialiasing also depends on your display, DPI, and terminal settings.
 

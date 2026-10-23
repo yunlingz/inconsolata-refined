@@ -1,0 +1,126 @@
+{
+  "browser": "153.0.8010.12",
+  "viewport": "1280x1000 and 375x900",
+  "fontHashes": [
+    {
+      "file": "InconsolataRefined-Regular.woff",
+      "sha256": "ed53b28234580531695879e4aea07d11deef753fe7486122976f88bf40217140"
+    },
+    {
+      "file": "InconsolataRefined-Regular.woff2",
+      "sha256": "278c3452da6bef5e84e6f961e08c67fb8dd8a5fb654b16774355a06dbe76e886"
+    },
+    {
+      "file": "InconsolataRefined-Italic.woff",
+      "sha256": "de55d560f0d5fd4233cc852ccca7fc22807c724d09e01ec3b2649ad38f7ddf08"
+    },
+    {
+      "file": "InconsolataRefined-Italic.woff2",
+      "sha256": "49bfe3dee99dc90b62e5dae156263af857deca75677b758fcafbc71e0553fd12"
+    },
+    {
+      "file": "InconsolataRefined-Bold.woff",
+      "sha256": "503ab5327c70ae45956f097210b74e63505a6a0b9f74e7113b9427ea9c3e878a"
+    },
+    {
+      "file": "InconsolataRefined-Bold.woff2",
+      "sha256": "8b216a0d5bc5fb428d8b3e7a095b89568b5c65d0fd3bd736ecfc0f26de19495f"
+    },
+    {
+      "file": "InconsolataRefined-BoldItalic.woff",
+      "sha256": "c1477ef956c7902b22d3990c1369aa4933cea9346222ce04d708de5ad5a86686"
+    },
+    {
+      "file": "InconsolataRefined-BoldItalic.woff2",
+      "sha256": "c50545fe6b14fdad4a0f7ff4a2f70ea3b178ab39ca83000a583dce1d46681c35"
+    }
+  ],
+  "results": [
+    {
+      "format": "woff2",
+      "loadedFonts": [
+        "InconsolataRefined-Bold.woff2",
+        "InconsolataRefined-BoldItalic.woff2",
+        "InconsolataRefined-Italic.woff2",
+        "InconsolataRefined-Regular.woff2"
+      ],
+      "faces": [
+        {
+          "family": "Inconsolata Refined",
+          "weight": "400",
+          "style": "normal",
+          "status": "loaded"
+        },
+        {
+          "family": "Inconsolata Refined",
+          "weight": "400",
+          "style": "italic",
+          "status": "loaded"
+        },
+        {
+          "family": "Inconsolata Refined",
+          "weight": "700",
+          "style": "normal",
+          "status": "loaded"
+        },
+        {
+          "family": "Inconsolata Refined",
+          "weight": "700",
+          "style": "italic",
+          "status": "loaded"
+        }
+      ],
+      "cellWidthsAt20px": [
+        140.625,
+        140.625,
+        140.625,
+        140.625
+      ],
+      "sizeSlider": "pass",
+      "browserErrors": []
+    },
+    {
+      "format": "woff",
+      "loadedFonts": [
+        "InconsolataRefined-Bold.woff",
+        "InconsolataRefined-BoldItalic.woff",
+        "InconsolataRefined-Italic.woff",
+        "InconsolataRefined-Regular.woff"
+      ],
+      "faces": [
+        {
+          "family": "Inconsolata Refined",
+          "weight": "400",
+          "style": "normal",
+          "status": "loaded"
+        },
+        {
+          "family": "Inconsolata Refined",
+          "weight": "400",
+          "style": "italic",
+          "status": "loaded"
+        },
+        {
+          "family": "Inconsolata Refined",
+          "weight": "700",
+          "style": "normal",
+          "status": "loaded"
+        },
+        {
+          "family": "Inconsolata Refined",
+          "weight": "700",
+          "style": "italic",
+          "status": "loaded"
+        }
+      ],
+      "cellWidthsAt20px": [
+        140.625,
+        140.625,
+        140.625,
+        140.625
+      ],
+      "sizeSlider": "pass",
+      "browserErrors": []
+    }
+  ]
+}

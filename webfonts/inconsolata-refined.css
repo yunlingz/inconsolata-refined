@@ -1,0 +1,37 @@
+/* Inconsolata Refined. SIL Open Font License 1.1; see OFL.txt. */
+
+@font-face {
+  font-family: 'Inconsolata Refined';
+  src: url('./InconsolataRefined-Regular.woff2') format('woff2'),
+       url('./InconsolataRefined-Regular.woff') format('woff');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Inconsolata Refined';
+  src: url('./InconsolataRefined-Italic.woff2') format('woff2'),
+       url('./InconsolataRefined-Italic.woff') format('woff');
+  font-weight: 400;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Inconsolata Refined';
+  src: url('./InconsolataRefined-Bold.woff2') format('woff2'),
+       url('./InconsolataRefined-Bold.woff') format('woff');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Inconsolata Refined';
+  src: url('./InconsolataRefined-BoldItalic.woff2') format('woff2'),
+       url('./InconsolataRefined-BoldItalic.woff') format('woff');
+  font-weight: 700;
+  font-style: italic;
+  font-display: swap;
+}
