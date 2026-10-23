@@ -1,12 +1,14 @@
 import assert from 'node:assert/strict';
+import { existsSync } from 'node:fs';
 import { readFile, writeFile, readdir, mkdtemp, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { create } from 'fontkit';
 import {
-  root, family, styles, sources, target, fontFile, sourceBytes,
+  root, family, version, styles, sources, target, weightTargets, fontFile, sourceBytes,
   sfntTables, checksum, sha256, tool, run, heartbeat,
 } from './lib.mjs';
+import { measureStems } from './strokes.mjs';
 
 const done = heartbeat('Checking metadata, coverage, shaping, hint bytecode, and rendering');
 const temporary = await mkdtemp(join(tmpdir(), 'inconsolata-refined-check-'));
@@ -14,6 +16,16 @@ const report = [];
 try {
   const build = JSON.parse(await readFile(join(root, 'fonts/build-info.json'), 'utf8'));
   assert.equal(build.ttfautohint, sources.ttfautohint.version);
+  assert.equal(build.version, version);
+  const references = new Map();
+  for (const [name, reference] of Object.entries(weightTargets.references)) {
+    const path = join(root, 'reference', reference.file);
+    if (existsSync(path)) {
+      const bytes = await readFile(path);
+      assert.equal(sha256(bytes), reference.sha256, 'Cascadia reference checksum');
+      references.set(name, create(bytes));
+    }
+  }
   const expectedFiles = styles.map(style => `InconsolataRefined-${style.file}.ttf`).sort();
   assert.deepEqual((await readdir(join(root, 'fonts'))).filter(file => file.endsWith('.ttf')).sort(), expectedFiles);
 
@@ -35,6 +47,7 @@ try {
     assert.equal(font.name.records.preferredFamily.en, family);
     assert.equal(font.name.records.preferredSubfamily.en, style.name);
     assert.equal(font.postscriptName, `InconsolataRefined-${style.file}`);
+    assert.ok(font.version.startsWith(`Version ${version}`), 'Updated version for replacement installs');
     assert.equal(font.unitsPerEm, target.unitsPerEm);
     assert.deepEqual([font.ascent, font.descent, font.lineGap], [target.ascender, target.descender, 0]);
     assert.deepEqual([os2.readInt16BE(68), os2.readInt16BE(70), os2.readInt16BE(72)], [target.ascender, target.descender, 0]);
@@ -49,12 +62,31 @@ try {
     assert.equal(os2.readInt16BE(2), target.cellWidth);
     assert.equal(font.xHeight, Math.round(font.glyphForCodePoint(0x78).bbox.maxY));
     assert.equal(font.capHeight, Math.round(font.glyphForCodePoint(0x48).bbox.maxY));
-    if (style.weight === 400) assert.equal(font.xHeight, target.xHeight);
+    assert.equal(font.xHeight, weightTargets.styles[style.file].xHeight, 'Preserved optical height');
+    const stems = measureStems(font), weightTarget = weightTargets.styles[style.file];
+    if (references.has(weightTarget.reference)) {
+      assert.deepEqual(measureStems(references.get(weightTarget.reference).getVariation({ wght: weightTarget.referenceWeight })),
+        weightTarget.referenceStems, 'Recorded strokes match the actual paired Cascadia face');
+    }
+    const strokeErrors = {};
+    for (const [sample, expected] of Object.entries(weightTarget.referenceStems)) {
+      strokeErrors[sample] = stems[sample] / expected - 1;
+      assert.ok(Math.abs(strokeErrors[sample]) <= weightTargets.maxRelativeStrokeError,
+        `${style.name} ${sample}: ${stems[sample]} vs Cascadia ${expected}`);
+    }
     assert.deepEqual(font.characterSet, original.characterSet, 'Original Unicode coverage');
     assert.deepEqual(font.availableFeatures.sort(), original.availableFeatures.sort(), 'Original OpenType features');
     assert.ok(!tables.has('fvar') && !tables.has('gvar'), 'Static face');
-    const names = new Set(Array.from({ length: font.numGlyphs }, (_, id) => font.getGlyph(id).name));
-    for (let id = 0; id < original.numGlyphs; id++) assert.ok(names.has(original.getGlyph(id).name), 'Original named glyph preserved');
+    const namedGlyphs = new Map(Array.from({ length: font.numGlyphs }, (_, id) => {
+      const glyph = font.getGlyph(id);
+      return [glyph.name, glyph];
+    }));
+    for (let id = 0; id < original.numGlyphs; id++) {
+      const before = original.getGlyph(id), glyph = namedGlyphs.get(before.name);
+      assert.ok(glyph, 'Original named glyph preserved');
+      assert.equal(glyph.advanceWidth, before.advanceWidth / 500 * target.cellWidth,
+        `Advance for named glyph ${before.name}, including unencoded ligatures`);
+    }
     assert.equal(font.name.records.copyright.en, original.name.records.copyright.en);
     assert.equal(font.name.records.license.en, original.name.records.license.en);
     for (const code of font.characterSet) {
@@ -119,7 +151,10 @@ try {
     for (const size of [10, 12, 14, 16, 18, 24, 32]) {
       await run(tool('hb-view'), [fontFile(style), `--text-file=${specimen}`, `--font-size=${size}`, `--font-ppem=${size}`, '--ft-load-flags=0', '--margin=24', `--output-file=${join(temporary, `${style.file}-${size}.png`)}`]);
     }
-    report.push({ style: style.name, characters: font.characterSet.length, features: font.availableFeatures.length, xHeight: font.xHeight, capHeight: font.capHeight, cellWidth: target.cellWidth, sanitizer: 'pass', renderingSizes: [10, 12, 14, 16, 18, 24, 32], sha256: sha256(bytes) });
+    report.push({ style: style.name, characters: font.characterSet.length, features: font.availableFeatures.length,
+      xHeight: font.xHeight, capHeight: font.capHeight, cellWidth: target.cellWidth,
+      sourceAxes: weightTarget.axes, referenceStyle: style.name, referenceStems: weightTarget.referenceStems,
+      stems, strokeErrors, sanitizer: 'pass', renderingSizes: [10, 12, 14, 16, 18, 24, 32], sha256: sha256(bytes) });
     console.log(`PASS ${style.name}: ${font.characterSet.length} characters, ${font.availableFeatures.length} features, sanitizer, shaping, seven render sizes`);
   }
   await writeFile(join(root, 'docs/validation.json'), JSON.stringify({ family, results: report }, null, 2) + '\n');

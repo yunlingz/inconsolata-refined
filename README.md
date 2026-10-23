@@ -1,6 +1,6 @@
 # Inconsolata Refined
 
-Four static TrueType fonts based on Inconsolata 3.100, enlarged for terminal settings that suit Cascadia Code and freshly hinted with **ttfautohint 1.8.4**.
+Four static TrueType fonts based on Inconsolata 3.100, sized and weighted against Cascadia Code and freshly hinted with **ttfautohint 1.8.4**. The current font version is **1.100**.
 
 | Style | Installable file |
 | --- | --- |
@@ -9,7 +9,7 @@ Four static TrueType fonts based on Inconsolata 3.100, enlarged for terminal set
 | Bold | [InconsolataRefined-Bold.ttf](fonts/InconsolataRefined-Bold.ttf) |
 | Bold Italic | [InconsolataRefined-BoldItalic.ttf](fonts/InconsolataRefined-BoldItalic.ttf) |
 
-Install all four files, then choose **Inconsolata Refined** in your terminal or editor. On Windows, select the four TTFs in `fonts/`, right-click **Install**, and restart the application. Keep the font size you used for Cascadia Code when comparing.
+Install all four files, then choose **Inconsolata Refined** in your terminal or editor. On Windows, select the four TTFs in `fonts/`, right-click **Install**, replace the previous versions if prompted, and restart the application. Keep the font size you used for Cascadia Code when comparing.
 
 The styles belong to one family, with weight and italic flags set so applications can select the real Bold and Italic files.
 
@@ -21,16 +21,27 @@ The sizing reference is your Windows-installed Cascadia Code 2102.025. Its measu
 | --- | ---: | ---: | ---: |
 | Character advance | 0.50000 | 0.58594 | 0.58594 |
 | Lowercase x height | 0.45700 | 0.51758 | 0.51758 |
-| Capital height | 0.62300 | 0.69336 | 0.70557 |
+| Capital height | 0.62300 | 0.69336 | 0.69531 |
 | Typographic line height | 1.04900 | 1.16211 | 1.16211 |
 
-Letter outlines are uniformly enlarged **13.26%**, preserving their proportions. Additional side bearings give the exact Cascadia cell width, **17.19%** wider than the original. Line height increases **10.78%**. Capitals remain about 1.8% taller than Cascadia's, a deliberate tradeoff that preserves Inconsolata's proportions while matching lowercase height.
+Version 1.100 matches stroke weight separately for each face: Regular to Cascadia Regular, Italic to Cascadia Italic, Bold to Cascadia Bold, and Bold Italic to Cascadia Bold Italic. It uses Inconsolata's original variable design, adjusting both weight and width before fitting the outlines to the existing terminal cell. This brings horizontal and vertical strokes closer together in weight, with a smaller change to Bold because its vertical stems were already close to the reference.
 
-Both weights use the same transformation. Bold retains its original slightly larger lowercase height. The output uses a 2048-unit em, a 1200-unit cell, ascent 1900, descent -480, and zero line gap. Windows clipping bounds cover the actual outlines; typographic and horizontal metrics use the chosen line spacing.
+The previous lowercase heights are preserved: 1060 units for Regular/Italic and 1078 for Bold/Bold Italic. All faces retain a 2048-unit em, a 1200-unit cell, ascent 1900, descent -480, and zero line gap. Regular's capitals are now 1424 units, compared with Cascadia's 1420. Windows clipping bounds cover the actual outlines.
+
+| Output style | Source `wght` | Source `wdth` | Largest measured stroke difference from paired Cascadia face |
+| --- | ---: | ---: | ---: |
+| Regular | 635 | 119 | 4.5% |
+| Italic | 635 | 116 | 3.7% |
+| Bold | 840 | 117 | 1.0% |
+| Bold Italic | 855 | 117 | 1.5% |
+
+These source axes are design inputs; the finished fonts still use conventional **400/700** weights. The comparison measures the vertical stems of `H` and `n` and the horizontal crossbar of `H`. It is a calibrated visual match, not a claim that every stroke in two different typefaces has identical geometry. See [the four paired specimens](docs/stroke-comparison.png), [reference/weights.json](reference/weights.json), and [the review](docs/REVIEW.md).
+
+The installed Cascadia 2102.025 reference has no dedicated italic design. Italic comparisons use **Cascadia Code Italic 2105.024**, its first official italic release. That release's upright stroke samples agree with the installed reference. Both reference binaries remain local and are excluded from Git; their checksums and provenance are recorded.
 
 Upstream Inconsolata supplies upright designs. **Italic and Bold Italic are 12-degree obliques** derived from those designs. They retain Inconsolata's letterforms rather than introducing newly drawn cursive forms. Box drawing and block characters remain upright and are fitted separately to the terminal cell.
 
-Original glyphs, combining marks, optional ligatures, stylistic sets, alternate zero, and other OpenType features are preserved. The source fonts are stored as lossless `.ttf.gz` inputs, so the only tracked `.ttf` files are the four finished faces.
+Original glyphs, combining marks, optional ligatures, stylistic sets, alternate zero, and other OpenType features are preserved. The variable source and the original Regular/Bold fonts used for regression checks are stored as lossless `.ttf.gz` inputs, so the only tracked `.ttf` files are the four finished faces.
 
 ## Web fonts
 
@@ -56,6 +67,7 @@ The stylesheet tries WOFF2 first, with WOFF as a fallback. The compressed files 
 ## Preview and review
 
 - [Comparison with Cascadia Code and original Inconsolata](docs/preview.png), at the same 16-pixel size.
+- [Stroke comparison against each of the four corresponding Cascadia styles](docs/stroke-comparison.png), at 16 and 24 pixels.
 - [All four styles at 10–24 pixels](docs/small-sizes.png).
 - [Review findings and remaining limits](docs/REVIEW.md).
 - [Machine-readable validation results](docs/validation.json).
@@ -66,7 +78,7 @@ The images use FreeType/Cairo. Windows Terminal uses DirectWrite, so its exact a
 
 ## Rebuild
 
-The included bootstrap is for Debian/Ubuntu x86-64, including WSL. It requires Node.js 22+, npm, curl, apt package indexes, `dpkg-deb`, tar, make, a C/C++ compiler, and the system runtime libraries required by FontForge, FreeType, HarfBuzz, and Cairo. It downloads packages into a temporary directory, extracts tools under `.tools/`, and compiles ttfautohint locally. It does not require sudo.
+The included bootstrap is for Debian/Ubuntu x86-64, including WSL. It requires Node.js 22+, npm, Python 3 for the FontTools CLI, curl, apt package indexes, `dpkg-deb`, tar, make, a C/C++ compiler, and the system runtime libraries required by FontForge, FreeType, HarfBuzz, and Cairo. It downloads packages into a temporary directory, extracts tools under `.tools/`, and compiles ttfautohint locally. It does not require sudo.
 
 ```sh
 npm ci --ignore-scripts
@@ -76,9 +88,9 @@ npm test
 npm run preview
 ```
 
-On other platforms, provide FontForge, ttfautohint **1.8.4**, `hb-shape`, `hb-view` with PNG output, and `ots-sanitize` in `PATH`. The environment variables `FONTFORGE`, `TTFAUTOHINT`, `HB_SHAPE`, `HB_VIEW`, and `OTS_SANITIZE` can override the executables. `npm run build` needs only FontForge and ttfautohint; the other tools perform verification and make previews.
+On other platforms, provide Python 3 with FontTools, FontForge, ttfautohint **1.8.4**, `hb-shape`, `hb-view` with PNG output, and `ots-sanitize` in `PATH`. The environment variables `PYTHON3`, `FONTFORGE`, `TTFAUTOHINT`, `HB_SHAPE`, `HB_VIEW`, and `OTS_SANITIZE` can override the executables. The build invokes FontTools' existing `varLib.instancer` CLI to generate static source instances; all project orchestration is JavaScript.
 
-Previewing includes Cascadia when `reference/CascadiaCode.ttf` exists. Alternatively, set `CASCADIA_CODE` to a reference font path. Without a reference binary, previews still include original Inconsolata and all four refined styles. The build itself uses recorded metrics and needs no Cascadia binary or network access after setup.
+Previewing includes Cascadia when `reference/CascadiaCode.ttf` exists. Set `CASCADIA_CODE` to override its path. With `reference/CascadiaCodeItalic.ttf` (or `CASCADIA_CODE_ITALIC`) present as well, it also generates the four paired stroke comparisons. Without reference binaries, previews still include original Inconsolata and all four refined styles. The build uses recorded metrics and axes and needs no Cascadia binary or network access after setup.
 
 The build verifies upstream font checksums, removes old instructions before transforming the outlines, and generates fresh hints with:
 

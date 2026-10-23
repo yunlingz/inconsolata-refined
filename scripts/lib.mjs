@@ -9,6 +9,7 @@ import { create } from 'fontkit';
 
 export const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 export const family = 'Inconsolata Refined';
+export const version = '1.100';
 export const styles = [
   { file: 'Regular', name: 'Regular', source: 'Regular', weight: 400, italic: false },
   { file: 'Italic', name: 'Italic', source: 'Regular', weight: 400, italic: true },
@@ -17,6 +18,7 @@ export const styles = [
 ];
 export const sources = JSON.parse(await readFile(join(root, 'upstream/sources.json'), 'utf8'));
 export const target = JSON.parse(await readFile(join(root, 'reference/metrics.json'), 'utf8'));
+export const weightTargets = JSON.parse(await readFile(join(root, 'reference/weights.json'), 'utf8'));
 export const hintOptions = [
   '--hinting-range-min=8', '--hinting-range-max=50', '--hinting-limit=200',
   '--increase-x-height=14', '--stem-width-mode=qsq', '--windows-compatibility',
@@ -36,6 +38,8 @@ export const tool = name => {
 export const toolEnv = {
   ...process.env,
   LD_LIBRARY_PATH: [join(root, '.tools/root/usr/lib/x86_64-linux-gnu'), process.env.LD_LIBRARY_PATH]
+    .filter(Boolean).join(':'),
+  PYTHONPATH: [join(root, '.tools/root/usr/lib/python3/dist-packages'), process.env.PYTHONPATH]
     .filter(Boolean).join(':'),
 };
 

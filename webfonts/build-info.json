@@ -1,6 +1,6 @@
 {
   "family": "Inconsolata Refined",
-  "version": "1.000",
+  "version": "1.100",
   "sourceTtfautohint": "1.8.4",
   "converters": {
     "ttf2woff": "3.0.0",
@@ -11,73 +11,73 @@
       "file": "InconsolataRefined-Regular.woff",
       "format": "woff",
       "style": "Regular",
-      "bytes": 86640,
-      "sha256": "ed53b28234580531695879e4aea07d11deef753fe7486122976f88bf40217140",
+      "bytes": 91872,
+      "sha256": "7710dd9d8466db01f46264c49a5670225977a433ff450ea1129cb506d3c45c12",
       "source": "fonts/InconsolataRefined-Regular.ttf",
-      "sourceSha256": "c3da5f4ffbf7f841e8c3d09471ba28e47e1006c9a9f7e36af763c4ec99469514"
+      "sourceSha256": "a2c4900720a7389687d7636eae861f0768e51a2c8de905026dfe4f2a9317d813"
     },
     {
       "file": "InconsolataRefined-Regular.woff2",
       "format": "woff2",
       "style": "Regular",
-      "bytes": 60772,
-      "sha256": "278c3452da6bef5e84e6f961e08c67fb8dd8a5fb654b16774355a06dbe76e886",
+      "bytes": 64780,
+      "sha256": "564876e6a1e8201ad7bc36eee5ca5f3306ab66f9023f5e524c2b6712cd6b8b95",
       "source": "fonts/InconsolataRefined-Regular.ttf",
-      "sourceSha256": "c3da5f4ffbf7f841e8c3d09471ba28e47e1006c9a9f7e36af763c4ec99469514"
+      "sourceSha256": "a2c4900720a7389687d7636eae861f0768e51a2c8de905026dfe4f2a9317d813"
     },
     {
       "file": "InconsolataRefined-Italic.woff",
       "format": "woff",
       "style": "Italic",
-      "bytes": 90704,
-      "sha256": "de55d560f0d5fd4233cc852ccca7fc22807c724d09e01ec3b2649ad38f7ddf08",
+      "bytes": 95576,
+      "sha256": "11cc765e1db7fd1ce92baaf013b29b8c8b51d838e57a2dabd67ee3bd9d83b9c1",
       "source": "fonts/InconsolataRefined-Italic.ttf",
-      "sourceSha256": "cb966999237637603f9e3422a333de5af02de3c9498d199e0b486662d924e554"
+      "sourceSha256": "0b1c0b5db921501ad711b5837958496a33904d60abd93551c9869dc1640e933c"
     },
     {
       "file": "InconsolataRefined-Italic.woff2",
       "format": "woff2",
       "style": "Italic",
-      "bytes": 62548,
-      "sha256": "49bfe3dee99dc90b62e5dae156263af857deca75677b758fcafbc71e0553fd12",
+      "bytes": 66652,
+      "sha256": "64e18e40e1b6dc09ec3844961f2de846cb009bca3ec70f7446b981d0256fe26a",
       "source": "fonts/InconsolataRefined-Italic.ttf",
-      "sourceSha256": "cb966999237637603f9e3422a333de5af02de3c9498d199e0b486662d924e554"
+      "sourceSha256": "0b1c0b5db921501ad711b5837958496a33904d60abd93551c9869dc1640e933c"
     },
     {
       "file": "InconsolataRefined-Bold.woff",
       "format": "woff",
       "style": "Bold",
-      "bytes": 88544,
-      "sha256": "503ab5327c70ae45956f097210b74e63505a6a0b9f74e7113b9427ea9c3e878a",
+      "bytes": 93636,
+      "sha256": "5793ccb8c2de548a0998ec30119a5e1ecb8e5e054c1270bc59c24042e4ffd813",
       "source": "fonts/InconsolataRefined-Bold.ttf",
-      "sourceSha256": "e364167b58ea834319704376c0f0c51f8690e3b3332a0fa9b8553bf5df1ca8ea"
+      "sourceSha256": "9c29620be6cb77cadaaf908e070b436aa4b5161015c7571bc05921348008a398"
     },
     {
       "file": "InconsolataRefined-Bold.woff2",
       "format": "woff2",
       "style": "Bold",
-      "bytes": 62072,
-      "sha256": "8b216a0d5bc5fb428d8b3e7a095b89568b5c65d0fd3bd736ecfc0f26de19495f",
+      "bytes": 65952,
+      "sha256": "e6483d27b592f8139401cf23a58b85e0cd731c7a89505f00f9c6cfc3ccc985a4",
       "source": "fonts/InconsolataRefined-Bold.ttf",
-      "sourceSha256": "e364167b58ea834319704376c0f0c51f8690e3b3332a0fa9b8553bf5df1ca8ea"
+      "sourceSha256": "9c29620be6cb77cadaaf908e070b436aa4b5161015c7571bc05921348008a398"
     },
     {
       "file": "InconsolataRefined-BoldItalic.woff",
       "format": "woff",
       "style": "Bold Italic",
-      "bytes": 92204,
-      "sha256": "c1477ef956c7902b22d3990c1369aa4933cea9346222ce04d708de5ad5a86686",
+      "bytes": 98072,
+      "sha256": "ac8fab9ae72bf66090567ec64813166cfb2d4b2341bfc643dce663e50f30c333",
       "source": "fonts/InconsolataRefined-BoldItalic.ttf",
-      "sourceSha256": "f0e4f9170541123e2c8311a8a5cb1e99fba51f92f82963cd12cc7bb2940b8e7c"
+      "sourceSha256": "dc05d195789c175eb037af3cf12801716a0d6f4564bd8729e719c135358d9071"
     },
     {
       "file": "InconsolataRefined-BoldItalic.woff2",
       "format": "woff2",
       "style": "Bold Italic",
-      "bytes": 63820,
-      "sha256": "c50545fe6b14fdad4a0f7ff4a2f70ea3b178ab39ca83000a583dce1d46681c35",
+      "bytes": 67892,
+      "sha256": "f35864972444db00d94927221f80e9df3d4feee4fd5a8cbbd7b07b45e1f8b3bc",
       "source": "fonts/InconsolataRefined-BoldItalic.ttf",
-      "sourceSha256": "f0e4f9170541123e2c8311a8a5cb1e99fba51f92f82963cd12cc7bb2940b8e7c"
+      "sourceSha256": "dc05d195789c175eb037af3cf12801716a0d6f4564bd8729e719c135358d9071"
     }
   ]
 }

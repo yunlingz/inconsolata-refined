@@ -1,0 +1,81 @@
+{
+  "family": "Cascadia Code",
+  "unitsPerEm": 2048,
+  "method": "Filled horizontal spans through H at 25% cap height and n at 35% x height; vertical span through the center of H. All spans normalized to a 2048-unit em.",
+  "maxRelativeStrokeError": 0.05,
+  "references": {
+    "upright": {
+      "file": "CascadiaCode.ttf",
+      "version": "2102.025",
+      "sha256": "cfb6a8d474018fe46d53a427e5fbee44b998822d0d3d8772914bd712cfc55ac4",
+      "source": "Windows-installed Cascadia Code; see metrics.json"
+    },
+    "italic": {
+      "file": "CascadiaCodeItalic.ttf",
+      "version": "2105.024",
+      "sha256": "793fd26dd53d415f41623112ec2d2d4891521fb9f3df97cff9ff6be62bfa181e",
+      "source": "https://github.com/microsoft/cascadia-code/releases/download/v2105.24/CascadiaCode-2105.24.zip",
+      "archiveSha256": "4edd89afd1009e1da121792c44bec6192001f3ffe2186a9e6f554c3bb8f5fb0b",
+      "archivePath": "ttf/CascadiaCodeItalic.ttf",
+      "note": "The installed 2102.025 reference predates real italics. This is the first official italic release; its upright H/n stem measurements match 2102.025."
+    }
+  },
+  "styles": {
+    "Regular": {
+      "reference": "upright",
+      "referenceWeight": 400,
+      "referenceStems": {
+        "verticalH": 200,
+        "verticaln": 212,
+        "horizontalH": 190
+      },
+      "axes": {
+        "wght": 635,
+        "wdth": 119
+      },
+      "xHeight": 1060
+    },
+    "Italic": {
+      "reference": "italic",
+      "referenceWeight": 400,
+      "referenceStems": {
+        "verticalH": 208,
+        "verticaln": 215.29794298252048,
+        "horizontalH": 190
+      },
+      "axes": {
+        "wght": 635,
+        "wdth": 116
+      },
+      "xHeight": 1060
+    },
+    "Bold": {
+      "reference": "upright",
+      "referenceWeight": 700,
+      "referenceStems": {
+        "verticalH": 264,
+        "verticaln": 271,
+        "horizontalH": 244
+      },
+      "axes": {
+        "wght": 840,
+        "wdth": 117
+      },
+      "xHeight": 1078
+    },
+    "BoldItalic": {
+      "reference": "italic",
+      "referenceWeight": 700,
+      "referenceStems": {
+        "verticalH": 266,
+        "verticaln": 274.89381146200367,
+        "horizontalH": 244
+      },
+      "axes": {
+        "wght": 855,
+        "wdth": 117
+      },
+      "xHeight": 1078
+    }
+  }
+}

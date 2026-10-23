@@ -1,6 +1,7 @@
 #!/usr/bin/env fontforge
 # Arguments: input, output, filename style, display style, weight, italic,
-# outline percentage, em, advance, ascent, descent.
+# target x height, em, advance, ascent, descent, outline X/Y ratio,
+# source cell/em ratio, version.
 Open($argv[1])
 SelectWorthOutputting()
 ClearInstrs()
@@ -8,24 +9,32 @@ ClearHints()
 # Unlink before per-glyph transforms, so accented composites cannot scale twice.
 UnlinkReference()
 ScaleToEm(Strtol($argv[8]))
+Select(0u0078)
+xbounds = GlyphInfo("BBox")
+# ScaleToEm rounds source coordinates. Measure the scaled outline directly.
+outliney = Strtod($argv[7]) / xbounds[3] * 100
+outlinex = outliney * Strtod($argv[12])
+Print("{\"outlineScaleX\": ", outlinex / 100, ", \"outlineScaleY\": ", outliney / 100, "}")
 SelectWorthOutputting()
-outline = Strtod($argv[7])
 em = Strtol($argv[8])
 advance = Strtol($argv[9])
 ascender = Strtol($argv[10])
 descender = Strtol($argv[11])
+sourcecell = em * Strtod($argv[13])
 foreach
-  finalwidth = Round(GlyphInfo("Width") * advance / (em / 2.0))
+  # Source advances are exactly zero, one, two, or three cells. Round the
+  # cell count first so ScaleToEm cannot introduce a one-unit spacing error.
+  finalwidth = Round(GlyphInfo("Width") / sourcecell) * advance
   unicode = GlyphInfo("Unicode")
   if (unicode >= 0u2500 && unicode <= 0u259F)
     # Terminal rules and blocks stay upright and fill the new cell exactly.
     # Source block bounds are y=-400..1000 in a 1000-unit em.
-    bx = advance / (em / 2.0)
+    bx = advance / sourcecell
     by = (ascender - descender) / (em * 1.4)
     dy = ascender - by * em
     Transform(bx * 100, 0, 0, by * 100, 0, dy * 100)
   else
-    Scale(outline, outline, 0, 0)
+    Scale(outlinex, outliney, 0, 0)
     Move((finalwidth - GlyphInfo("Width")) / 2.0, 0)
     if ($argv[6] == "1")
       # Twelve-degree oblique, pivoting around half the lowercase height.
@@ -36,12 +45,12 @@ foreach
   RoundToInt()
 endloop
 
-SetFontNames("InconsolataRefined-" + $argv[3], "Inconsolata Refined", "Inconsolata Refined " + $argv[4], $argv[5], "", "1.000")
+SetFontNames("InconsolataRefined-" + $argv[3], "Inconsolata Refined", "Inconsolata Refined " + $argv[4], $argv[5], "", $argv[14])
 SetTTFName(0x409, 1, "Inconsolata Refined")
 SetTTFName(0x409, 2, $argv[4])
-SetTTFName(0x409, 3, "1.000;NONE;InconsolataRefined-" + $argv[3])
+SetTTFName(0x409, 3, $argv[14] + ";NONE;InconsolataRefined-" + $argv[3])
 SetTTFName(0x409, 4, "Inconsolata Refined " + $argv[4])
-SetTTFName(0x409, 5, "Version 1.000")
+SetTTFName(0x409, 5, "Version " + $argv[14])
 SetTTFName(0x409, 6, "InconsolataRefined-" + $argv[3])
 SetTTFName(0x409, 16, "Inconsolata Refined")
 SetTTFName(0x409, 17, $argv[4])

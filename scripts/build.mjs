@@ -3,7 +3,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { create } from 'fontkit';
 import {
-  root, styles, sources, target, hintOptions, fontFile, tool, run,
+  root, styles, sources, target, version, weightTargets, hintOptions, fontFile, tool, run,
   heartbeat, sourceBytes, sha256, normalizeMetadata,
 } from './lib.mjs';
 
@@ -11,29 +11,31 @@ const done = heartbeat('Building Inconsolata Refined');
 const temporary = await mkdtemp(join(tmpdir(), 'inconsolata-refined-build-'));
 try {
   const { stdout } = await run(tool('ttfautohint'), ['--version']);
-  const version = stdout.match(/^ttfautohint ([\d.]+)/m)?.[1];
-  if (version !== sources.ttfautohint.version) {
-    throw new Error(`Expected ttfautohint ${sources.ttfautohint.version}; found ${version ?? 'unknown'}. Set TTFAUTOHINT to the correct executable.`);
+  const hintVersion = stdout.match(/^ttfautohint ([\d.]+)/m)?.[1];
+  if (hintVersion !== sources.ttfautohint.version) {
+    throw new Error(`Expected ttfautohint ${sources.ttfautohint.version}; found ${hintVersion ?? 'unknown'}. Set TTFAUTOHINT to the correct executable.`);
   }
+  const { stdout: fonttoolsVersion } = await run(tool('python3'), ['-m', 'fontTools.ttx', '--version']);
   await mkdir(join(root, 'fonts'), { recursive: true });
-  const original = new Map();
-  for (const weight of ['Regular', 'Bold']) {
-    const bytes = await sourceBytes(weight);
-    const file = join(temporary, `Inconsolata-${weight}.ttf`);
-    await writeFile(file, bytes);
-    original.set(weight, { file, font: create(bytes) });
-  }
-  const regular = original.get('Regular').font;
-  const outlinePercent = (target.xHeight / target.unitsPerEm) / (regular.xHeight / regular.unitsPerEm) * 100;
+  const variable = join(temporary, 'Inconsolata-Variable.ttf');
+  await writeFile(variable, await sourceBytes('Variable'));
   const outputs = [];
+  const instances = [];
   for (const style of styles) {
+    const settings = weightTargets.styles[style.file];
+    const instance = join(temporary, `Inconsolata-${style.file}-instance.ttf`);
+    await run(tool('python3'), ['-m', 'fontTools.varLib.instancer', '-q', variable,
+      `wght=${settings.axes.wght}`, `wdth=${settings.axes.wdth}`, '-o', instance]);
+    const font = create(await readFile(instance));
+    const sourceCell = font.glyphForCodePoint(32).advanceWidth;
     const unhinted = join(temporary, `InconsolataRefined-${style.file}-unhinted.ttf`);
-    await run(tool('fontforge'), [
+    const { stdout: transformed } = await run(tool('fontforge'), [
       '-lang=ff', '-script', join(root, 'scripts/refine.pe'),
-      original.get(style.source).file, unhinted, style.file, style.name,
+      instance, unhinted, style.file, style.name,
       style.weight === 700 ? 'Bold' : 'Regular', style.italic ? '1' : '0',
-      String(outlinePercent), String(target.unitsPerEm), String(target.cellWidth),
+      String(settings.xHeight), String(target.unitsPerEm), String(target.cellWidth),
       String(target.ascender), String(target.descender),
+      String((font.unitsPerEm / 2) / sourceCell), String(sourceCell / font.unitsPerEm), version,
     ]);
     const hinted = join(temporary, `InconsolataRefined-${style.file}.ttf`);
     await run(tool('ttfautohint'), [...hintOptions, unhinted, hinted]);
@@ -41,13 +43,15 @@ try {
     const bytes = await readFile(hinted);
     await writeFile(fontFile(style), bytes);
     outputs.push({ file: `fonts/InconsolataRefined-${style.file}.ttf`, sha256: sha256(bytes), bytes: bytes.length });
+    instances.push({ style: style.name, axes: settings.axes, xHeight: settings.xHeight,
+      ...JSON.parse(transformed.trim()) });
     console.log(`Built ${style.name}: ${bytes.length.toLocaleString()} bytes`);
   }
   await writeFile(join(root, 'fonts/build-info.json'), JSON.stringify({
-    family: 'Inconsolata Refined', version: '1.000', releaseDate: '2026-10-24',
+    family: 'Inconsolata Refined', version, releaseDate: '2026-10-24',
     inconsolataRevision: sources.inconsolata.revision,
-    ttfautohint: version, hintOptions, outlineScale: outlinePercent / 100,
-    targetMetrics: target, outputs,
+    ttfautohint: hintVersion, fonttools: fonttoolsVersion.trim(), hintOptions,
+    targetMetrics: target, instances, outputs,
   }, null, 2) + '\n');
   console.log('Build completed. Run npm test to validate all four faces.');
 } finally {

@@ -1,9 +1,10 @@
 {
   "family": "Inconsolata Refined",
-  "version": "1.000",
+  "version": "1.100",
   "releaseDate": "2026-10-24",
   "inconsolataRevision": "fc1fc21081558b39a2db43bfd9b65bf9acb50701",
   "ttfautohint": "1.8.4",
+  "fonttools": "4.29.1",
   "hintOptions": [
     "--hinting-range-min=8",
     "--hinting-range-max=50",
@@ -14,7 +15,6 @@
     "--detailed-info",
     "--ttfa-table"
   ],
-  "outlineScale": 1.1325560722100656,
   "targetMetrics": {
     "font": "Cascadia Code",
     "version": "2102.025",
@@ -28,26 +28,68 @@
     "descender": -480,
     "lineGap": 0
   },
+  "instances": [
+    {
+      "style": "Regular",
+      "axes": {
+        "wght": 635,
+        "wdth": 119
+      },
+      "xHeight": 1060,
+      "outlineScaleX": 0.937638,
+      "outlineScaleY": 1.11579
+    },
+    {
+      "style": "Italic",
+      "axes": {
+        "wght": 635,
+        "wdth": 116
+      },
+      "xHeight": 1060,
+      "outlineScaleX": 0.961887,
+      "outlineScaleY": 1.11579
+    },
+    {
+      "style": "Bold",
+      "axes": {
+        "wght": 840,
+        "wdth": 117
+      },
+      "xHeight": 1078,
+      "outlineScaleX": 0.958759,
+      "outlineScaleY": 1.12175
+    },
+    {
+      "style": "Bold Italic",
+      "axes": {
+        "wght": 855,
+        "wdth": 117
+      },
+      "xHeight": 1078,
+      "outlineScaleX": 0.956768,
+      "outlineScaleY": 1.11942
+    }
+  ],
   "outputs": [
     {
       "file": "fonts/InconsolataRefined-Regular.ttf",
-      "sha256": "c3da5f4ffbf7f841e8c3d09471ba28e47e1006c9a9f7e36af763c4ec99469514",
-      "bytes": 206068
+      "sha256": "a2c4900720a7389687d7636eae861f0768e51a2c8de905026dfe4f2a9317d813",
+      "bytes": 213928
     },
     {
       "file": "fonts/InconsolataRefined-Italic.ttf",
-      "sha256": "cb966999237637603f9e3422a333de5af02de3c9498d199e0b486662d924e554",
-      "bytes": 210188
+      "sha256": "0b1c0b5db921501ad711b5837958496a33904d60abd93551c9869dc1640e933c",
+      "bytes": 217252
     },
     {
       "file": "fonts/InconsolataRefined-Bold.ttf",
-      "sha256": "e364167b58ea834319704376c0f0c51f8690e3b3332a0fa9b8553bf5df1ca8ea",
-      "bytes": 203696
+      "sha256": "9c29620be6cb77cadaaf908e070b436aa4b5161015c7571bc05921348008a398",
+      "bytes": 219232
     },
     {
       "file": "fonts/InconsolataRefined-BoldItalic.ttf",
-      "sha256": "f0e4f9170541123e2c8311a8a5cb1e99fba51f92f82963cd12cc7bb2940b8e7c",
-      "bytes": 207868
+      "sha256": "dc05d195789c175eb037af3cf12801716a0d6f4564bd8729e719c135358d9071",
+      "bytes": 222672
     }
   ]
 }

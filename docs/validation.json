@@ -6,8 +6,28 @@
       "characters": 883,
       "features": 17,
       "xHeight": 1060,
-      "capHeight": 1445,
+      "capHeight": 1424,
       "cellWidth": 1200,
+      "sourceAxes": {
+        "wght": 635,
+        "wdth": 119
+      },
+      "referenceStyle": "Regular",
+      "referenceStems": {
+        "verticalH": 200,
+        "verticaln": 212,
+        "horizontalH": 190
+      },
+      "stems": {
+        "verticalH": 209,
+        "verticaln": 206,
+        "horizontalH": 197
+      },
+      "strokeErrors": {
+        "verticalH": 0.04499999999999993,
+        "verticaln": -0.028301886792452824,
+        "horizontalH": 0.03684210526315779
+      },
       "sanitizer": "pass",
       "renderingSizes": [
         10,
@@ -18,15 +38,35 @@
         24,
         32
       ],
-      "sha256": "c3da5f4ffbf7f841e8c3d09471ba28e47e1006c9a9f7e36af763c4ec99469514"
+      "sha256": "a2c4900720a7389687d7636eae861f0768e51a2c8de905026dfe4f2a9317d813"
     },
     {
       "style": "Italic",
       "characters": 883,
       "features": 17,
       "xHeight": 1060,
-      "capHeight": 1445,
+      "capHeight": 1424,
       "cellWidth": 1200,
+      "sourceAxes": {
+        "wght": 635,
+        "wdth": 116
+      },
+      "referenceStyle": "Italic",
+      "referenceStems": {
+        "verticalH": 208,
+        "verticaln": 215.29794298252048,
+        "horizontalH": 190
+      },
+      "stems": {
+        "verticalH": 211.59988408037097,
+        "verticaln": 210.18222183260173,
+        "horizontalH": 197
+      },
+      "strokeErrors": {
+        "verticalH": 0.01730713500178349,
+        "verticaln": -0.023761124138255596,
+        "horizontalH": 0.03684210526315779
+      },
       "sanitizer": "pass",
       "renderingSizes": [
         10,
@@ -37,15 +77,35 @@
         24,
         32
       ],
-      "sha256": "cb966999237637603f9e3422a333de5af02de3c9498d199e0b486662d924e554"
+      "sha256": "0b1c0b5db921501ad711b5837958496a33904d60abd93551c9869dc1640e933c"
     },
     {
       "style": "Bold",
       "characters": 883,
       "features": 17,
       "xHeight": 1078,
-      "capHeight": 1445,
+      "capHeight": 1431,
       "cellWidth": 1200,
+      "sourceAxes": {
+        "wght": 840,
+        "wdth": 117
+      },
+      "referenceStyle": "Bold",
+      "referenceStems": {
+        "verticalH": 264,
+        "verticaln": 271,
+        "horizontalH": 244
+      },
+      "stems": {
+        "verticalH": 266.5,
+        "verticaln": 268.5,
+        "horizontalH": 243
+      },
+      "strokeErrors": {
+        "verticalH": 0.009469696969697017,
+        "verticaln": -0.009225092250922495,
+        "horizontalH": -0.004098360655737654
+      },
       "sanitizer": "pass",
       "renderingSizes": [
         10,
@@ -56,15 +116,35 @@
         24,
         32
       ],
-      "sha256": "e364167b58ea834319704376c0f0c51f8690e3b3332a0fa9b8553bf5df1ca8ea"
+      "sha256": "9c29620be6cb77cadaaf908e070b436aa4b5161015c7571bc05921348008a398"
     },
     {
       "style": "Bold Italic",
       "characters": 883,
       "features": 17,
       "xHeight": 1078,
-      "capHeight": 1445,
+      "capHeight": 1428,
       "cellWidth": 1200,
+      "sourceAxes": {
+        "wght": 855,
+        "wdth": 117
+      },
+      "referenceStyle": "Bold Italic",
+      "referenceStems": {
+        "verticalH": 266,
+        "verticaln": 274.89381146200367,
+        "horizontalH": 244
+      },
+      "stems": {
+        "verticalH": 270,
+        "verticaln": 271.5920372860526,
+        "horizontalH": 245
+      },
+      "strokeErrors": {
+        "verticalH": 0.015037593984962516,
+        "verticaln": -0.012011089512677042,
+        "horizontalH": 0.004098360655737654
+      },
       "sanitizer": "pass",
       "renderingSizes": [
         10,
@@ -75,7 +155,7 @@
         24,
         32
       ],
-      "sha256": "f0e4f9170541123e2c8311a8a5cb1e99fba51f92f82963cd12cc7bb2940b8e7c"
+      "sha256": "dc05d195789c175eb037af3cf12801716a0d6f4564bd8729e719c135358d9071"
     }
   ]
 }

@@ -3,7 +3,7 @@ import { mkdtemp, mkdir, readFile, writeFile, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { PNG } from 'pngjs';
-import { root, styles, fontFile, sourceBytes, run, tool, heartbeat } from './lib.mjs';
+import { root, styles, weightTargets, fontFile, sourceBytes, run, tool, heartbeat } from './lib.mjs';
 
 const done = heartbeat('Rendering the font comparison and small-size specimens');
 const temporary = await mkdtemp(join(tmpdir(), 'inconsolata-refined-preview-'));
@@ -22,10 +22,11 @@ const compact = '0123456789 0O1lI {}[]() != =>  The quick brown fox jumps over t
 const background = [12, 12, 12, 255];
 let serial = 0;
 
-async function render(font, text, size, color = 'cccccc') {
+async function render(font, text, size, color = 'cccccc', variations = '') {
   const file = join(temporary, `${serial++}.png`);
   await run(tool('hb-view'), [font, `--text=${text}`, `--font-size=${size}`, `--font-ppem=${size}`, '--ft-load-flags=0',
-    '--margin=6', '--background=0c0c0c', `--foreground=${color}`, `--output-file=${file}`]);
+    '--margin=6', '--background=0c0c0c', `--foreground=${color}`, `--output-file=${file}`,
+    ...(variations ? [`--variations=${variations}`] : [])]);
   return PNG.sync.read(await readFile(file));
 }
 
@@ -79,6 +80,45 @@ try {
   for (const block of smallBlocks) { paste(small, block, 24, y); y += block.height; }
   await writeFile(join(root, 'docs/small-sizes.png'), PNG.sync.write(small));
   console.log('Saved docs/preview.png and docs/small-sizes.png.');
+
+  const italicReference = process.env.CASCADIA_CODE_ITALIC || join(root, 'reference/CascadiaCodeItalic.ttf');
+  if (existsSync(reference) && existsSync(italicReference)) {
+    const text = 'Hn minimum 0123456789 0O1lI\nif (value != 0) { return x + 42; }\n{} [] () @ # % & _ = -> != + /';
+    const rows = [];
+    for (const style of styles) {
+      const ref = style.italic ? italicReference : reference;
+      const variation = `wght=${style.weight}`;
+      const settings = weightTargets.styles[style.file];
+      const columns = [];
+      for (const [label, path, axes] of [
+        [`Cascadia Code ${style.name}`, ref, variation],
+        [`Inconsolata Refined ${style.name}`, fontFile(style), ''],
+      ]) {
+        columns.push([
+          await render(fontFile(styles[0]), label, 17, '73d78b'),
+          await render(path, '16 px\n' + text, 16, 'cccccc', axes),
+          await render(path, '24 px\n' + text, 24, 'cccccc', axes),
+        ]);
+      }
+      rows.push(columns);
+      console.log(`Compared ${style.name} against Cascadia weight ${settings.referenceWeight}`);
+    }
+    const columnWidth = Math.max(...rows.flat(2).map(block => block.width)) + 24;
+    const rowHeights = rows.map(columns => Math.max(...columns.map(blocks => blocks.reduce((sum, block) => sum + block.height, 0))) + 28);
+    const comparison = canvas(columnWidth * 2 + 48, rowHeights.reduce((a, b) => a + b, 24));
+    let top = 12;
+    rows.forEach((columns, row) => {
+      columns.forEach((blocks, column) => {
+        let y = top;
+        for (const block of blocks) { paste(comparison, block, 24 + column * columnWidth, y); y += block.height; }
+      });
+      top += rowHeights[row];
+    });
+    await writeFile(join(root, 'docs/stroke-comparison.png'), PNG.sync.write(comparison));
+    console.log('Saved docs/stroke-comparison.png with all four paired references.');
+  } else {
+    console.log('Paired stroke preview needs both Cascadia reference TTFs; see reference/weights.json.');
+  }
 } finally {
   done();
   await rm(temporary, { recursive: true, force: true });

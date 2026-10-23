@@ -2,6 +2,8 @@
 
 This folder is ready to copy to a website. It contains Regular, Italic, Bold, and Bold Italic in both WOFF2 and WOFF, the shared family stylesheet, a standalone HTML example, and the font license.
 
+The current fonts are version **1.100**. Each style's stroke weight is calibrated against its corresponding Cascadia Code style. These exports come from the same newly hinted TTFs in `fonts/`.
+
 ```html
 <link rel="stylesheet" href="./inconsolata-refined.css">
 <style>

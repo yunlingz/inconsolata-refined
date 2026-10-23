@@ -18,6 +18,7 @@ try {
     '.tools/root/usr/bin/fontforge', '.tools/root/usr/bin/hb-view',
     '.tools/root/usr/bin/hb-shape', '.tools/root/usr/bin/ots-sanitize',
     '.tools/root/usr/include/freetype2/ft2build.h', '.tools/root/usr/include/harfbuzz/hb.h',
+    '.tools/root/usr/lib/python3/dist-packages/fontTools/varLib/instancer/__main__.py',
   ].every(path => existsSync(join(root, path)));
   if (!installed) {
     console.log('Downloading FontForge, render/check tools, and compiler headers; no system installation.');
@@ -26,12 +27,14 @@ try {
       'download', 'fontforge-nox', 'fontforge-common', 'libfontforge4', 'libspiro1',
       'libuninameslist1', 'libwoff1', 'libfreetype-dev', 'libharfbuzz-dev',
       'libharfbuzz-bin', 'opentype-sanitizer',
+      'python3-fonttools',
     ], { cwd: temporary });
     for (const file of await readdir(temporary)) {
       if (file.endsWith('.deb')) await run('dpkg-deb', ['-x', join(temporary, file), join(root, '.tools/root')]);
     }
   }
   const { stdout: fontforgeVersion } = await run(tool('fontforge'), ['-version']);
+  const { stdout: fonttoolsVersion } = await run(tool('python3'), ['-m', 'fontTools.ttx', '--version']);
   console.log(fontforgeVersion.trim());
   let currentVersion = '';
   try { currentVersion = (await run(tool('ttfautohint'), ['--version'])).stdout; } catch { /* Build below. */ }
@@ -73,8 +76,8 @@ try {
   }
   const { stdout: version } = await run(tool('ttfautohint'), ['--version']);
   if (!version.startsWith(`ttfautohint ${sources.ttfautohint.version}\n`)) throw new Error('ttfautohint version verification failed');
-  await writeFile(join(root, '.tools/toolchain.json'), JSON.stringify({ ttfautohint: version.trim(), fontforge: fontforgeVersion.trim() }, null, 2) + '\n');
-  console.log(`Ready: ttfautohint ${sources.ttfautohint.version}, FontForge, HarfBuzz, and OpenType Sanitizer.\nRun npm run build, npm test, and npm run preview.`);
+  await writeFile(join(root, '.tools/toolchain.json'), JSON.stringify({ ttfautohint: version.trim(), fontforge: fontforgeVersion.trim(), fonttools: fonttoolsVersion.trim() }, null, 2) + '\n');
+  console.log(`Ready: ttfautohint ${sources.ttfautohint.version}, FontForge, FontTools, HarfBuzz, and OpenType Sanitizer.\nRun npm run build, npm test, and npm run preview.`);
 } finally {
   done();
   await rm(temporary, { recursive: true, force: true });
