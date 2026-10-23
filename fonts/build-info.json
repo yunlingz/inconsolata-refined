@@ -1,0 +1,53 @@
+{
+  "family": "Inconsolata Refined",
+  "version": "1.000",
+  "releaseDate": "2026-10-24",
+  "inconsolataRevision": "fc1fc21081558b39a2db43bfd9b65bf9acb50701",
+  "ttfautohint": "1.8.4",
+  "hintOptions": [
+    "--hinting-range-min=8",
+    "--hinting-range-max=50",
+    "--hinting-limit=200",
+    "--increase-x-height=14",
+    "--stem-width-mode=qsq",
+    "--windows-compatibility",
+    "--detailed-info",
+    "--ttfa-table"
+  ],
+  "outlineScale": 1.1325560722100656,
+  "targetMetrics": {
+    "font": "Cascadia Code",
+    "version": "2102.025",
+    "source": "Windows-installed CascadiaCode.ttf used for the user's terminal comparison",
+    "sha256": "cfb6a8d474018fe46d53a427e5fbee44b998822d0d3d8772914bd712cfc55ac4",
+    "unitsPerEm": 2048,
+    "cellWidth": 1200,
+    "xHeight": 1060,
+    "capHeight": 1420,
+    "ascender": 1900,
+    "descender": -480,
+    "lineGap": 0
+  },
+  "outputs": [
+    {
+      "file": "fonts/InconsolataRefined-Regular.ttf",
+      "sha256": "c3da5f4ffbf7f841e8c3d09471ba28e47e1006c9a9f7e36af763c4ec99469514",
+      "bytes": 206068
+    },
+    {
+      "file": "fonts/InconsolataRefined-Italic.ttf",
+      "sha256": "cb966999237637603f9e3422a333de5af02de3c9498d199e0b486662d924e554",
+      "bytes": 210188
+    },
+    {
+      "file": "fonts/InconsolataRefined-Bold.ttf",
+      "sha256": "e364167b58ea834319704376c0f0c51f8690e3b3332a0fa9b8553bf5df1ca8ea",
+      "bytes": 203696
+    },
+    {
+      "file": "fonts/InconsolataRefined-BoldItalic.ttf",
+      "sha256": "f0e4f9170541123e2c8311a8a5cb1e99fba51f92f82963cd12cc7bb2940b8e7c",
+      "bytes": 207868
+    }
+  ]
+}

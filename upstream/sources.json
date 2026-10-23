@@ -1,0 +1,24 @@
+{
+  "inconsolata": {
+    "repository": "https://github.com/googlefonts/Inconsolata",
+    "revision": "fc1fc21081558b39a2db43bfd9b65bf9acb50701",
+    "version": "3.100",
+    "files": {
+      "Regular": {
+        "path": "fonts/ttf/Inconsolata-Regular.ttf",
+        "sha256": "ab56ea18c5c24d2b909261f0c63a14f9576dfabaf2e9ebd353062aa4149cefc7"
+      },
+      "Bold": {
+        "path": "fonts/ttf/Inconsolata-Bold.ttf",
+        "sha256": "a33bab199e02c06da55d8136746659686f1974c6a390c3bd1ada6361c607ee9a"
+      }
+    }
+  },
+  "ttfautohint": {
+    "version": "1.8.4",
+    "verifiedOn": "2026-10-24",
+    "releasePage": "https://freetype.org/ttfautohint/",
+    "sourceArchive": "https://download.savannah.gnu.org/releases/freetype/ttfautohint-1.8.4.tar.gz",
+    "sha256": "8a876117fa6ebfd2ffe1b3682a9a98c802c0f47189f57d3db4b99774206832e1"
+  }
+}

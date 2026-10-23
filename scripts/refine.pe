@@ -1,0 +1,89 @@
+#!/usr/bin/env fontforge
+# Arguments: input, output, filename style, display style, weight, italic,
+# outline percentage, em, advance, ascent, descent.
+Open($argv[1])
+SelectWorthOutputting()
+ClearInstrs()
+ClearHints()
+# Unlink before per-glyph transforms, so accented composites cannot scale twice.
+UnlinkReference()
+ScaleToEm(Strtol($argv[8]))
+SelectWorthOutputting()
+outline = Strtod($argv[7])
+em = Strtol($argv[8])
+advance = Strtol($argv[9])
+ascender = Strtol($argv[10])
+descender = Strtol($argv[11])
+foreach
+  finalwidth = Round(GlyphInfo("Width") * advance / (em / 2.0))
+  unicode = GlyphInfo("Unicode")
+  if (unicode >= 0u2500 && unicode <= 0u259F)
+    # Terminal rules and blocks stay upright and fill the new cell exactly.
+    # Source block bounds are y=-400..1000 in a 1000-unit em.
+    bx = advance / (em / 2.0)
+    by = (ascender - descender) / (em * 1.4)
+    dy = ascender - by * em
+    Transform(bx * 100, 0, 0, by * 100, 0, dy * 100)
+  else
+    Scale(outline, outline, 0, 0)
+    Move((finalwidth - GlyphInfo("Width")) / 2.0, 0)
+    if ($argv[6] == "1")
+      # Twelve-degree oblique, pivoting around half the lowercase height.
+      Transform(100, 0, 21.255656167, 100, -11265.4977685, 0)
+    endif
+  endif
+  SetWidth(finalwidth)
+  RoundToInt()
+endloop
+
+SetFontNames("InconsolataRefined-" + $argv[3], "Inconsolata Refined", "Inconsolata Refined " + $argv[4], $argv[5], "", "1.000")
+SetTTFName(0x409, 1, "Inconsolata Refined")
+SetTTFName(0x409, 2, $argv[4])
+SetTTFName(0x409, 3, "1.000;NONE;InconsolataRefined-" + $argv[3])
+SetTTFName(0x409, 4, "Inconsolata Refined " + $argv[4])
+SetTTFName(0x409, 5, "Version 1.000")
+SetTTFName(0x409, 6, "InconsolataRefined-" + $argv[3])
+SetTTFName(0x409, 16, "Inconsolata Refined")
+SetTTFName(0x409, 17, $argv[4])
+SetOS2Value("VendorID", "NONE")
+SetOS2Value("Weight", 400)
+SetOS2Value("Width", 5)
+SetOS2Value("HHeadAscentIsOffset", 0)
+SetOS2Value("HHeadDescentIsOffset", 0)
+SetOS2Value("TypoAscentIsOffset", 0)
+SetOS2Value("TypoDescentIsOffset", 0)
+SetOS2Value("HHeadAscent", ascender)
+SetOS2Value("HHeadDescent", descender)
+SetOS2Value("TypoAscent", ascender)
+SetOS2Value("TypoDescent", descender)
+SetOS2Value("HHeadLineGap", 0)
+SetOS2Value("TypoLineGap", 0)
+SetOS2Value("WinAscentIsOffset", 0)
+SetOS2Value("WinDescentIsOffset", 0)
+bounds = GetFontBoundingBox()
+SetOS2Value("WinAscent", Round(bounds[3]) + 32)
+SetOS2Value("WinDescent", Round(-bounds[1]) + 32)
+style = 0
+selection = 128
+if ($argv[5] == "Bold")
+  SetOS2Value("Weight", 700)
+  style = style + 1
+  selection = selection + 32
+else
+  if ($argv[6] == "0")
+    selection = selection + 64
+  endif
+endif
+if ($argv[6] == "1")
+  style = style + 2
+  selection = selection + 1
+  SetItalicAngle(-12)
+else
+  SetItalicAngle(0)
+endif
+SetMacStyle(style)
+SetOS2Value("StyleMap", selection)
+SetPanose(3, 9)
+# Generate outlines with no old bytecode and no FontForge timestamp table.
+Generate($argv[2], "", 0x8008)
+Close()

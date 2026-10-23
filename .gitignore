@@ -1,0 +1,5 @@
+.tools/
+node_modules/
+*.log
+.DS_Store
+/reference/CascadiaCode.ttf

@@ -1,0 +1,13 @@
+{
+  "font": "Cascadia Code",
+  "version": "2102.025",
+  "source": "Windows-installed CascadiaCode.ttf used for the user's terminal comparison",
+  "sha256": "cfb6a8d474018fe46d53a427e5fbee44b998822d0d3d8772914bd712cfc55ac4",
+  "unitsPerEm": 2048,
+  "cellWidth": 1200,
+  "xHeight": 1060,
+  "capHeight": 1420,
+  "ascender": 1900,
+  "descender": -480,
+  "lineGap": 0
+}
