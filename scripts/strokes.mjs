@@ -1,6 +1,6 @@
 // Measure filled spans rather than bounding boxes, including overlapping contours.
-// Results are normalized to a 2048-unit em for the Cascadia reference.
-function edges(glyph) {
+// Results are normalized to a 1000-unit em for the installed Iosevka reference.
+export function edges(glyph) {
   const result = [];
   let point, start;
   const line = next => { result.push([point, next]); point = next; };
@@ -22,9 +22,9 @@ function edges(glyph) {
   return result;
 }
 
-function widths(glyph, axis, position) {
+export function filledSpans(glyph, axis, position, segments = edges(glyph)) {
   const crossings = [];
-  for (const [a, b] of edges(glyph)) {
+  for (const [a, b] of segments) {
     const direction = a[axis] <= position && b[axis] > position ? 1
       : b[axis] <= position && a[axis] > position ? -1 : 0;
     if (direction) crossings.push({
@@ -38,14 +38,20 @@ function widths(glyph, axis, position) {
   for (const crossing of crossings) {
     if (!winding) start = crossing.point;
     winding += crossing.direction;
-    if (!winding && crossing.point > start) result.push(crossing.point - start);
+    if (!winding && crossing.point > start) result.push([start, crossing.point]);
   }
-  if (!result.length || winding) throw new Error('Expected a closed, nonempty stroke sample');
-  return result.reduce((a, b) => a + b, 0) / result.length;
+  if (winding) throw new Error('Expected closed contours in stroke sample');
+  return result;
+}
+
+function widths(glyph, axis, position) {
+  const spans = filledSpans(glyph, axis, position);
+  if (!spans.length) throw new Error('Expected a nonempty stroke sample');
+  return spans.reduce((sum, [start, end]) => sum + end - start, 0) / spans.length;
 }
 
 export function measureStems(font) {
-  const scale = 2048 / font.unitsPerEm;
+  const scale = 1000 / font.unitsPerEm;
   const H = font.glyphForCodePoint(72), n = font.glyphForCodePoint(110);
   return {
     verticalH: widths(H, 1, H.bbox.maxY * .25) * scale,

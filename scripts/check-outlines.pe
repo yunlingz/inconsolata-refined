@@ -1,0 +1,6 @@
+#!/usr/bin/env fontforge
+Open($argv[1])
+Print(Validate(1))
+# SFD records the validator's state for each named glyph, not only the font mask.
+Save($argv[2])
+Close()

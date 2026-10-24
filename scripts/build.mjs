@@ -1,11 +1,12 @@
 import { mkdtemp, mkdir, rm, writeFile, readFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { create } from 'fontkit';
 import {
   root, styles, sources, target, version, weightTargets, hintOptions, fontFile, tool, run,
   heartbeat, sourceBytes, sha256, normalizeMetadata,
 } from './lib.mjs';
+import { refineInstance, cleanOutlines } from './transform.mjs';
+import { addDigitAnchors } from './marks.mjs';
 
 const done = heartbeat('Building Inconsolata Refined');
 const temporary = await mkdtemp(join(tmpdir(), 'inconsolata-refined-build-'));
@@ -26,25 +27,21 @@ try {
     const instance = join(temporary, `Inconsolata-${style.file}-instance.ttf`);
     await run(tool('python3'), ['-m', 'fontTools.varLib.instancer', '-q', variable,
       `wght=${settings.axes.wght}`, `wdth=${settings.axes.wdth}`, '-o', instance]);
-    const font = create(await readFile(instance));
-    const sourceCell = font.glyphForCodePoint(32).advanceWidth;
     const unhinted = join(temporary, `InconsolataRefined-${style.file}-unhinted.ttf`);
-    const { stdout: transformed } = await run(tool('fontforge'), [
-      '-lang=ff', '-script', join(root, 'scripts/refine.pe'),
-      instance, unhinted, style.file, style.name,
-      style.weight === 700 ? 'Bold' : 'Regular', style.italic ? '1' : '0',
-      String(settings.xHeight), String(target.unitsPerEm), String(target.cellWidth),
-      String(target.ascender), String(target.descender),
-      String((font.unitsPerEm / 2) / sourceCell), String(sourceCell / font.unitsPerEm), version,
-    ]);
+    const transformed = await refineInstance(instance, unhinted, style, settings);
+    const clean = join(temporary, `InconsolataRefined-${style.file}-clean.ttf`);
+    const outlineCleanup = await cleanOutlines(unhinted, clean, instance);
+    const anchored = join(temporary, `InconsolataRefined-${style.file}-anchored.ttf`);
+    const digitAnchors = await addDigitAnchors(clean, anchored, style);
     const hinted = join(temporary, `InconsolataRefined-${style.file}.ttf`);
-    await run(tool('ttfautohint'), [...hintOptions, unhinted, hinted]);
+    await run(tool('ttfautohint'), [...hintOptions, anchored, hinted]);
     await normalizeMetadata(hinted);
     const bytes = await readFile(hinted);
     await writeFile(fontFile(style), bytes);
     outputs.push({ file: `fonts/InconsolataRefined-${style.file}.ttf`, sha256: sha256(bytes), bytes: bytes.length });
     instances.push({ style: style.name, axes: settings.axes, xHeight: settings.xHeight,
-      ...JSON.parse(transformed.trim()) });
+      capHeight: settings.capHeight,
+      outlineOffsetX: settings.outlineOffsetX, ...transformed, outlineCleanup, digitAnchors });
     console.log(`Built ${style.name}: ${bytes.length.toLocaleString()} bytes`);
   }
   await writeFile(join(root, 'fonts/build-info.json'), JSON.stringify({

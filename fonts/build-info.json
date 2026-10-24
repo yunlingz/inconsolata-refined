@@ -1,6 +1,6 @@
 {
   "family": "Inconsolata Refined",
-  "version": "1.100",
+  "version": "1.200",
   "releaseDate": "2026-10-24",
   "inconsolataRevision": "fc1fc21081558b39a2db43bfd9b65bf9acb50701",
   "ttfautohint": "1.8.4",
@@ -16,80 +16,319 @@
     "--ttfa-table"
   ],
   "targetMetrics": {
-    "font": "Cascadia Code",
-    "version": "2102.025",
-    "source": "Windows-installed CascadiaCode.ttf used for the user's terminal comparison",
-    "sha256": "cfb6a8d474018fe46d53a427e5fbee44b998822d0d3d8772914bd712cfc55ac4",
-    "unitsPerEm": 2048,
-    "cellWidth": 1200,
-    "xHeight": 1060,
-    "capHeight": 1420,
-    "ascender": 1900,
-    "descender": -480,
-    "lineGap": 0
+    "font": "Iosevka",
+    "version": "33.3.5",
+    "source": "User-installed Windows Iosevka; normal-width Regular/Italic and Bold/Bold Italic in SGr-Iosevka collections",
+    "unitsPerEm": 1000,
+    "cellWidth": 500,
+    "xHeight": 520,
+    "capHeight": 735,
+    "ascender": 965,
+    "descender": -215,
+    "lineGap": 70,
+    "typoAscender": 965,
+    "typoDescender": -285,
+    "typoLineGap": 0,
+    "letterDescender": -215,
+    "accentTop": 955,
+    "accentBottom": -275,
+    "italicAngle": 9,
+    "underlinePosition": -50,
+    "underlineThickness": 50,
+    "strikeoutPosition": 265,
+    "strikeoutThickness": 51,
+    "note": "Both hhea and OS/2 typographic metrics give a 1250-unit line. Terminal cells use the full typographic box. Accent limits leave 10 units of padding inside it. Reference measurements guide calibration; original Inconsolata glyphs and independent spacing checks determine the outputs."
   },
   "instances": [
     {
       "style": "Regular",
       "axes": {
-        "wght": 635,
-        "wdth": 119
+        "wght": 420,
+        "wdth": 83
       },
-      "xHeight": 1060,
-      "outlineScaleX": 0.937638,
-      "outlineScaleY": 1.11579
+      "xHeight": 520,
+      "capHeight": 735,
+      "outlineOffsetX": 1.4785373608903,
+      "verticalLandmarks": [
+        [
+          -276,
+          -275
+        ],
+        [
+          -167,
+          -215
+        ],
+        [
+          0,
+          0
+        ],
+        [
+          458,
+          520
+        ],
+        [
+          623,
+          735
+        ],
+        [
+          964,
+          955
+        ]
+      ],
+      "outlineScaleX": 1.18283,
+      "outlineCleanup": {
+        "method": "Repair only newly introduced contour intersections/directions; retain other outlines. No glyph-specific redrawing.",
+        "repairedGlyphs": [
+          "percent"
+        ],
+        "glyphsChecked": 966,
+        "scanlineComparisons": 13356,
+        "maximumCutDifference": 2.477806092640833,
+        "permittedCutDifference": "max(2 units per filled interval, 1.5% of filled span length)",
+        "changedContours": [
+          "percent"
+        ]
+      },
+      "digitAnchors": {
+        "method": "Separate fallback mark lookup for digits, inserted before upstream lookups; original letter anchors retained",
+        "baseGlyphs": [
+          "zero",
+          "one",
+          "two",
+          "three",
+          "four",
+          "five",
+          "six",
+          "seven",
+          "eight",
+          "nine",
+          "zero.zero"
+        ],
+        "marks": 25,
+        "outlineAndAdvancePreservation": "exact for every glyph"
+      }
     },
     {
       "style": "Italic",
       "axes": {
-        "wght": 635,
-        "wdth": 116
+        "wght": 435,
+        "wdth": 88
       },
-      "xHeight": 1060,
-      "outlineScaleX": 0.961887,
-      "outlineScaleY": 1.11579
+      "xHeight": 520,
+      "capHeight": 735,
+      "outlineOffsetX": 4.570494062789621,
+      "verticalLandmarks": [
+        [
+          -277,
+          -275
+        ],
+        [
+          -167,
+          -215
+        ],
+        [
+          0,
+          0
+        ],
+        [
+          458,
+          520
+        ],
+        [
+          623,
+          735
+        ],
+        [
+          965,
+          955
+        ]
+      ],
+      "outlineScaleX": 1.11445,
+      "outlineCleanup": {
+        "method": "Repair only newly introduced contour intersections/directions; retain other outlines. No glyph-specific redrawing.",
+        "repairedGlyphs": [],
+        "glyphsChecked": 966,
+        "scanlineComparisons": 13356,
+        "maximumCutDifference": 0,
+        "permittedCutDifference": "max(2 units per filled interval, 1.5% of filled span length)",
+        "changedContours": []
+      },
+      "digitAnchors": {
+        "method": "Separate fallback mark lookup for digits, inserted before upstream lookups; original letter anchors retained",
+        "baseGlyphs": [
+          "zero",
+          "one",
+          "two",
+          "three",
+          "four",
+          "five",
+          "six",
+          "seven",
+          "eight",
+          "nine",
+          "zero.zero"
+        ],
+        "marks": 25,
+        "outlineAndAdvancePreservation": "exact for every glyph"
+      }
     },
     {
       "style": "Bold",
       "axes": {
-        "wght": 840,
-        "wdth": 117
+        "wght": 690,
+        "wdth": 82
       },
-      "xHeight": 1078,
-      "outlineScaleX": 0.958759,
-      "outlineScaleY": 1.12175
+      "xHeight": 520,
+      "capHeight": 735,
+      "outlineOffsetX": 0,
+      "verticalLandmarks": [
+        [
+          -288,
+          -275
+        ],
+        [
+          -167,
+          -215
+        ],
+        [
+          0,
+          0
+        ],
+        [
+          465,
+          520
+        ],
+        [
+          623,
+          735
+        ],
+        [
+          976,
+          955
+        ]
+      ],
+      "outlineScaleX": 1.1403,
+      "outlineCleanup": {
+        "method": "Repair only newly introduced contour intersections/directions; retain other outlines. No glyph-specific redrawing.",
+        "repairedGlyphs": [
+          "percent"
+        ],
+        "glyphsChecked": 966,
+        "scanlineComparisons": 13356,
+        "maximumCutDifference": 2.370373026315775,
+        "permittedCutDifference": "max(2 units per filled interval, 1.5% of filled span length)",
+        "changedContours": [
+          "percent"
+        ]
+      },
+      "digitAnchors": {
+        "method": "Separate fallback mark lookup for digits, inserted before upstream lookups; original letter anchors retained",
+        "baseGlyphs": [
+          "zero",
+          "one",
+          "two",
+          "three",
+          "four",
+          "five",
+          "six",
+          "seven",
+          "eight",
+          "nine",
+          "zero.zero"
+        ],
+        "marks": 25,
+        "outlineAndAdvancePreservation": "exact for every glyph"
+      }
     },
     {
       "style": "Bold Italic",
       "axes": {
-        "wght": 855,
-        "wdth": 117
+        "wght": 705,
+        "wdth": 81
       },
-      "xHeight": 1078,
-      "outlineScaleX": 0.956768,
-      "outlineScaleY": 1.11942
+      "xHeight": 520,
+      "capHeight": 735,
+      "outlineOffsetX": 2.3123533566145085,
+      "verticalLandmarks": [
+        [
+          -288,
+          -275
+        ],
+        [
+          -167,
+          -215
+        ],
+        [
+          0,
+          0
+        ],
+        [
+          466,
+          520
+        ],
+        [
+          623,
+          735
+        ],
+        [
+          977,
+          955
+        ]
+      ],
+      "outlineScaleX": 1.15739,
+      "outlineCleanup": {
+        "method": "Repair only newly introduced contour intersections/directions; retain other outlines. No glyph-specific redrawing.",
+        "repairedGlyphs": [
+          "percent"
+        ],
+        "glyphsChecked": 966,
+        "scanlineComparisons": 13356,
+        "maximumCutDifference": 1.0096817371709506,
+        "permittedCutDifference": "max(2 units per filled interval, 1.5% of filled span length)",
+        "changedContours": [
+          "percent"
+        ]
+      },
+      "digitAnchors": {
+        "method": "Separate fallback mark lookup for digits, inserted before upstream lookups; original letter anchors retained",
+        "baseGlyphs": [
+          "zero",
+          "one",
+          "two",
+          "three",
+          "four",
+          "five",
+          "six",
+          "seven",
+          "eight",
+          "nine",
+          "zero.zero"
+        ],
+        "marks": 25,
+        "outlineAndAdvancePreservation": "exact for every glyph"
+      }
     }
   ],
   "outputs": [
     {
       "file": "fonts/InconsolataRefined-Regular.ttf",
-      "sha256": "a2c4900720a7389687d7636eae861f0768e51a2c8de905026dfe4f2a9317d813",
-      "bytes": 213928
+      "sha256": "bcc81698868656ec09c6415f7b2f0e19f3a09ca17727d87b5feebc7a82987b96",
+      "bytes": 250240
     },
     {
       "file": "fonts/InconsolataRefined-Italic.ttf",
-      "sha256": "0b1c0b5db921501ad711b5837958496a33904d60abd93551c9869dc1640e933c",
-      "bytes": 217252
+      "sha256": "009e7488da471d7784d74f67ba894afdcd5880ac6891774b2b2c3000b89578a3",
+      "bytes": 265012
     },
     {
       "file": "fonts/InconsolataRefined-Bold.ttf",
-      "sha256": "9c29620be6cb77cadaaf908e070b436aa4b5161015c7571bc05921348008a398",
-      "bytes": 219232
+      "sha256": "d4de27fc9aecdcfefe62481f466f06ab44981b73d282c1b50dc57fb59b6dca88",
+      "bytes": 255112
     },
     {
       "file": "fonts/InconsolataRefined-BoldItalic.ttf",
-      "sha256": "dc05d195789c175eb037af3cf12801716a0d6f4564bd8729e719c135358d9071",
-      "bytes": 222672
+      "sha256": "8f60916f13f6efe60c3a4dc8896a4dde6696fc40b89edc248e227bb2fd08186c",
+      "bytes": 274620
     }
   ]
 }

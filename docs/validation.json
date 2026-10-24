@@ -5,28 +5,66 @@
       "style": "Regular",
       "characters": 883,
       "features": 17,
-      "xHeight": 1060,
-      "capHeight": 1424,
-      "cellWidth": 1200,
+      "xHeight": 520,
+      "capHeight": 735,
+      "cellWidth": 500,
       "sourceAxes": {
-        "wght": 635,
-        "wdth": 119
+        "wght": 420,
+        "wdth": 83
       },
       "referenceStyle": "Regular",
       "referenceStems": {
-        "verticalH": 200,
-        "verticaln": 212,
-        "horizontalH": 190
+        "verticalH": 78,
+        "verticaln": 78,
+        "horizontalH": 70
       },
       "stems": {
-        "verticalH": 209,
-        "verticaln": 206,
-        "horizontalH": 197
+        "verticalH": 80.5,
+        "verticaln": 75.5,
+        "horizontalH": 68
       },
       "strokeErrors": {
-        "verticalH": 0.04499999999999993,
-        "verticaln": -0.028301886792452824,
-        "horizontalH": 0.03684210526315779
+        "verticalH": 0.03205128205128216,
+        "verticaln": -0.03205128205128205,
+        "horizontalH": -0.02857142857142858
+      },
+      "spacing": {
+        "inkBounds": {
+          "H": [
+            55,
+            439
+          ],
+          "n": [
+            74,
+            433
+          ]
+        },
+        "counters": {
+          "H": 223,
+          "n": 208
+        },
+        "spaces": {
+          "20": 500,
+          "2007": 500,
+          "2008": 500,
+          "2009": 500,
+          "a0": 500,
+          "200a": 500
+        }
+      },
+      "digitMarkPairsChecked": 275,
+      "digitMarkOverhangs": [],
+      "lineMetrics": {
+        "hhea": [
+          965,
+          -215,
+          70
+        ],
+        "typo": [
+          965,
+          -285,
+          0
+        ]
       },
       "sanitizer": "pass",
       "renderingSizes": [
@@ -38,34 +76,72 @@
         24,
         32
       ],
-      "sha256": "a2c4900720a7389687d7636eae861f0768e51a2c8de905026dfe4f2a9317d813"
+      "sha256": "bcc81698868656ec09c6415f7b2f0e19f3a09ca17727d87b5feebc7a82987b96"
     },
     {
       "style": "Italic",
       "characters": 883,
       "features": 17,
-      "xHeight": 1060,
-      "capHeight": 1424,
-      "cellWidth": 1200,
+      "xHeight": 520,
+      "capHeight": 735,
+      "cellWidth": 500,
       "sourceAxes": {
-        "wght": 635,
-        "wdth": 116
+        "wght": 435,
+        "wdth": 88
       },
       "referenceStyle": "Italic",
       "referenceStems": {
-        "verticalH": 208,
-        "verticaln": 215.29794298252048,
-        "horizontalH": 190
+        "verticalH": 78.99999999999997,
+        "verticaln": 79.31294079083568,
+        "horizontalH": 70
       },
       "stems": {
-        "verticalH": 211.59988408037097,
-        "verticaln": 210.18222183260173,
-        "horizontalH": 197
+        "verticalH": 80.67723387292105,
+        "verticaln": 77.1520722006625,
+        "horizontalH": 70
       },
       "strokeErrors": {
-        "verticalH": 0.01730713500178349,
-        "verticaln": -0.023761124138255596,
-        "horizontalH": 0.03684210526315779
+        "verticalH": 0.02123080851798842,
+        "verticaln": -0.02724484262753324,
+        "horizontalH": 0
+      },
+      "spacing": {
+        "inkBounds": {
+          "H": [
+            -1,
+            501
+          ],
+          "n": [
+            18,
+            436.04166666666674
+          ]
+        },
+        "counters": {
+          "H": 224,
+          "n": 206.34189582031507
+        },
+        "spaces": {
+          "20": 500,
+          "2007": 500,
+          "2008": 500,
+          "2009": 500,
+          "a0": 500,
+          "200a": 500
+        }
+      },
+      "digitMarkPairsChecked": 275,
+      "digitMarkOverhangs": [],
+      "lineMetrics": {
+        "hhea": [
+          965,
+          -215,
+          70
+        ],
+        "typo": [
+          965,
+          -285,
+          0
+        ]
       },
       "sanitizer": "pass",
       "renderingSizes": [
@@ -77,34 +153,199 @@
         24,
         32
       ],
-      "sha256": "0b1c0b5db921501ad711b5837958496a33904d60abd93551c9869dc1640e933c"
+      "sha256": "009e7488da471d7784d74f67ba894afdcd5880ac6891774b2b2c3000b89578a3"
     },
     {
       "style": "Bold",
       "characters": 883,
       "features": 17,
-      "xHeight": 1078,
-      "capHeight": 1431,
-      "cellWidth": 1200,
+      "xHeight": 520,
+      "capHeight": 735,
+      "cellWidth": 500,
       "sourceAxes": {
-        "wght": 840,
-        "wdth": 117
+        "wght": 690,
+        "wdth": 82
       },
       "referenceStyle": "Bold",
       "referenceStems": {
-        "verticalH": 264,
-        "verticaln": 271,
-        "horizontalH": 244
+        "verticalH": 111,
+        "verticaln": 111,
+        "horizontalH": 96
       },
       "stems": {
-        "verticalH": 266.5,
-        "verticaln": 268.5,
-        "horizontalH": 243
+        "verticalH": 112,
+        "verticaln": 110,
+        "horizontalH": 97
       },
       "strokeErrors": {
-        "verticalH": 0.009469696969697017,
-        "verticaln": -0.009225092250922495,
-        "horizontalH": -0.004098360655737654
+        "verticalH": 0.009009009009008917,
+        "verticaln": -0.009009009009009028,
+        "horizontalH": 0.01041666666666674
+      },
+      "spacing": {
+        "inkBounds": {
+          "H": [
+            52,
+            443
+          ],
+          "n": [
+            67,
+            440
+          ]
+        },
+        "counters": {
+          "H": 167,
+          "n": 153
+        },
+        "spaces": {
+          "20": 500,
+          "2007": 500,
+          "2008": 500,
+          "2009": 500,
+          "a0": 500,
+          "200a": 500
+        }
+      },
+      "digitMarkPairsChecked": 275,
+      "digitMarkOverhangs": [
+        {
+          "text": "0̒",
+          "alternateZero": false,
+          "minY": 751,
+          "maxY": 1002,
+          "reason": "Tall combining sequences may exceed natural line spacing; glyph shapes are preserved"
+        },
+        {
+          "text": "0̨",
+          "alternateZero": false,
+          "minY": -294,
+          "maxY": -14,
+          "reason": "Tall combining sequences may exceed natural line spacing; glyph shapes are preserved"
+        },
+        {
+          "text": "1̒",
+          "alternateZero": false,
+          "minY": 748,
+          "maxY": 999,
+          "reason": "Tall combining sequences may exceed natural line spacing; glyph shapes are preserved"
+        },
+        {
+          "text": "2̒",
+          "alternateZero": false,
+          "minY": 751,
+          "maxY": 1002,
+          "reason": "Tall combining sequences may exceed natural line spacing; glyph shapes are preserved"
+        },
+        {
+          "text": "3̒",
+          "alternateZero": false,
+          "minY": 751,
+          "maxY": 1002,
+          "reason": "Tall combining sequences may exceed natural line spacing; glyph shapes are preserved"
+        },
+        {
+          "text": "3̨",
+          "alternateZero": false,
+          "minY": -294,
+          "maxY": -14,
+          "reason": "Tall combining sequences may exceed natural line spacing; glyph shapes are preserved"
+        },
+        {
+          "text": "4̒",
+          "alternateZero": false,
+          "minY": 748,
+          "maxY": 999,
+          "reason": "Tall combining sequences may exceed natural line spacing; glyph shapes are preserved"
+        },
+        {
+          "text": "5̒",
+          "alternateZero": false,
+          "minY": 747,
+          "maxY": 998,
+          "reason": "Tall combining sequences may exceed natural line spacing; glyph shapes are preserved"
+        },
+        {
+          "text": "5̨",
+          "alternateZero": false,
+          "minY": -294,
+          "maxY": -14,
+          "reason": "Tall combining sequences may exceed natural line spacing; glyph shapes are preserved"
+        },
+        {
+          "text": "6̒",
+          "alternateZero": false,
+          "minY": 753,
+          "maxY": 1004,
+          "reason": "Tall combining sequences may exceed natural line spacing; glyph shapes are preserved"
+        },
+        {
+          "text": "6̨",
+          "alternateZero": false,
+          "minY": -294,
+          "maxY": -14,
+          "reason": "Tall combining sequences may exceed natural line spacing; glyph shapes are preserved"
+        },
+        {
+          "text": "7̒",
+          "alternateZero": false,
+          "minY": 747,
+          "maxY": 998,
+          "reason": "Tall combining sequences may exceed natural line spacing; glyph shapes are preserved"
+        },
+        {
+          "text": "8̒",
+          "alternateZero": false,
+          "minY": 753,
+          "maxY": 1004,
+          "reason": "Tall combining sequences may exceed natural line spacing; glyph shapes are preserved"
+        },
+        {
+          "text": "8̨",
+          "alternateZero": false,
+          "minY": -294,
+          "maxY": -14,
+          "reason": "Tall combining sequences may exceed natural line spacing; glyph shapes are preserved"
+        },
+        {
+          "text": "9̒",
+          "alternateZero": false,
+          "minY": 751,
+          "maxY": 1002,
+          "reason": "Tall combining sequences may exceed natural line spacing; glyph shapes are preserved"
+        },
+        {
+          "text": "9̨",
+          "alternateZero": false,
+          "minY": -294,
+          "maxY": -14,
+          "reason": "Tall combining sequences may exceed natural line spacing; glyph shapes are preserved"
+        },
+        {
+          "text": "0̒",
+          "alternateZero": true,
+          "minY": 751,
+          "maxY": 1002,
+          "reason": "Tall combining sequences may exceed natural line spacing; glyph shapes are preserved"
+        },
+        {
+          "text": "0̨",
+          "alternateZero": true,
+          "minY": -294,
+          "maxY": -14,
+          "reason": "Tall combining sequences may exceed natural line spacing; glyph shapes are preserved"
+        }
+      ],
+      "lineMetrics": {
+        "hhea": [
+          965,
+          -215,
+          70
+        ],
+        "typo": [
+          965,
+          -285,
+          0
+        ]
       },
       "sanitizer": "pass",
       "renderingSizes": [
@@ -116,34 +357,199 @@
         24,
         32
       ],
-      "sha256": "9c29620be6cb77cadaaf908e070b436aa4b5161015c7571bc05921348008a398"
+      "sha256": "d4de27fc9aecdcfefe62481f466f06ab44981b73d282c1b50dc57fb59b6dca88"
     },
     {
       "style": "Bold Italic",
       "characters": 883,
       "features": 17,
-      "xHeight": 1078,
-      "capHeight": 1428,
-      "cellWidth": 1200,
+      "xHeight": 520,
+      "capHeight": 735,
+      "cellWidth": 500,
       "sourceAxes": {
-        "wght": 855,
-        "wdth": 117
+        "wght": 705,
+        "wdth": 81
       },
       "referenceStyle": "Bold Italic",
       "referenceStems": {
-        "verticalH": 266,
-        "verticaln": 274.89381146200367,
-        "horizontalH": 244
+        "verticalH": 113,
+        "verticaln": 112.78311167982,
+        "horizontalH": 96
       },
       "stems": {
-        "verticalH": 270,
-        "verticaln": 271.5920372860526,
-        "horizontalH": 245
+        "verticalH": 113.30284474394719,
+        "verticaln": 113.25528828663525,
+        "horizontalH": 96
       },
       "strokeErrors": {
-        "verticalH": 0.015037593984962516,
-        "verticaln": -0.012011089512677042,
-        "horizontalH": 0.004098360655737654
+        "verticalH": 0.0026800419818335808,
+        "verticaln": 0.0041865896390207435,
+        "horizontalH": 0
+      },
+      "spacing": {
+        "inkBounds": {
+          "H": [
+            -4,
+            505
+          ],
+          "n": [
+            10,
+            443.26086956521743
+          ]
+        },
+        "counters": {
+          "H": 165.21648373186986,
+          "n": 150.01340284911336
+        },
+        "spaces": {
+          "20": 500,
+          "2007": 500,
+          "2008": 500,
+          "2009": 500,
+          "a0": 500,
+          "200a": 500
+        }
+      },
+      "digitMarkPairsChecked": 275,
+      "digitMarkOverhangs": [
+        {
+          "text": "0̒",
+          "alternateZero": false,
+          "minY": 751,
+          "maxY": 1004,
+          "reason": "Tall combining sequences may exceed natural line spacing; glyph shapes are preserved"
+        },
+        {
+          "text": "0̨",
+          "alternateZero": false,
+          "minY": -294,
+          "maxY": -14,
+          "reason": "Tall combining sequences may exceed natural line spacing; glyph shapes are preserved"
+        },
+        {
+          "text": "1̒",
+          "alternateZero": false,
+          "minY": 748,
+          "maxY": 1001,
+          "reason": "Tall combining sequences may exceed natural line spacing; glyph shapes are preserved"
+        },
+        {
+          "text": "2̒",
+          "alternateZero": false,
+          "minY": 751,
+          "maxY": 1004,
+          "reason": "Tall combining sequences may exceed natural line spacing; glyph shapes are preserved"
+        },
+        {
+          "text": "3̒",
+          "alternateZero": false,
+          "minY": 751,
+          "maxY": 1004,
+          "reason": "Tall combining sequences may exceed natural line spacing; glyph shapes are preserved"
+        },
+        {
+          "text": "3̨",
+          "alternateZero": false,
+          "minY": -294,
+          "maxY": -14,
+          "reason": "Tall combining sequences may exceed natural line spacing; glyph shapes are preserved"
+        },
+        {
+          "text": "4̒",
+          "alternateZero": false,
+          "minY": 748,
+          "maxY": 1001,
+          "reason": "Tall combining sequences may exceed natural line spacing; glyph shapes are preserved"
+        },
+        {
+          "text": "5̒",
+          "alternateZero": false,
+          "minY": 747,
+          "maxY": 1000,
+          "reason": "Tall combining sequences may exceed natural line spacing; glyph shapes are preserved"
+        },
+        {
+          "text": "5̨",
+          "alternateZero": false,
+          "minY": -294,
+          "maxY": -14,
+          "reason": "Tall combining sequences may exceed natural line spacing; glyph shapes are preserved"
+        },
+        {
+          "text": "6̒",
+          "alternateZero": false,
+          "minY": 753,
+          "maxY": 1006,
+          "reason": "Tall combining sequences may exceed natural line spacing; glyph shapes are preserved"
+        },
+        {
+          "text": "6̨",
+          "alternateZero": false,
+          "minY": -294,
+          "maxY": -14,
+          "reason": "Tall combining sequences may exceed natural line spacing; glyph shapes are preserved"
+        },
+        {
+          "text": "7̒",
+          "alternateZero": false,
+          "minY": 747,
+          "maxY": 1000,
+          "reason": "Tall combining sequences may exceed natural line spacing; glyph shapes are preserved"
+        },
+        {
+          "text": "8̒",
+          "alternateZero": false,
+          "minY": 753,
+          "maxY": 1006,
+          "reason": "Tall combining sequences may exceed natural line spacing; glyph shapes are preserved"
+        },
+        {
+          "text": "8̨",
+          "alternateZero": false,
+          "minY": -294,
+          "maxY": -14,
+          "reason": "Tall combining sequences may exceed natural line spacing; glyph shapes are preserved"
+        },
+        {
+          "text": "9̒",
+          "alternateZero": false,
+          "minY": 751,
+          "maxY": 1004,
+          "reason": "Tall combining sequences may exceed natural line spacing; glyph shapes are preserved"
+        },
+        {
+          "text": "9̨",
+          "alternateZero": false,
+          "minY": -294,
+          "maxY": -14,
+          "reason": "Tall combining sequences may exceed natural line spacing; glyph shapes are preserved"
+        },
+        {
+          "text": "0̒",
+          "alternateZero": true,
+          "minY": 751,
+          "maxY": 1004,
+          "reason": "Tall combining sequences may exceed natural line spacing; glyph shapes are preserved"
+        },
+        {
+          "text": "0̨",
+          "alternateZero": true,
+          "minY": -294,
+          "maxY": -14,
+          "reason": "Tall combining sequences may exceed natural line spacing; glyph shapes are preserved"
+        }
+      ],
+      "lineMetrics": {
+        "hhea": [
+          965,
+          -215,
+          70
+        ],
+        "typo": [
+          965,
+          -285,
+          0
+        ]
       },
       "sanitizer": "pass",
       "renderingSizes": [
@@ -155,7 +561,7 @@
         24,
         32
       ],
-      "sha256": "dc05d195789c175eb037af3cf12801716a0d6f4564bd8729e719c135358d9071"
+      "sha256": "8f60916f13f6efe60c3a4dc8896a4dde6696fc40b89edc248e227bb2fd08186c"
     }
   ]
 }

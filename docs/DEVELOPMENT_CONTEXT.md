@@ -1,60 +1,53 @@
 # Development context
 
-Updated October 24, 2026. Read this before changing the fonts or build pipeline. This is the coding handoff; [README.md](../README.md) describes installation and [REVIEW.md](REVIEW.md) records the detailed font review. Update this file when a design decision, workflow, or validation status changes.
+Updated October 24, 2026. Read before changing fonts or the pipeline. [README.md](../README.md) covers installation; [REVIEW.md](REVIEW.md) gives results and limits. Keep this handoff current when decisions or verified state change.
 
-## Current state
+## Current objective and state
 
-- Family: **Inconsolata Refined**. Font version **1.100**; npm package version **1.1.0**.
-- Font implementation baseline: commit `fee9990` (`Match all four styles to Cascadia stroke weights`), following the initial sizing/hinting and web font commits. The implementation was committed and pushed to `origin/master`.
-- The user manually reinstalled the updated Windows fonts and reported that they look nice. This is user visual feedback; the development environment did not run an automated native DirectWrite test or confirm every style on Windows.
-- The requested font work is complete. There is no pending font defect or requested adjustment as of this handoff.
+- Active family **Inconsolata Refined**, font version **1.200**, npm version **1.2.0**. This release replaces the previous Cascadia-based 1.100 comparison with the user’s installed **Iosevka 33.3.5**.
+- Rebuild from the **original** Inconsolata source, never earlier refined fonts. Match Iosevka’s size, stroke weight, character/word spacing, vertical metrics, side bearings, and representative internal gaps across all four paired styles.
+- Preserve Inconsolata’s character designs. The user explicitly made **1% a soft goal**: choose the best visual balance and do not redraw individual characters to force a number.
+- Treat Iosevka as measured guidance, not infallible data to copy. Independently check every original glyph in every style, including unencoded alternates and ligatures.
+- Desktop, web, full-glyph, and Chromium checks pass for this release; all 12 outputs have reproduced identical hashes. Native Windows/DirectWrite review remains manual. The user’s earlier Windows approval was for the previous release.
 
-## Requirements to preserve
+## Deliverables and naming
 
-- Exactly four static TTF variants: **Regular**, **Italic**, **Bold**, **Bold Italic**, under `fonts/`. All four generated TTFs must remain tracked in Git.
-- Export the same four faces as both WOFF and WOFF2 under the separate `webfonts/` directory. All eight web fonts must remain tracked, alongside `inconsolata-refined.css`, `example.html`, and the font license.
-- Keep one family name, `Inconsolata Refined`, with working style linking. Finished weights are **400** for Regular/Italic and **700** for Bold/Bold Italic. CSS uses `font-style: normal` or `italic`; `regular` is a display subfamily name, not a CSS style value.
-- Match size and stroke thickness against the **corresponding Cascadia Code style**: Regular to Regular, Italic to Italic, Bold to Bold, Bold Italic to Bold Italic. Do not apply one regular-face weight correction indiscriminately to all styles.
-- Preserve the complete upstream glyph coverage, combining marks, optional ligatures, stylistic sets, and other OpenType features. All original glyphs were included in the refinement; this was not a manual redraw or individual Cascadia comparison of every character.
-- Use fresh ttfautohint instructions after outline changes. The user requested the latest stable release; **1.8.4** was verified upstream on October 24, 2026 and is pinned for this release. Recheck upstream when intentionally upgrading the toolchain rather than assuming this remains latest indefinitely.
-- Retain the SIL Open Font License, upstream attribution, and embedded licensing records.
+- Exactly four tracked TTFs under `fonts/`: **Regular, Italic, Bold, Bold Italic**.
+- Same faces as eight tracked WOFF/WOFF2 files under `webfonts/`, with CSS, example HTML, and license.
+- One family `Inconsolata Refined`, weight metadata/CSS 400 or 700, CSS styles normal/italic. Display subfamily Regular is not a CSS style keyword.
+- Preserve all 964 original named glyphs, 883 cmap entries, 17 source feature tags, marks, optional ligatures/alternates, source license, and attribution. Outputs have 966 glyphs with two standard controls.
 
-## Sources and stroke calibration
+## Sources and reference
 
-[upstream/sources.json](../upstream/sources.json) pins Inconsolata **3.100**, revision `fc1fc21081558b39a2db43bfd9b65bf9acb50701`, font checksums, and the ttfautohint archive/checksum.
+[upstream/sources.json](../upstream/sources.json) pins Inconsolata **3.100**, revision `fc1fc21081558b39a2db43bfd9b65bf9acb50701`, checksums, and ttfautohint. Compressed original variable/Regular/Bold inputs are tracked in `upstream/inconsolata/`. The only tracked .ttf files are the four finished fonts.
 
-The build instances `upstream/inconsolata/Inconsolata-Variable.ttf.gz` using FontTools. Original compressed Regular/Bold inputs remain for regression comparisons. Compressed upstream inputs are tracked; the only tracked `.ttf` files are the four finished faces.
+The exact installed Iosevka references come from `/mnt/c/Users/yunlingzhu/AppData/Local/Microsoft/Windows/Fonts/SGr-Iosevka-Regular.ttc` and the corresponding `SGr-Iosevka-Bold.ttc`. Local snapshots are ignored `reference/Iosevka-Regular.ttc` and `reference/Iosevka-Bold.ttc`. Each has normal/extended/oblique/italic faces: select **face 0** for Regular/Bold and **face 4** for Italic/Bold Italic, family exactly Iosevka. Checksums, indices, versions, targets, and source axes are in [weights.json](../reference/weights.json); shared metrics are in [metrics.json](../reference/metrics.json).
 
-The upright reference is the user's Windows-installed **Cascadia Code 2102.025**, at weights 400 and 700. It predates dedicated italics, so italic comparisons use **Cascadia Code Italic 2105.024**, the first official italic release, at weights 400 and 700. Its upright sampled stems agree with the installed reference. Provenance and checksums are in [reference/metrics.json](../reference/metrics.json) and [reference/weights.json](../reference/weights.json).
+Builds need only recorded settings and original inputs. References are needed for calibration and paired previews; tests remeasure/checksum them when present. Preview overrides are `IOSEVKA_REGULAR` and `IOSEVKA_BOLD`. Old local Cascadia references/license are historical and unused.
 
-The reference binaries are local, ignored by `/reference/*.ttf`, and are not required to build. The default preview paths are `reference/CascadiaCode.ttf` and `reference/CascadiaCodeItalic.ttf`; preview overrides are `CASCADIA_CODE` and `CASCADIA_CODE_ITALIC`. Verification remeasures and checksum-checks references when they exist at their recorded paths.
+| Output style | Source wght | Source wdth | Largest calibration-stem difference |
+| --- | ---: | ---: | ---: |
+| Regular | 420 | 83 | 3.21% |
+| Italic | 435 | 88 | 2.72% |
+| Bold | 690 | 82 | 1.04% |
+| Bold Italic | 705 | 81 | 0.42% |
 
-| Output style | Source `wght` | Source `wdth` | Final x height | Largest sampled stroke difference |
-| --- | ---: | ---: | ---: | ---: |
-| Regular | 635 | 119 | 1060 | 4.5% |
-| Italic | 635 | 116 | 1060 | 3.7% |
-| Bold | 840 | 117 | 1078 | 1.0% |
-| Bold Italic | 855 | 117 | 1078 | 1.5% |
+Source axes are separate from finished 400/700 weights. The measurements use H/n vertical spans and the H crossbar; full-glyph profiles supplement them. They do not imply every visible stroke matches within those percentages.
 
-These source design coordinates are separate from the finished 400/700 weight metadata. Adjusting both source weight and width, then normalizing width to the terminal cell, matched horizontal and vertical strokes better than changing weight alone. Bold's vertical stems were already close; its horizontal strokes needed more adjustment.
+## Geometry and metadata
 
-The calibration samples vertical stems through `H` at 25% of capital height and `n` at 35% of x height, plus the horizontal crossbar through the center of `H`. Every sample must be within **5%** of its paired reference. This is representative geometric calibration, not identical geometry or perceived weight for every glyph and renderer.
+- 1000 units/em; 500-unit cell and six shared whitespace advances; x height 520; capitals 735; letter descender −215. Shared monotonic vertical fitting covers baseline, lowercase, capitals, descenders, and accent regions (top 955/bottom −275).
+- hhea 965/−215/70; typo 965/−285/0; WinAscent/Descent 965/285. All give 1250-unit natural lines. Full blocks span x=0..500, y=−285..965; halves meet at y=340.
+- Italics are 9° obliques; terminal artwork U+2500–U+259F stays upright. Caret rise/run is 1000/158; this is calculated independently, not copied from the reference’s 1000/25. Underline position/thickness −50/50; strikeout 265/51.
+- Unlink composites before transforms. Preserve source cell counts, zero-width marks, and two-/three-cell feature advances. A common transform fits side bearings/ink width; no per-character weight correction is applied.
+- FontForge nonlinear transforms need cubic contours. Its evaluator crashes on unary-negative constants; [spacing.mjs](../scripts/spacing.mjs) uses binary subtraction and simple composed hinge maps. Export returns to quadratic TTFs.
+- TrueType rounding can create tiny contacts (notably percent). Full-glyph native checks reject unsafe calibration finalists. [transform.mjs](../scripts/transform.mjs) repairs only new contour intersection/direction warnings and checks every output glyph’s filled geometry before/after. Avoid blanket RemoveOverlap: it unnecessarily perturbs curves in unrelated glyphs.
+- [marks.mjs](../scripts/marks.mjs) adds a separate digit/alternate-zero mark lookup before original lookups. It fixes missing digit attachment without changing existing letter anchors, outlines, or advances. All 25 supplied marks are exercised on 10 digits plus alternate zero (275 cases/style); stacking remains active.
+- Very tall/stacked combining sequences can overhang the natural line box. Current bold cases involving U+0312, U+0328 are recorded in desktop validation; preserve the forms and disclose the bounds. Standalone glyphs all fit.
+- Strip old instructions; generate fresh hints with pinned **ttfautohint 1.8.4**, verified latest stable October 24, 2026. Flags in [lib.mjs](../scripts/lib.mjs): range 8–50, limit 200, x-height increase 14, stem mode qsq, Windows compatibility, detailed info, TTFA table.
+- Normalize actual x/capital metadata, fixed-pitch fields, Win/caret/decoration metrics, style flags, and checksums. Release date is fixed to `2026-10-24T00:00:00+08:00` for deterministic outputs. Update version/date/documentation deliberately for a later release.
 
-## Metrics and implementation details
-
-- All faces: **2048** units per em, **1200** units per terminal cell, ascent **1900**, descent **-480**, line gap **0**. Preserve the established lowercase heights in the table. Regular capitals are 1424 units versus Cascadia's 1420.
-- Italics are **12-degree obliques** of Inconsolata's upright designs. No separate cursive glyph designs were introduced.
-- Box drawing and block characters U+2500–U+259F stay upright and are fitted separately to the terminal grid. Full blocks span x=0..1200 and y=-480..1900; half blocks meet at y=710.
-- Unlink composite references before per-glyph transformations to avoid scaling accented components twice.
-- FontForge rounds during `ScaleToEm`. Derive the final outline scale from the actual scaled `x` bounds, and calculate advances as **rounded source cell count × 1200**. Otherwise x heights can drift and a single-cell glyph can become 1199 units wide.
-- Preserve zero-width marks and two-/three-cell ligature advances. Checks cover every original named glyph, including unencoded feature glyphs.
-- Remove old hints before transforming outlines. Recompute x-height/cap-height metadata from final `x`/`H` outlines, Windows clipping bounds, fixed-pitch fields, style flags, and SFNT checksums.
-- Hint options are centralized in [scripts/lib.mjs](../scripts/lib.mjs): range 8–50, limit 200, x-height increase 14, `--stem-width-mode=qsq`, Windows compatibility, detailed info, and a TTFA table. `qsq` selects quantized grayscale, strong GDI ClearType, and quantized DirectWrite ClearType stems.
-- Release timestamps are fixed to `2026-10-24T00:00:00+08:00` for deterministic builds. A future release should deliberately update version/date metadata and related documentation together.
-
-## Build and verification
-
-From the repository root:
+## Commands and validation
 
 ```sh
 npm ci --ignore-scripts
@@ -62,52 +55,27 @@ npm run bootstrap
 npm run build
 npm test
 npm run preview
+npm run test:browser
 ```
 
-Node.js **22+** is required. The bootstrap supports Debian/Ubuntu x86-64, including WSL, without sudo. It extracts tools into ignored `.tools/` and builds ttfautohint locally. Existing prerequisites and alternative platform setup are documented in the root README. The release used FontTools **4.29.1**; bootstrap obtains FontTools from the configured apt repositories rather than enforcing that exact version.
+Node 22+. Bootstrap is local Debian/Ubuntu x86-64/WSL, no sudo. Python is used only for the existing FontTools CLI; all custom helpers are Node.js. This build used FontTools **4.29.1**, obtained by bootstrap from apt rather than enforced as an exact pin. Tool overrides: PYTHON3, FONTFORGE, TTFAUTOHINT, HB_SHAPE, HB_VIEW, OTS_SANITIZE. Set CHROMIUM when no cached Playwright Chromium is available.
 
-All project orchestration/helpers are JavaScript. Python 3 is used only to invoke the existing FontTools CLI (`python3 -m fontTools.varLib.instancer`), not custom Python helper scripts. `scripts/lib.mjs` configures the extracted toolchain's `LD_LIBRARY_PATH` and `PYTHONPATH`. Executable overrides are `PYTHON3`, `FONTFORGE`, `TTFAUTOHINT`, `HB_SHAPE`, `HB_VIEW`, and `OTS_SANITIZE`. The build rejects a ttfautohint version other than the pin, including system **1.8.3**.
+- `npm run build` creates all 12 font files, CSS, and manifests; `build:web` exports existing TTFs only.
+- `npm test` runs [verify.mjs](../scripts/verify.mjs), [verify-web.mjs](../scripts/verify-web.mjs), and [audit.mjs](../scripts/audit.mjs). Checks include sanitizer, checksums, hints, original names/features/coverage, all advances, all glyph bounds, paired stems/counters, decoration/caret/line metrics, shaping, 275 digit-mark cases/style, full-font native outline validation, and 18,729 spacing pairs/style.
+- All 964 original glyphs/style have size, bearing, outline, and scanline-profile records. All 880 printable source characters have paired Iosevka profiles. The 81 unencoded glyphs lack reliable cross-family naming; review their preserved source-derived outlines separately.
+- [glyph-audit.html](glyph-audit.html) displays every original glyph and per-style measurements; serve the repository through HTTP. Encoded entries use real WOFF2 faces; unencoded SVG previews show geometry, not bytecode hinting. [glyph-audit.json](glyph-audit.json) is generated evidence.
+- Preview produces comparison/small-size/combining-mark PNGs; verification retains four complete encoded coverage PNGs at 24 px and renders all encoded coverage at seven sizes (10–32 px).
+- `test:browser` is now a permanent dependency-free CDP helper: [check-browser.mjs](../scripts/check-browser.mjs). It launches local Chromium, serves localhost, validates WOFF2/WOFF fallback and family/native spacing/demo/viewer, saves reports/screenshots, and cleans temporary processes/profile. It is separate from npm test.
+- Current Chromium: **153.0.8010.12**; desktop/mobile 1280×1000 and 375×900. The browser report carries exact font/audit hashes. After font changes rerun browser checks or explicitly mark the old report stale.
+- Original variable/static inputs can differ in contour count (e.g. uni01B8). Compare geometric topology with the actual variable design instance; static inputs remain the coverage/feature regression baseline.
+- Inherited FontForge warnings and new missing-extrema advisories for quadratic TTFs are recorded. All new non-extrema validation warnings fail the audit. Do not claim that passing finite tests proves universal bug-free rendering.
+- After font changes regenerate both desktop/web outputs, relevant specimens/reports, and this context. Repeat-build hashes matched all 12 final font files. Documentation-only edits need no font rebuild.
 
-- `npm run build` regenerates all four TTFs, all eight web fonts, the CSS, and build manifests.
-- `npm run build:web` rebuilds only web exports from the existing TTFs; `npm run test:web` checks those exports.
-- `npm test` checks desktop and web fonts and writes `docs/validation.json` and `docs/web-validation.json`.
-- `npm run preview` renders `docs/preview.png` and `docs/small-sizes.png`. Both local Cascadia references are needed to regenerate `docs/stroke-comparison.png` with the paired comparisons.
-- After font changes, rebuild both desktop and web formats, run relevant checks, inspect regenerated specimens, and update review/results. The previous repeat-build check produced identical hashes for **all 12** font files.
-- Font version is defined in `scripts/lib.mjs`; npm version is in `package.json` and `package-lock.json`. Build manifests are generated, not the source of those settings.
-- Documentation-only changes do not need a font rebuild. Check links and recorded facts without needlessly changing binary artifacts.
+## Files and Git workflow
 
-## File map
+Core files: [build.mjs](../scripts/build.mjs), [refine.pe](../scripts/refine.pe), [transform.mjs](../scripts/transform.mjs), [marks.mjs](../scripts/marks.mjs), [calibrate.mjs](../scripts/calibrate.mjs), [spacing.mjs](../scripts/spacing.mjs), and [lib.mjs](../scripts/lib.mjs). Manifests are generated [fonts/build-info.json](../fonts/build-info.json) and [webfonts/build-info.json](../webfonts/build-info.json). Reports: [desktop](validation.json), [web](web-validation.json), [glyph audit](glyph-audit.json), and [browser](web-browser-validation.json).
 
-| File | Purpose |
-| --- | --- |
-| [reference/weights.json](../reference/weights.json) | Per-style source axes, target x heights, paired stroke targets, tolerance, and reference provenance |
-| [reference/metrics.json](../reference/metrics.json) | Shared Cascadia sizing and terminal metrics |
-| [scripts/build.mjs](../scripts/build.mjs) | Source instances, transformations, hinting, and desktop build manifest |
-| [scripts/refine.pe](../scripts/refine.pe) | FontForge outline, terminal glyph, advance, and family transformations |
-| [scripts/lib.mjs](../scripts/lib.mjs) | Versions, styles, tool selection, hints, metadata normalization, and checksums |
-| [scripts/strokes.mjs](../scripts/strokes.mjs) | Filled-span stroke measurements, including overlapping contours |
-| [scripts/build-web.mjs](../scripts/build-web.mjs) | WOFF/WOFF2 exports, shared stylesheet, and web build manifest |
-| [scripts/verify.mjs](../scripts/verify.mjs) / [scripts/verify-web.mjs](../scripts/verify-web.mjs) | Desktop and web regression checks |
-| [scripts/preview.mjs](../scripts/preview.mjs) | Comparison and small-size specimens |
-| [scripts/bootstrap.mjs](../scripts/bootstrap.mjs) | Project-local font toolchain |
-| [fonts/build-info.json](../fonts/build-info.json) / [webfonts/build-info.json](../webfonts/build-info.json) | Exact release settings and generated font hashes |
-| [webfonts/example.html](../webfonts/example.html) | Website demo with semantic bold/italic and a size slider |
-
-## Completed validation and limits
-
-- All four TTFs and eight web fonts passed OpenType Sanitizer. Desktop checks cover checksums, metadata, hints, paired strokes, coverage, advances, clipping bounds, and HarfBuzz shaping.
-- All **964 original named glyphs**, **883 source cmap entries**, and **17 OpenType features** were preserved. The cmap count includes control mappings and the U+FFFF sentinel. Outputs contain **966 glyphs**, including FontForge's standard `.null` and `nonmarkingreturn` controls.
-- Web checks compare decoded geometry, advances, and glyph hint instructions for every output glyph against the source TTF, as well as other preserved tables and CSS mappings.
-- FreeType/Cairo rendering checks passed at 10, 12, 14, 16, 18, 24, and 32 pixels. Comparison, paired-stroke, and small-size specimens were visually inspected. Fontconfig recognized the four family styles and monospace spacing.
-- Chromium **153.0.8010.12** checks covered all four real WOFF2 faces, forced WOFF fallback, semantic `strong`/`em`, equal advances, the size slider, desktop/mobile layout, and absence of decoding/script errors. Browser report hashes match the released web fonts.
-- Browser validation is recorded in [web-browser-validation.json](web-browser-validation.json), with [web-example.png](web-example.png). It was performed using a temporary helper that was cleaned up; **`npm test` does not run browser automation**. After future web font changes, rerun browser checks and refresh their hashes/report or clearly record that they are pending. Do not present an old browser report as validation of new binaries.
-- The user subsequently confirmed the installed fonts look nice on their Windows setup. Automated native Windows/DirectWrite checks, Firefox, and Safari were not run. Exact appearance still depends on renderer, DPI, and display. Unsupported characters still use application fallback fonts.
-- Fractional-pixel line heights can show faint seams between terminal blocks in Cairo, also seen in the Cascadia reference; font-unit block boundaries are checked. No remaining defect requiring manual glyph redrawing was identified in the reviewed specimens.
-
-## Collaboration and Git workflow
-
-- Use one agent unless the user explicitly requests delegation. Prefer existing project commands; use Node.js for custom helpers and uniquely named OS temporary directories for disposable tooling, cleaning them up afterward.
-- Keep progress visible during extended work, roughly every 20–30 seconds, and use resumable commands with short yields. Bound HTTP connection/total times; if direct access fails, use the existing shell proxy configuration once without exposing proxy values or credentials.
-- The user authorized staging, committing, and pushing project changes. Inspect the working tree, keep commits within the request, and preserve unrelated user edits. Existing commit subjects use short imperative descriptions.
-- Remote: `git@github.com:yunlingz/inconsolata-refined.git`; branch: `master`, tracking `origin/master`. **Use SSH.** HTTPS credentials were unavailable and the `gh` token was expired during the session; SSH pushes succeeded.
-- Before publishing a font change, confirm all four TTFs and eight web fonts remain tracked, validation reports refer to the final binaries, and the staged diff has no unintended artifacts. No temporary server or browser process from this session remains running.
+- Use one agent unless the user explicitly requests delegation. Prefer existing commands. Node helpers only; temporary dependencies/scripts in unique OS temp directories, cleaned afterward.
+- Keep progress visible roughly every 20–30 seconds, with resumable commands and short waits. Bound network fetches and use the existing shell proxy configuration once on direct failures without printing credentials.
+- Staging, committing, and pushing project changes are authorized. Preserve unrelated edits. Remote `git@github.com:yunlingz/inconsolata-refined.git`; branch `master` tracks `origin/master`. Use **SSH** and short imperative commit subjects.
+- Before publishing, confirm exactly four TTFs/eight web fonts are tracked, every report/hash matches the final binaries, links and staged diff are sound, and no temporary server/browser remains. Root AGENTS.md and CLAUDE.md already point here.

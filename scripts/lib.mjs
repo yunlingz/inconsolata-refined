@@ -9,7 +9,7 @@ import { create } from 'fontkit';
 
 export const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 export const family = 'Inconsolata Refined';
-export const version = '1.100';
+export const version = '1.200';
 export const styles = [
   { file: 'Regular', name: 'Regular', source: 'Regular', weight: 400, italic: false },
   { file: 'Italic', name: 'Italic', source: 'Regular', weight: 400, italic: true },
@@ -50,9 +50,9 @@ export async function run(command, args, options = {}) {
     child.stdout.on('data', data => { stdout += data; });
     child.stderr.on('data', data => { stderr += data; });
     child.on('error', reject);
-    child.on('close', code => {
+    child.on('close', (code, signal) => {
       if (code === 0) resolvePromise({ stdout, stderr });
-      else reject(new Error(`${command} exited ${code}\n${stderr || stdout}`));
+      else reject(new Error(`${command} exited ${signal ?? code}\n${stderr}${stdout}`));
     });
   });
 }
@@ -101,6 +101,17 @@ export async function normalizeMetadata(file) {
   os2.writeInt16BE(target.cellWidth, 2);
   os2.writeInt16BE(Math.round(font.glyphForCodePoint(0x78).bbox.maxY), 86);
   os2.writeInt16BE(Math.round(font.glyphForCodePoint(0x48).bbox.maxY), 88);
+  os2.writeUInt16BE(target.typoAscender, 74);
+  os2.writeUInt16BE(-target.typoDescender, 76);
+  os2.writeInt16BE(target.strikeoutThickness, 26);
+  os2.writeInt16BE(target.strikeoutPosition, 28);
+  const post = tables.get('post').data;
+  post.writeInt16BE(target.underlinePosition, 8);
+  post.writeInt16BE(target.underlineThickness, 10);
+  const hhea = tables.get('hhea').data;
+  hhea.writeInt16BE(font.italicAngle ? 1000 : 1, 18);
+  hhea.writeInt16BE(font.italicAngle ? Math.round(Math.tan(-font.italicAngle * Math.PI / 180) * 1000) : 0, 20);
+  hhea.writeInt16BE(0, 22);
   const head = tables.get('head').data;
   // A fixed release date makes repeated builds byte-for-byte identical.
   const date = BigInt(Date.parse('2026-10-24T00:00:00+08:00') / 1000 + 2_082_844_800);

@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Inconsolata Refined — complete glyph audit</title>
+  <link rel="stylesheet" href="../webfonts/inconsolata-refined.css">
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 24px auto; padding: 0 16px; max-width: 1200px; background: #181c20; color: #e0e4e8; font: 15px/1.5 system-ui, sans-serif; }
+    h1 { font-size: 26px; } a { color: #9fdfbc; }
+    .controls { display: flex; flex-wrap: wrap; gap: 16px; align-items: center; margin-block: 24px; }
+    input, select, button { font: inherit; padding: 5px; }
+    input[type="search"] { max-width: 100%; width: 280px; }
+    .table { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; min-width: 680px; table-layout: fixed; }
+    th, td { border-bottom: 1px solid #3b444c; padding: 8px; text-align: center; vertical-align: middle; }
+    th:first-child, td:first-child { width: 27%; text-align: left; overflow-wrap: anywhere; }
+    small { display: block; color: #a1adb5; font: 12px/1.4 system-ui, sans-serif; }
+    .glyph { display: inline-block; font: var(--size, 32px)/normal 'Inconsolata Refined', monospace; letter-spacing: normal; word-spacing: normal; font-synthesis: none; min-height: 50px; }
+    .outline { width: 72px; height: 64px; fill: currentColor; vertical-align: middle; }
+    details { text-align: left; font-size: 12px; } summary { cursor: pointer; }
+    pre { max-height: 360px; overflow: auto; font-size: 11px; white-space: pre-wrap; }
+    .note { color: #e2c78f; } #status { color: #9fdfbc; }
+  </style>
+</head>
+<body>
+  <h1>Complete glyph audit</h1>
+  <p>Every original Inconsolata glyph, in all four refined styles. Encoded characters use the actual WOFF2 fonts and native spacing. Unencoded alternates and ligatures use outline previews; those SVG previews do not show TrueType hinting.</p>
+  <p>Each measurement panel includes bounds, bearings, and horizontal/vertical scanline profiles, with paired installed Iosevka measurements where a shared character exists. Different letterforms make scanline span widths an imperfect proxy for perceived stroke weight.</p>
+  <p><a href="glyph-audit.json">Full machine-readable audit</a> · Encoded coverage at 24 px:
+    <a href="coverage-Regular.png">Regular</a>, <a href="coverage-Italic.png">Italic</a>,
+    <a href="coverage-Bold.png">Bold</a>, <a href="coverage-BoldItalic.png">Bold Italic</a></p>
+  <p id="status" role="status">Loading all glyph records…</p>
+  <div class="controls">
+    <label>Find glyph <input type="search" id="search" placeholder="Name, character, or U+ code"></label>
+    <label>Size <input type="range" id="size" min="12" max="48" value="32"> <output id="size-value">32 px</output></label>
+    <label>Page <select id="page" aria-label="Glyph page"></select></label>
+    <label><input type="checkbox" id="unencoded"> Unencoded glyphs only</label>
+  </div>
+  <div class="table"><table>
+    <thead><tr><th>Original glyph</th><th>Regular</th><th>Italic</th><th>Bold</th><th>Bold Italic</th></tr></thead>
+    <tbody id="glyphs"></tbody>
+  </table></div>
+  <script type="module">
+    const status = document.getElementById('status'), search = document.getElementById('search');
+    const page = document.getElementById('page'), body = document.getElementById('glyphs');
+    const size = document.getElementById('size');
+    size.addEventListener('input', () => {
+      document.documentElement.style.setProperty('--size', `${size.value}px`);
+      document.getElementById('size-value').value = `${size.value} px`;
+    });
+    try {
+      const response = await fetch('./glyph-audit.json');
+      if (!response.ok) throw new Error(`Audit request: HTTP ${response.status}`);
+      const audit = await response.json(), styles = audit.results;
+      const unencoded = document.getElementById('unencoded');
+      const all = styles[0].glyphs, perPage = 64;
+      let filtered = all;
+      const unicode = code => `U+${code.toString(16).toUpperCase().padStart(4, '0')}`;
+      status.dataset.glyphs = all.length;
+      status.dataset.styles = styles.length;
+      function render() {
+        body.replaceChildren();
+        const start = Number(page.value || 0) * perPage;
+        for (const item of filtered.slice(start, start + perPage)) {
+          const row = document.createElement('tr'); row.dataset.sourceId = item.sourceId;
+          const label = document.createElement('td'); label.textContent = item.name;
+          const code = document.createElement('small'); code.textContent = item.codePoints.map(unicode).join(', ') || 'Unencoded';
+          label.append(code); row.append(label);
+          styles.forEach((style, index) => {
+            const glyph = style.glyphs[item.sourceId], cell = document.createElement('td');
+            const displayCode = glyph.codePoints.find(c => c >= 32 && c !== 0x7f && c !== 0xffff);
+            if (displayCode !== undefined) {
+              const span = document.createElement('span'); span.className = 'glyph'; span.textContent = String.fromCodePoint(displayCode);
+              span.style.fontWeight = index >= 2 ? '700' : '400'; span.style.fontStyle = index % 2 ? 'italic' : 'normal'; cell.append(span);
+            } else if (glyph.svg) {
+              const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+              svg.setAttribute('class', 'outline'); svg.setAttribute('viewBox', `-160 -965 ${Math.max(500, glyph.advance) + 320} 1250`);
+              const path = document.createElementNS(svg.namespaceURI, 'path'); path.setAttribute('d', glyph.svg); path.setAttribute('transform', 'scale(1,-1)');
+              svg.append(path); cell.append(svg);
+            } else { const empty = document.createElement('small'); empty.textContent = 'No visible ink'; cell.append(empty); }
+            const details = document.createElement('details'), summary = document.createElement('summary'), text = document.createElement('pre');
+            summary.textContent = `advance ${glyph.advance}`;
+            const { svg, ...measurements } = glyph; text.textContent = JSON.stringify(measurements, null, 2);
+            details.append(summary, text); cell.append(details); row.append(cell);
+          });
+          body.append(row);
+        }
+        status.textContent = `${all.length} original glyphs × ${styles.length} styles · ${filtered.length} matching · version ${audit.version}`;
+      }
+      function filter() {
+        const q = search.value.trim().toLowerCase();
+        filtered = all.filter(g => (!unencoded.checked || !g.codePoints.length) && (!q || g.name.toLowerCase().includes(q)
+          || g.codePoints.some(c => unicode(c).toLowerCase().includes(q) || String.fromCodePoint(c) === q)));
+        page.replaceChildren();
+        for (let i = 0; i < Math.max(1, Math.ceil(filtered.length / perPage)); i++) {
+          const option = document.createElement('option'); option.value = i;
+          option.textContent = `${i + 1} / ${Math.max(1, Math.ceil(filtered.length / perPage))}`; page.append(option);
+        }
+        render();
+      }
+      search.addEventListener('input', filter); page.addEventListener('change', render); unencoded.addEventListener('change', filter); filter();
+      await document.fonts.ready;
+    } catch (error) {
+      status.textContent = `Could not load the audit: ${error.message}. Serve the repository through HTTP and reopen this page.`;
+    }
+  </script>
+</body>
+</html>

@@ -1,7 +1,8 @@
 #!/usr/bin/env fontforge
 # Arguments: input, output, filename style, display style, weight, italic,
-# target x height, em, advance, ascent, descent, outline X/Y ratio,
-# source cell/em ratio, version.
+# target x height, em, advance, typo ascent/descent, outline X scale,
+# source cell/em ratio, version, vertical expression, hhea ascent/descent/gap,
+# typo line gap, italic angle, horizontal offset, capital height, four hinge maps.
 Open($argv[1])
 SelectWorthOutputting()
 ClearInstrs()
@@ -9,18 +10,20 @@ ClearHints()
 # Unlink before per-glyph transforms, so accented composites cannot scale twice.
 UnlinkReference()
 ScaleToEm(Strtol($argv[8]))
-Select(0u0078)
-xbounds = GlyphInfo("BBox")
-# ScaleToEm rounds source coordinates. Measure the scaled outline directly.
-outliney = Strtod($argv[7]) / xbounds[3] * 100
-outlinex = outliney * Strtod($argv[12])
-Print("{\"outlineScaleX\": ", outlinex / 100, ", \"outlineScaleY\": ", outliney / 100, "}")
+# Nonlinear vertical fitting requires cubic contours; export converts back to TTF.
+SetFontOrder(3)
+outlinex = Strtod($argv[12]) * 100
+Print("{\"outlineScaleX\": ", outlinex / 100, "}")
 SelectWorthOutputting()
 em = Strtol($argv[8])
 advance = Strtol($argv[9])
 ascender = Strtol($argv[10])
 descender = Strtol($argv[11])
 sourcecell = em * Strtod($argv[13])
+shear = Tan(Strtod($argv[20]) * 3.141592653589793 / 180)
+if ($argv[27] == "samples")
+  Select(0u0048, 0u006E, 0u0078, 0u0070)
+endif
 foreach
   # Source advances are exactly zero, one, two, or three cells. Round the
   # cell count first so ScaleToEm cannot introduce a one-unit spacing error.
@@ -34,11 +37,16 @@ foreach
     dy = ascender - by * em
     Transform(bx * 100, 0, 0, by * 100, 0, dy * 100)
   else
-    Scale(outlinex, outliney, 0, 0)
-    Move((finalwidth - GlyphInfo("Width")) / 2.0, 0)
+    NonLinearTransform("x", $argv[15])
+    NonLinearTransform("x", $argv[23])
+    NonLinearTransform("x", $argv[24])
+    NonLinearTransform("x", $argv[25])
+    NonLinearTransform("x", $argv[26])
+    Scale(outlinex, 100, 0, 0)
+    Move((finalwidth - GlyphInfo("Width")) / 2.0 + Strtod($argv[21]), 0)
     if ($argv[6] == "1")
-      # Twelve-degree oblique, pivoting around half the lowercase height.
-      Transform(100, 0, 21.255656167, 100, -11265.4977685, 0)
+      # Nine-degree oblique; capital-midpoint pivot leaves balanced overhangs.
+      Transform(100, 0, shear * 100, 100, -shear * Strtod($argv[22]) / 2 * 100, 0)
     endif
   endif
   SetWidth(finalwidth)
@@ -61,17 +69,17 @@ SetOS2Value("HHeadAscentIsOffset", 0)
 SetOS2Value("HHeadDescentIsOffset", 0)
 SetOS2Value("TypoAscentIsOffset", 0)
 SetOS2Value("TypoDescentIsOffset", 0)
-SetOS2Value("HHeadAscent", ascender)
-SetOS2Value("HHeadDescent", descender)
+SetOS2Value("HHeadAscent", Strtol($argv[16]))
+SetOS2Value("HHeadDescent", Strtol($argv[17]))
 SetOS2Value("TypoAscent", ascender)
 SetOS2Value("TypoDescent", descender)
-SetOS2Value("HHeadLineGap", 0)
-SetOS2Value("TypoLineGap", 0)
+SetOS2Value("HHeadLineGap", Strtol($argv[18]))
+SetOS2Value("TypoLineGap", Strtol($argv[19]))
 SetOS2Value("WinAscentIsOffset", 0)
 SetOS2Value("WinDescentIsOffset", 0)
 bounds = GetFontBoundingBox()
-SetOS2Value("WinAscent", Round(bounds[3]) + 32)
-SetOS2Value("WinDescent", Round(-bounds[1]) + 32)
+SetOS2Value("WinAscent", ascender)
+SetOS2Value("WinDescent", -descender)
 style = 0
 selection = 128
 if ($argv[5] == "Bold")
@@ -86,7 +94,7 @@ endif
 if ($argv[6] == "1")
   style = style + 2
   selection = selection + 1
-  SetItalicAngle(-12)
+  SetItalicAngle(-Strtod($argv[20]))
 else
   SetItalicAngle(0)
 endif

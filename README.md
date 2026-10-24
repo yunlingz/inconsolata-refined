@@ -1,6 +1,6 @@
 # Inconsolata Refined
 
-Four static TrueType fonts based on Inconsolata 3.100, sized and weighted against Cascadia Code and freshly hinted with **ttfautohint 1.8.4**. The current font version is **1.100**.
+Four static fonts rebuilt from original **Inconsolata 3.100**, calibrated against the user’s Windows-installed **Iosevka 33.3.5**, and freshly hinted with **ttfautohint 1.8.4**. Font version: **1.200**.
 
 | Style | Installable file |
 | --- | --- |
@@ -9,43 +9,38 @@ Four static TrueType fonts based on Inconsolata 3.100, sized and weighted agains
 | Bold | [InconsolataRefined-Bold.ttf](fonts/InconsolataRefined-Bold.ttf) |
 | Bold Italic | [InconsolataRefined-BoldItalic.ttf](fonts/InconsolataRefined-BoldItalic.ttf) |
 
-Install all four files, then choose **Inconsolata Refined** in your terminal or editor. On Windows, select the four TTFs in `fonts/`, right-click **Install**, replace the previous versions if prompted, and restart the application. Keep the font size you used for Cascadia Code when comparing.
+On Windows, install all four TTFs, replace the earlier versions, restart the terminal/editor, and select **Inconsolata Refined**. Compare it with Iosevka at the same font size and with application spacing overrides cleared. The four styles share one family and use standard 400/700 weights.
 
-The styles belong to one family, with weight and italic flags set so applications can select the real Bold and Italic files.
+## Size, weight, and spacing
 
-## Size and design
+Iosevka guides the visual calibration. The build uses Inconsolata’s original variable source, its weight/width axes, and shared outline/spacing transforms. It preserves the recognizable letterforms and original features. It does not use a previously refined font as input or copy Iosevka outlines/layout tables.
 
-The sizing reference is your Windows-installed Cascadia Code 2102.025. Its measured metrics and checksum are recorded in [reference/metrics.json](reference/metrics.json). The reference binary remains local and is excluded from Git.
-
-| Metric, as a fraction of an em | Original Inconsolata Regular | Cascadia Code reference | Refined Regular |
+| Metric | Original Inconsolata Regular | Installed Iosevka | Refined |
 | --- | ---: | ---: | ---: |
-| Character advance | 0.50000 | 0.58594 | 0.58594 |
-| Lowercase x height | 0.45700 | 0.51758 | 0.51758 |
-| Capital height | 0.62300 | 0.69336 | 0.69531 |
-| Typographic line height | 1.04900 | 1.16211 | 1.16211 |
+| Units per em | 1000 | 1000 | 1000 |
+| Cell and word-space width | 500 | 500 | 500 |
+| Lowercase x height | 457 | 520 | 520 |
+| Capital height | 623 | 735 | 735 |
+| Natural line height | 1049 | 1250 | 1250 |
 
-Version 1.100 matches stroke weight separately for each face: Regular to Cascadia Regular, Italic to Cascadia Italic, Bold to Cascadia Bold, and Bold Italic to Cascadia Bold Italic. It uses Inconsolata's original variable design, adjusting both weight and width before fitting the outlines to the existing terminal cell. This brings horizontal and vertical strokes closer together in weight, with a smaller change to Bold because its vertical stems were already close to the reference.
+All faces use hhea ascent/descent/gap **965 / −215 / 70**, typographic metrics **965 / −285 / 0**, and Windows clipping metrics **965 / 285**. Each route gives a 1.25 em line; the cell is 0.5 em. Baseline, descenders, side bearings, whitespace, representative counters, underline/strikeout positions, and italic caret slope are checked. Box drawing and blocks remain upright and fit the complete terminal cell.
 
-The previous lowercase heights are preserved: 1060 units for Regular/Italic and 1078 for Bold/Bold Italic. All faces retain a 2048-unit em, a 1200-unit cell, ascent 1900, descent -480, and zero line gap. Regular's capitals are now 1424 units, compared with Cascadia's 1420. Windows clipping bounds cover the actual outlines.
-
-| Output style | Source `wght` | Source `wdth` | Largest measured stroke difference from paired Cascadia face |
+| Style | Source weight axis | Source width axis | Largest calibration-stem difference |
 | --- | ---: | ---: | ---: |
-| Regular | 635 | 119 | 4.5% |
-| Italic | 635 | 116 | 3.7% |
-| Bold | 840 | 117 | 1.0% |
-| Bold Italic | 855 | 117 | 1.5% |
+| Regular | 420 | 83 | 3.21% |
+| Italic | 435 | 88 | 2.72% |
+| Bold | 690 | 82 | 1.04% |
+| Bold Italic | 705 | 81 | 0.42% |
 
-These source axes are design inputs; the finished fonts still use conventional **400/700** weights. The comparison measures the vertical stems of `H` and `n` and the horizontal crossbar of `H`. It is a calibrated visual match, not a claim that every stroke in two different typefaces has identical geometry. See [the four paired specimens](docs/stroke-comparison.png), [reference/weights.json](reference/weights.json), and [the review](docs/REVIEW.md).
+The finished weight metadata remains **400/700**. The last column measures three stem/crossbar samples; it is not an error bound for every stroke in two different typefaces. The 1% goal is a preference, with preservation of Inconsolata’s forms taking priority. Every original glyph also receives its own size, spacing, outline, and scanline-profile audit.
 
-The installed Cascadia 2102.025 reference has no dedicated italic design. Italic comparisons use **Cascadia Code Italic 2105.024**, its first official italic release. That release's upright stroke samples agree with the installed reference. Both reference binaries remain local and are excluded from Git; their checksums and provenance are recorded.
+Italic and Bold Italic are **9° obliques** of the original upright designs. A common vertical fit enlarges lowercase/capitals/descenders and fits accent regions inside the line box. No per-character weight redraws are used. Newly introduced rounding intersections receive narrowly scoped, filled-shape-checked cleanup.
 
-Upstream Inconsolata supplies upright designs. **Italic and Bold Italic are 12-degree obliques** derived from those designs. They retain Inconsolata's letterforms rather than introducing newly drawn cursive forms. Box drawing and block characters remain upright and are fitted separately to the terminal cell.
-
-Original glyphs, combining marks, optional ligatures, stylistic sets, alternate zero, and other OpenType features are preserved. The variable source and the original Regular/Bold fonts used for regression checks are stored as lossless `.ttf.gz` inputs, so the only tracked `.ttf` files are the four finished faces.
+All **964 original named glyphs**, **883 cmap entries**, and **17 OpenType features** remain. The outputs contain 966 glyphs including two standard control glyphs. Default digits and the alternate-zero feature gain missing combining-mark attachment metadata, with exact preservation of every outline and advance.
 
 ## Web fonts
 
-The separate [webfonts/](webfonts/) folder contains all four styles in **WOFF2 and WOFF**, plus [inconsolata-refined.css](webfonts/inconsolata-refined.css), [example.html](webfonts/example.html), and the font license. Copy the folder to a website and include the stylesheet:
+[webfonts/](webfonts/) contains the four faces in **WOFF2 and WOFF**, [the shared stylesheet](webfonts/inconsolata-refined.css), [example.html](webfonts/example.html), and the license.
 
 ```html
 <link rel="stylesheet" href="./webfonts/inconsolata-refined.css">
@@ -58,27 +53,21 @@ The separate [webfonts/](webfonts/) folder contains all four styles in **WOFF2 a
 </p>
 ```
 
-All four faces use the same CSS family. Regular and Italic use `font-weight: 400`; Bold and Bold Italic use `700`. Upright styles use `font-style: normal`, while italic styles use `italic`. CSS `font-weight: normal` equals `400`, and `bold` equals `700`.
+CSS uses `font-style: normal` or `italic`, and `font-weight: 400` or `700`. `regular` is a display style name. Browsers choose real faces through standard emphasis elements. For a native-spacing comparison, use `line-height: normal; letter-spacing: normal; word-spacing: normal;`. Website/terminal overrides take precedence over font defaults.
 
-The stylesheet tries WOFF2 first, with WOFF as a fallback. The compressed files preserve the hinted TTFs' outlines, metrics, metadata, features, and hint instructions. See [webfonts/README.md](webfonts/README.md) for deployment details.
+## Review and complete coverage
 
-`npm run build:web` regenerates only the web fonts and stylesheet from the four tracked TTFs. `npm run test:web` verifies all eight web fonts, their hint preservation, and the CSS family mappings. The main build and test commands include the web fonts as well.
+- [Four paired Iosevka comparisons](docs/stroke-comparison.png), [original/refined overview](docs/preview.png), and [small sizes](docs/small-sizes.png).
+- [Every original glyph in all four styles](docs/glyph-audit.html), including 81 unencoded alternates/ligatures; serve the repository through HTTP to use the viewer.
+- Complete encoded sheets: [Regular](docs/coverage-Regular.png), [Italic](docs/coverage-Italic.png), [Bold](docs/coverage-Bold.png), [Bold Italic](docs/coverage-BoldItalic.png).
+- [All supplied combining marks on digits](docs/combining-marks.png).
+- [Review and limits](docs/REVIEW.md), [per-glyph audit](docs/glyph-audit.json), [desktop validation](docs/validation.json), [web validation](docs/web-validation.json), and [browser validation](docs/web-browser-validation.json).
 
-## Preview and review
-
-- [Comparison with Cascadia Code and original Inconsolata](docs/preview.png), at the same 16-pixel size.
-- [Stroke comparison against each of the four corresponding Cascadia styles](docs/stroke-comparison.png), at 16 and 24 pixels.
-- [All four styles at 10–24 pixels](docs/small-sizes.png).
-- [Review findings and remaining limits](docs/REVIEW.md).
-- [Machine-readable validation results](docs/validation.json).
-- [Web font validation results](docs/web-validation.json).
-- [Website example screenshot](docs/web-example.png) and [Chromium validation results](docs/web-browser-validation.json).
-
-The images use FreeType/Cairo. Windows Terminal uses DirectWrite, so its exact antialiasing also depends on your display, DPI, and terminal settings.
+FreeType/Cairo specimens and Chromium checks run in Linux/WSL. Native Windows/DirectWrite rendering of this release still needs a visual check after installation. Very tall or stacked combining sequences can overhang the natural line box; their glyph shapes are retained.
 
 ## Rebuild
 
-The included bootstrap is for Debian/Ubuntu x86-64, including WSL. It requires Node.js 22+, npm, Python 3 for the FontTools CLI, curl, apt package indexes, `dpkg-deb`, tar, make, a C/C++ compiler, and the system runtime libraries required by FontForge, FreeType, HarfBuzz, and Cairo. It downloads packages into a temporary directory, extracts tools under `.tools/`, and compiles ttfautohint locally. It does not require sudo.
+Node.js 22+ is required. The local bootstrap supports Debian/Ubuntu x86-64, including WSL, without sudo. It needs npm, Python 3 for the existing FontTools CLI, curl, apt indexes, dpkg-deb, tar, make, a C/C++ compiler, and runtime libraries for the font tools. It extracts/builds dependencies under ignored `.tools/`. All project helpers are JavaScript.
 
 ```sh
 npm ci --ignore-scripts
@@ -86,29 +75,23 @@ npm run bootstrap
 npm run build
 npm test
 npm run preview
+npm run test:browser
 ```
 
-On other platforms, provide Python 3 with FontTools, FontForge, ttfautohint **1.8.4**, `hb-shape`, `hb-view` with PNG output, and `ots-sanitize` in `PATH`. The environment variables `PYTHON3`, `FONTFORGE`, `TTFAUTOHINT`, `HB_SHAPE`, `HB_VIEW`, and `OTS_SANITIZE` can override the executables. The build invokes FontTools' existing `varLib.instancer` CLI to generate static source instances; all project orchestration is JavaScript.
+On other systems, provide FontTools, FontForge, ttfautohint **1.8.4**, hb-shape, hb-view with PNG output, and ots-sanitize. Executable overrides are `PYTHON3, FONTFORGE, TTFAUTOHINT, HB_SHAPE, HB_VIEW, OTS_SANITIZE`. Browser checks use cached Playwright Chromium when available, or `CHROMIUM=/path/to/chrome`. No browser dependency is installed into this project.
 
-Previewing includes Cascadia when `reference/CascadiaCode.ttf` exists. Set `CASCADIA_CODE` to override its path. With `reference/CascadiaCodeItalic.ttf` (or `CASCADIA_CODE_ITALIC`) present as well, it also generates the four paired stroke comparisons. Without reference binaries, previews still include original Inconsolata and all four refined styles. The build uses recorded metrics and axes and needs no Cascadia binary or network access after setup.
+- `npm run build` regenerates all four TTFs and eight web fonts.
+- `npm test` runs desktop/web checks and the complete glyph audit, including 18,729 spacing pairs per style and 275 digit/mark cases per style.
+- `npm run test:browser` checks WOFF2 and forced WOFF fallback, real family faces, natural cell/line metrics, emphasis, size slider, mobile layout, and the glyph viewer.
+- `npm run build:web` / `npm run test:web` handle web exports only.
+- `npm run calibrate` searches source axes and rounded native candidates, then rejects finalists that fail full-glyph outline/cleanup checks. It requires local reference collections; review the resulting fonts before release.
 
-The build verifies upstream font checksums, removes old instructions before transforming the outlines, and generates fresh hints with:
+The measured reference files are local, ignored `reference/Iosevka-Regular.ttc` and `reference/Iosevka-Bold.ttc`, copied from the Windows `SGr-Iosevka-*.ttc` installation. Regular/Bold use face 0; Italic/Bold Italic use face 4. Their checksums and targets are pinned in [weights.json](reference/weights.json) and [metrics.json](reference/metrics.json). Building uses recorded settings and needs no Iosevka binary/network after setup. Preview overrides are `IOSEVKA_REGULAR` and `IOSEVKA_BOLD`.
 
-```text
-ttfautohint 1.8.4
---hinting-range-min=8 --hinting-range-max=50 --hinting-limit=200
---increase-x-height=14 --stem-width-mode=qsq --windows-compatibility
---detailed-info --ttfa-table
-```
-
-`qsq` means quantized grayscale stems, strong GDI ClearType stems, and quantized DirectWrite ClearType stems. The version and options are embedded in the fonts. The build rejects other ttfautohint versions, including the older system 1.8.3.
-
-Release timestamps are fixed to October 24, 2026, midnight at UTC+08:00. Rebuilding with the same toolchain produces identical TTF checksums. [fonts/build-info.json](fonts/build-info.json) records the release settings and output hashes. [upstream/sources.json](upstream/sources.json) pins the Inconsolata revision and ttfautohint source archive.
-
-The upstream release page listed **1.8.4, released August 21, 2021**, as the current stable ttfautohint release when checked on October 24, 2026. The upstream Inconsolata inputs contain hints from a later development snapshot; those instructions are discarded before this fresh stable-release hinting pass.
+The release uses FontTools 4.29.1 and ttfautohint 1.8.4, verified as the latest stable release on October 24, 2026. Hint options are centralized in [scripts/lib.mjs](scripts/lib.mjs). The build rejects other ttfautohint versions. Fixed release timestamps and checksum-verified original inputs give reproducible outputs; repeated builds matched all 12 font hashes. [Build manifests](fonts/build-info.json) record the exact settings.
 
 ## License and credits
 
-Inconsolata Refined is distributed under the [SIL Open Font License 1.1](OFL.txt). Original authorship and license records are retained inside every font. See [upstream/inconsolata/AUTHORS.txt](upstream/inconsolata/AUTHORS.txt).
+Inconsolata Refined uses the [SIL Open Font License 1.1](OFL.txt). Original authorship and embedded licensing records are retained. See [AUTHORS.txt](upstream/inconsolata/AUTHORS.txt) and [source pins](upstream/sources.json).
 
-Sources: [Google Fonts Inconsolata](https://github.com/googlefonts/Inconsolata), [Cascadia Code](https://github.com/microsoft/cascadia-code), [ttfautohint](https://freetype.org/ttfautohint/), and [FontForge](https://fontforge.org/).
+Sources: [Inconsolata](https://github.com/googlefonts/Inconsolata), [Iosevka](https://github.com/be5invis/Iosevka), [ttfautohint](https://freetype.org/ttfautohint/), and [FontForge](https://fontforge.org/).

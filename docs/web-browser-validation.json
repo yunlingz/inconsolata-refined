@@ -1,41 +1,42 @@
 {
-  "browser": "153.0.8010.12",
-  "fontVersion": "1.100",
+  "browser": "Chrome/153.0.8010.12",
+  "fontVersion": "1.200",
   "viewport": "1280x1000 and 375x900",
   "fontHashes": [
     {
       "file": "InconsolataRefined-Regular.woff",
-      "sha256": "7710dd9d8466db01f46264c49a5670225977a433ff450ea1129cb506d3c45c12"
+      "sha256": "2b053b69bf6102e2ab98cbfd3c4ecd29e7312bc9b2e789fe3c2d583de69bbccd"
     },
     {
       "file": "InconsolataRefined-Regular.woff2",
-      "sha256": "564876e6a1e8201ad7bc36eee5ca5f3306ab66f9023f5e524c2b6712cd6b8b95"
+      "sha256": "5a0ff4abd5cbe220a2c36a25f3bcb441cd961590904a2187756104d94bb38c84"
     },
     {
       "file": "InconsolataRefined-Italic.woff",
-      "sha256": "11cc765e1db7fd1ce92baaf013b29b8c8b51d838e57a2dabd67ee3bd9d83b9c1"
+      "sha256": "528f7598a6501b62281db78bb575309183bf5cecf86b168b7f78d83daf825e72"
     },
     {
       "file": "InconsolataRefined-Italic.woff2",
-      "sha256": "64e18e40e1b6dc09ec3844961f2de846cb009bca3ec70f7446b981d0256fe26a"
+      "sha256": "3c27c36a3e4fe8ee626d5006da064c6f0d3e02e1bc37153f2f347508467ce36f"
     },
     {
       "file": "InconsolataRefined-Bold.woff",
-      "sha256": "5793ccb8c2de548a0998ec30119a5e1ecb8e5e054c1270bc59c24042e4ffd813"
+      "sha256": "42e207f2feee8d99e506af4b0c6543475afae54b87bc65e31a97ff34ae1b1d16"
     },
     {
       "file": "InconsolataRefined-Bold.woff2",
-      "sha256": "e6483d27b592f8139401cf23a58b85e0cd731c7a89505f00f9c6cfc3ccc985a4"
+      "sha256": "9a9e401a766149385a7f12a8a6f7621349569d9c61fbd590215a85f899fc8d93"
     },
     {
       "file": "InconsolataRefined-BoldItalic.woff",
-      "sha256": "ac8fab9ae72bf66090567ec64813166cfb2d4b2341bfc643dce663e50f30c333"
+      "sha256": "eb09f47474c8fa980569e334397f61ec7c3df56343d6116b1f9f34b8de54a046"
     },
     {
       "file": "InconsolataRefined-BoldItalic.woff2",
-      "sha256": "f35864972444db00d94927221f80e9df3d4feee4fd5a8cbbd7b07b45e1f8b3bc"
+      "sha256": "4be60bf3b260b65ee170fd92a8d10e9f25c68cff0e2b95840effcb82793f884a"
     }
   ],
+  "glyphAuditSha256": "b10eedce27245842df85ebfa4a908777e276e096c287ba303af1a79d62728040",
   "results": [
     {
       "format": "woff2",
@@ -71,11 +72,27 @@
           "status": "loaded"
         }
       ],
-      "cellWidthsAt20px": [
-        140.625,
-        140.625,
-        140.625,
-        140.625
+      "metrics": [
+        {
+          "twelveCells": 119.99981689453125,
+          "word": 29.999954223632812,
+          "threeLines": 75
+        },
+        {
+          "twelveCells": 119.99981689453125,
+          "word": 29.999954223632812,
+          "threeLines": 75
+        },
+        {
+          "twelveCells": 119.99981689453125,
+          "word": 29.999954223632812,
+          "threeLines": 75
+        },
+        {
+          "twelveCells": 119.99981689453125,
+          "word": 29.999954223632812,
+          "threeLines": 75
+        }
       ],
       "semanticStyles": [
         {
@@ -88,12 +105,19 @@
         },
         {
           "weight": "700",
-          "style": "italic"
+          "style": "normal"
         }
       ],
-      "sizeSlider": "pass",
+      "sliderWorks": true,
       "mobileLayout": "pass",
-      "browserErrors": []
+      "browserErrors": [],
+      "glyphViewer": {
+        "glyphs": 964,
+        "styles": 4,
+        "pages": 16,
+        "lastSourceId": 963,
+        "unencodedPages": 2
+      }
     },
     {
       "format": "woff",
@@ -129,11 +153,27 @@
           "status": "loaded"
         }
       ],
-      "cellWidthsAt20px": [
-        140.625,
-        140.625,
-        140.625,
-        140.625
+      "metrics": [
+        {
+          "twelveCells": 119.99981689453125,
+          "word": 29.999954223632812,
+          "threeLines": 75
+        },
+        {
+          "twelveCells": 119.99981689453125,
+          "word": 29.999954223632812,
+          "threeLines": 75
+        },
+        {
+          "twelveCells": 119.99981689453125,
+          "word": 29.999954223632812,
+          "threeLines": 75
+        },
+        {
+          "twelveCells": 119.99981689453125,
+          "word": 29.999954223632812,
+          "threeLines": 75
+        }
       ],
       "semanticStyles": [
         {
@@ -146,10 +186,10 @@
         },
         {
           "weight": "700",
-          "style": "italic"
+          "style": "normal"
         }
       ],
-      "sizeSlider": "pass",
+      "sliderWorks": true,
       "mobileLayout": "pass",
       "browserErrors": []
     }

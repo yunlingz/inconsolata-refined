@@ -3,6 +3,7 @@ import { mkdtemp, mkdir, readFile, writeFile, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { PNG } from 'pngjs';
+import { create } from 'fontkit';
 import { root, styles, weightTargets, fontFile, sourceBytes, run, tool, heartbeat } from './lib.mjs';
 
 const done = heartbeat('Rendering the font comparison and small-size specimens');
@@ -22,10 +23,10 @@ const compact = '0123456789 0O1lI {}[]() != =>  The quick brown fox jumps over t
 const background = [12, 12, 12, 255];
 let serial = 0;
 
-async function render(font, text, size, color = 'cccccc', variations = '') {
+async function render(font, text, size, color = 'cccccc', variations = '', faceIndex = 0, lineSpace = 0) {
   const file = join(temporary, `${serial++}.png`);
   await run(tool('hb-view'), [font, `--text=${text}`, `--font-size=${size}`, `--font-ppem=${size}`, '--ft-load-flags=0',
-    '--margin=6', '--background=0c0c0c', `--foreground=${color}`, `--output-file=${file}`,
+    '--margin=6', '--background=0c0c0c', `--foreground=${color}`, `--output-file=${file}`, `--face-index=${faceIndex}`, `--line-space=${lineSpace}`,
     ...(variations ? [`--variations=${variations}`] : [])]);
   return PNG.sync.read(await readFile(file));
 }
@@ -46,9 +47,9 @@ try {
   await mkdir(join(root, 'docs'), { recursive: true });
   const original = join(temporary, 'Inconsolata-Regular.ttf');
   await writeFile(original, await sourceBytes('Regular'));
-  const reference = process.env.CASCADIA_CODE || join(root, 'reference/CascadiaCode.ttf');
+  const reference = process.env.IOSEVKA_REGULAR || join(root, 'reference/Iosevka-Regular.ttc');
   const panels = [];
-  if (existsSync(reference)) panels.push({ name: 'Cascadia Code - reference', font: reference });
+  if (existsSync(reference)) panels.push({ name: 'Iosevka 33.3.5 - installed reference', font: reference });
   panels.push({ name: 'Inconsolata - original', font: original });
   for (const style of styles) panels.push({ name: `Inconsolata Refined - ${style.name}`, font: fontFile(style) });
 
@@ -80,28 +81,46 @@ try {
   for (const block of smallBlocks) { paste(small, block, 24, y); y += block.height; }
   await writeFile(join(root, 'docs/small-sizes.png'), PNG.sync.write(small));
   console.log('Saved docs/preview.png and docs/small-sizes.png.');
+  const characterSet = create(await readFile(fontFile(styles[0]))).characterSet;
+  const marks = characterSet.filter(code => /\p{M}/u.test(String.fromCodePoint(code)));
+  const matrixText = marks.map(code => `U+${code.toString(16).toUpperCase()}  `
+    + Array.from({ length: 10 }, (_, i) => String.fromCodePoint(48 + i, code)).join(' ')).join('\n');
+  const markPanels = [];
+  for (const style of styles) markPanels.push([
+    await render(fontFile(styles[0]), `${style.name} - all 25 combining marks on digits, 24 px`, 17, '73d78b'),
+    await render(fontFile(style), matrixText, 24, 'cccccc', '', 0, 8),
+  ]);
+  const columnWidth = Math.max(...markPanels.flat().map(panel => panel.width)) + 24;
+  const rowHeight = Math.max(...markPanels.map(panels => panels.reduce((sum, panel) => sum + panel.height, 0))) + 24;
+  const markImage = canvas(columnWidth * 2 + 48, rowHeight * 2 + 24);
+  markPanels.forEach((panels, index) => {
+    let y = 12 + Math.floor(index / 2) * rowHeight;
+    for (const panel of panels) { paste(markImage, panel, 24 + (index % 2) * columnWidth, y); y += panel.height; }
+  });
+  await writeFile(join(root, 'docs/combining-marks.png'), PNG.sync.write(markImage));
+  console.log('Saved docs/combining-marks.png.');
 
-  const italicReference = process.env.CASCADIA_CODE_ITALIC || join(root, 'reference/CascadiaCodeItalic.ttf');
-  if (existsSync(reference) && existsSync(italicReference)) {
+  const boldReference = process.env.IOSEVKA_BOLD || join(root, 'reference/Iosevka-Bold.ttc');
+  if (existsSync(reference) && existsSync(boldReference)) {
     const text = 'Hn minimum 0123456789 0O1lI\nif (value != 0) { return x + 42; }\n{} [] () @ # % & _ = -> != + /';
     const rows = [];
     for (const style of styles) {
-      const ref = style.italic ? italicReference : reference;
-      const variation = `wght=${style.weight}`;
+      const ref = style.weight === 700 ? boldReference : reference;
+      const faceIndex = style.italic ? 4 : 0;
       const settings = weightTargets.styles[style.file];
       const columns = [];
       for (const [label, path, axes] of [
-        [`Cascadia Code ${style.name}`, ref, variation],
-        [`Inconsolata Refined ${style.name}`, fontFile(style), ''],
+        [`Iosevka ${style.name}`, ref, faceIndex],
+        [`Inconsolata Refined ${style.name}`, fontFile(style), 0],
       ]) {
         columns.push([
           await render(fontFile(styles[0]), label, 17, '73d78b'),
-          await render(path, '16 px\n' + text, 16, 'cccccc', axes),
-          await render(path, '24 px\n' + text, 24, 'cccccc', axes),
+          await render(path, '16 px\n' + text, 16, 'cccccc', '', axes),
+          await render(path, '24 px\n' + text, 24, 'cccccc', '', axes),
         ]);
       }
       rows.push(columns);
-      console.log(`Compared ${style.name} against Cascadia weight ${settings.referenceWeight}`);
+      console.log(`Compared ${style.name} against installed Iosevka weight ${settings.referenceWeight}`);
     }
     const columnWidth = Math.max(...rows.flat(2).map(block => block.width)) + 24;
     const rowHeights = rows.map(columns => Math.max(...columns.map(blocks => blocks.reduce((sum, block) => sum + block.height, 0))) + 28);
@@ -117,7 +136,7 @@ try {
     await writeFile(join(root, 'docs/stroke-comparison.png'), PNG.sync.write(comparison));
     console.log('Saved docs/stroke-comparison.png with all four paired references.');
   } else {
-    console.log('Paired stroke preview needs both Cascadia reference TTFs; see reference/weights.json.');
+    console.log('Paired stroke preview needs both local Iosevka collections; see reference/weights.json.');
   }
 } finally {
   done();

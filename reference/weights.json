@@ -1,81 +1,213 @@
 {
-  "family": "Cascadia Code",
-  "unitsPerEm": 2048,
-  "method": "Filled horizontal spans through H at 25% cap height and n at 35% x height; vertical span through the center of H. All spans normalized to a 2048-unit em.",
+  "family": "Iosevka",
+  "version": "33.3.5",
+  "unitsPerEm": 1000,
+  "method": "Original Inconsolata weight/width instances fitted to Iosevka H/n ink widths, independent horizontal placement, and shared vertical landmarks. Native rounded TrueType candidates are compared per style; no glyph-specific weight correction, Iosevka outline, or layout table is copied. Full-glyph audits complement these calibration samples.",
   "maxRelativeStrokeError": 0.05,
+  "maxBearingDifference": 16,
+  "maxRelativeCounterError": 0.1,
   "references": {
-    "upright": {
-      "file": "CascadiaCode.ttf",
-      "version": "2102.025",
-      "sha256": "cfb6a8d474018fe46d53a427e5fbee44b998822d0d3d8772914bd712cfc55ac4",
-      "source": "Windows-installed Cascadia Code; see metrics.json"
+    "Regular": {
+      "file": "Iosevka-Regular.ttc",
+      "faceIndex": 0,
+      "family": "Iosevka",
+      "style": "Regular",
+      "version": "Version 33.3.5; ttfautohint (v1.8.4)",
+      "sha256": "ae781be27f446fb27c7b0ff625450e70990c63ada211dc26b9a0652a076a9c35",
+      "source": "Windows-installed SGr-Iosevka collection; normal-width Iosevka face"
     },
-    "italic": {
-      "file": "CascadiaCodeItalic.ttf",
-      "version": "2105.024",
-      "sha256": "793fd26dd53d415f41623112ec2d2d4891521fb9f3df97cff9ff6be62bfa181e",
-      "source": "https://github.com/microsoft/cascadia-code/releases/download/v2105.24/CascadiaCode-2105.24.zip",
-      "archiveSha256": "4edd89afd1009e1da121792c44bec6192001f3ffe2186a9e6f554c3bb8f5fb0b",
-      "archivePath": "ttf/CascadiaCodeItalic.ttf",
-      "note": "The installed 2102.025 reference predates real italics. This is the first official italic release; its upright H/n stem measurements match 2102.025."
+    "Italic": {
+      "file": "Iosevka-Regular.ttc",
+      "faceIndex": 4,
+      "family": "Iosevka",
+      "style": "Italic",
+      "version": "Version 33.3.5; ttfautohint (v1.8.4)",
+      "sha256": "ae781be27f446fb27c7b0ff625450e70990c63ada211dc26b9a0652a076a9c35",
+      "source": "Windows-installed SGr-Iosevka collection; normal-width Iosevka face"
+    },
+    "Bold": {
+      "file": "Iosevka-Bold.ttc",
+      "faceIndex": 0,
+      "family": "Iosevka",
+      "style": "Bold",
+      "version": "Version 33.3.5; ttfautohint (v1.8.4)",
+      "sha256": "bc079b870006dcb26982b9323538633ccd38365b1eb4f8e800bb7263bc9c2f94",
+      "source": "Windows-installed SGr-Iosevka collection; normal-width Iosevka face"
+    },
+    "BoldItalic": {
+      "file": "Iosevka-Bold.ttc",
+      "faceIndex": 4,
+      "family": "Iosevka",
+      "style": "Bold Italic",
+      "version": "Version 33.3.5; ttfautohint (v1.8.4)",
+      "sha256": "bc079b870006dcb26982b9323538633ccd38365b1eb4f8e800bb7263bc9c2f94",
+      "source": "Windows-installed SGr-Iosevka collection; normal-width Iosevka face"
     }
   },
   "styles": {
     "Regular": {
-      "reference": "upright",
+      "reference": "Regular",
       "referenceWeight": 400,
       "referenceStems": {
-        "verticalH": 200,
-        "verticaln": 212,
-        "horizontalH": 190
+        "verticalH": 78,
+        "verticaln": 78,
+        "horizontalH": 70
+      },
+      "referenceSpacing": {
+        "inkBounds": {
+          "H": [
+            64,
+            436
+          ],
+          "n": [
+            64,
+            436
+          ]
+        },
+        "counters": {
+          "H": 216,
+          "n": 216
+        },
+        "spaces": {
+          "20": 500,
+          "2007": 500,
+          "2008": 500,
+          "2009": 500,
+          "a0": 500,
+          "200a": 500
+        }
       },
       "axes": {
-        "wght": 635,
-        "wdth": 119
+        "wght": 420,
+        "wdth": 83
       },
-      "xHeight": 1060
+      "outlineScaleX": 1.1828298887122417,
+      "outlineOffsetX": 1.4785373608903,
+      "xHeight": 520,
+      "capHeight": 735
     },
     "Italic": {
-      "reference": "italic",
+      "reference": "Italic",
       "referenceWeight": 400,
       "referenceStems": {
-        "verticalH": 208,
-        "verticaln": 215.29794298252048,
-        "horizontalH": 190
+        "verticalH": 78.99999999999997,
+        "verticaln": 79.31294079083568,
+        "horizontalH": 70
+      },
+      "referenceSpacing": {
+        "inkBounds": {
+          "H": [
+            8,
+            501
+          ],
+          "n": [
+            8,
+            436.66666666666663
+          ]
+        },
+        "counters": {
+          "H": 214.00000000000003,
+          "n": 213.5066765578635
+        },
+        "spaces": {
+          "20": 500,
+          "2007": 500,
+          "2008": 500,
+          "2009": 500,
+          "a0": 500,
+          "200a": 500
+        }
       },
       "axes": {
-        "wght": 635,
-        "wdth": 116
+        "wght": 435,
+        "wdth": 88
       },
-      "xHeight": 1060
+      "outlineScaleX": 1.1144525863091101,
+      "outlineOffsetX": 4.570494062789621,
+      "xHeight": 520,
+      "capHeight": 735
     },
     "Bold": {
-      "reference": "upright",
+      "reference": "Bold",
       "referenceWeight": 700,
       "referenceStems": {
-        "verticalH": 264,
-        "verticaln": 271,
-        "horizontalH": 244
+        "verticalH": 111,
+        "verticaln": 111,
+        "horizontalH": 96
+      },
+      "referenceSpacing": {
+        "inkBounds": {
+          "H": [
+            59,
+            441
+          ],
+          "n": [
+            59,
+            441
+          ]
+        },
+        "counters": {
+          "H": 160,
+          "n": 160
+        },
+        "spaces": {
+          "20": 500,
+          "2007": 500,
+          "2008": 500,
+          "2009": 500,
+          "a0": 500,
+          "200a": 500
+        }
       },
       "axes": {
-        "wght": 840,
-        "wdth": 117
+        "wght": 690,
+        "wdth": 82
       },
-      "xHeight": 1078
+      "outlineScaleX": 1.1402985074626866,
+      "outlineOffsetX": 0,
+      "xHeight": 520,
+      "capHeight": 735
     },
     "BoldItalic": {
-      "reference": "italic",
+      "reference": "BoldItalic",
       "referenceWeight": 700,
       "referenceStems": {
-        "verticalH": 266,
-        "verticaln": 274.89381146200367,
-        "horizontalH": 244
+        "verticalH": 113,
+        "verticaln": 112.78311167982,
+        "horizontalH": 96
+      },
+      "referenceSpacing": {
+        "inkBounds": {
+          "H": [
+            3,
+            506
+          ],
+          "n": [
+            3,
+            440.79999999999995
+          ]
+        },
+        "counters": {
+          "H": 156,
+          "n": 156.25995113700432
+        },
+        "spaces": {
+          "20": 500,
+          "2007": 500,
+          "2008": 500,
+          "2009": 500,
+          "a0": 500,
+          "200a": 500
+        }
       },
       "axes": {
-        "wght": 855,
-        "wdth": 117
+        "wght": 705,
+        "wdth": 81
       },
-      "xHeight": 1078
+      "outlineScaleX": 1.157392943380366,
+      "outlineOffsetX": 2.3123533566145085,
+      "xHeight": 520,
+      "capHeight": 735
     }
   }
 }

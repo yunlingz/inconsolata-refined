@@ -1,0 +1,20 @@
+#!/usr/bin/env fontforge
+# Input, output, names with newly introduced contour-validation warnings.
+Open($argv[1])
+SelectWorthOutputting()
+ClearInstrs()
+ClearHints()
+UnlinkReference()
+SetFontOrder(2)
+SelectNone()
+i = 3
+while (i < $argc)
+  SelectMore($argv[i])
+  i = i + 1
+endloop
+RemoveOverlap()
+CorrectDirection()
+AddExtrema()
+RoundToInt()
+Generate($argv[2], "", 0x8008)
+Close()
