@@ -1,42 +1,42 @@
 {
   "browser": "Chrome/153.0.8010.12",
-  "fontVersion": "1.400",
+  "fontVersion": "1.500",
   "viewport": "1280x1000 and 375x900",
   "fontHashes": [
     {
       "file": "InconsolataRefined-Regular.woff",
-      "sha256": "45fb73003369f8c756ea5f2971d3c4f564c7db9daecbe4b4a71298ed29447ea0"
+      "sha256": "8b5f4983e8d9b6b2db63bed6987fa6d35c179f5cbf4a9ecbd4b0bf33649938aa"
     },
     {
       "file": "InconsolataRefined-Regular.woff2",
-      "sha256": "58ee421b097dcc59334e1ba7fbb2e9cf0cc42ebed4b8df38a2a5c651d5c300c6"
+      "sha256": "b5a265adffaba2d2cba924a8bf9637385a172ee37aa5b7ee469d33e9827e272d"
     },
     {
       "file": "InconsolataRefined-Italic.woff",
-      "sha256": "26b4ffde0f29061015318e94d442481ff5985d115adeea8de844416247c8be87"
+      "sha256": "ba70ff324525ba9d9e22585ab617b8f0d3d486eb1ef8e82d698dccc91b2659c3"
     },
     {
       "file": "InconsolataRefined-Italic.woff2",
-      "sha256": "70366592f9dbc9b81b6c4b2862556c3ecb1fa3760e7ba36488e7c280c827ae8a"
+      "sha256": "13f8b6f69028a84719bdadb10c00eabf15415b04908594030b1c915414f68481"
     },
     {
       "file": "InconsolataRefined-Bold.woff",
-      "sha256": "6f2228f48cb0544c3804390a9fc5bbe148f9e9d960d9de04f997233513fbdbc9"
+      "sha256": "f85e5a6a6adf08d59c8dc595d52a5f69c3c85c7df6bbc6b3d6a70260bdc1a63c"
     },
     {
       "file": "InconsolataRefined-Bold.woff2",
-      "sha256": "c9f0584d3fee7473a17a2fa770dc38e6aeb59ba1a18f323556a193b95dfb4cc6"
+      "sha256": "6ce805546e5f4bf3ed835c274c813ee372bf26a534118ecbaa74824fe3d00538"
     },
     {
       "file": "InconsolataRefined-BoldItalic.woff",
-      "sha256": "1a4688fb46bd860fef1b3c406052ea82fe3c8b128f68c03caa0a5e22614f4221"
+      "sha256": "04f77aae5d82c9e6a42e42c113ea780dc393e636fe83f9f9129d6edfc887bbff"
     },
     {
       "file": "InconsolataRefined-BoldItalic.woff2",
-      "sha256": "ce273e4081a2b940f5f32161fa34984adc04855f1779a04af356de7e18d8226f"
+      "sha256": "8e2ca8d9bbbc8bd7ebed3f141298358ba29fad277a02cc697ea3946d33157bd7"
     }
   ],
-  "glyphAuditSha256": "74903f6849e3d914224571c54a5064034b934397bdc8fb12b21ea3b9c3a93f11",
+  "glyphAuditSha256": "f258553a2cb7a488d53a79422c13f573ab1a2bd34c7cc67ab6be42c11854f8f3",
   "results": [
     {
       "format": "woff2",

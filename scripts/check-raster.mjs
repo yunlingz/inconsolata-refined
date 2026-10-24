@@ -1,153 +1,104 @@
 import assert from 'node:assert/strict';
-import { existsSync } from 'node:fs';
-import { mkdtemp, readFile, writeFile, rm } from 'node:fs/promises';
-import { tmpdir } from 'node:os';
+import { readFile, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
-import { spawn } from 'node:child_process';
 import { PNG } from 'pngjs';
 import { create } from 'fontkit';
 import { root, version, family, styles, hintPolicy, weightTargets, fontFile, sourceBytes,
-  sfntTables, replaceTables, glyphInstructions, glyphGeometryHash, sha256, heartbeat } from './lib.mjs';
-import { hintGlyphSets } from './hinting.mjs';
-import { edges } from './strokes.mjs';
+  replaceTables, sfntTables, glyphInstructions, glyphGeometryHash, sha256, heartbeat } from './lib.mjs';
+import { hintGlyphSets, modeHintProgram, restoreHintProgram } from './hinting.mjs';
+import { baselineHintPrograms, measuredHintPrograms, modeCandidate, hintFingerprint } from './hinting-candidates.mjs';
+import { execute, probeFont, outlineTopology, nativeWorkspace } from './native-raster.mjs';
+import { inkTools } from './ink-profile.mjs';
 import { rasterPage } from './raster-page.mjs';
 import { terminalSymbols } from './symbols.mjs';
 
-async function execute(command, args, cwd = root) {
-  const child = spawn(command, args, { cwd, stdio: ['ignore', 'pipe', 'pipe'] });
-  const chunks = []; let stderr = '';
-  child.stdout.on('data', data => chunks.push(data)); child.stderr.on('data', data => { stderr = (stderr + data).slice(-4000); });
-  const timeout = setTimeout(() => child.kill(), 120_000);
-  try {
-    const code = await new Promise((resolve, reject) => { child.on('error', reject); child.on('close', resolve); });
-    if (code !== 0) throw new Error(`${command} exited ${code}: ${stderr}`);
-    return Buffer.concat(chunks);
-  } finally { clearTimeout(timeout); }
-}
-const toWindows = path => 'C:\\' + path.slice('/mnt/c/'.length).replaceAll('/', '\\');
-function toWsl(path) {
-  assert.match(path, /^[A-Za-z]:\\/);
-  return '/mnt/' + path[0].toLowerCase() + path.slice(2).replaceAll('\\', '/');
-}
-function probeFont(bytes, font) {
-  const tables = sfntTables(bytes), empty = font.getGlyph(0);
-  // Glyph zero means "missing" to browser fallback. Address its identical
-  // empty outline/advance/program through a nonzero empty glyph instead.
-  const alias = Array.from({ length: font.numGlyphs }, (_, id) => font.getGlyph(id)).find(g => g.id > 0
-    && g.advanceWidth === empty.advanceWidth && !g.path.commands.length && !glyphInstructions(tables, g.id).length);
-  assert.ok(!empty.path.commands.length && !glyphInstructions(tables, 0).length && alias);
-  const sub = Buffer.alloc(16 + 12 * font.numGlyphs);
-  sub.writeUInt16BE(12, 0); sub.writeUInt32BE(sub.length, 4); sub.writeUInt32BE(font.numGlyphs, 12);
-  for (let id = 0; id < font.numGlyphs; id++) {
-    const p = 16 + id * 12; sub.writeUInt32BE(0xf0000 + id, p); sub.writeUInt32BE(0xf0000 + id, p + 4);
-    sub.writeUInt32BE(id === 0 ? alias.id : id, p + 8);
-  }
-  const cmap = Buffer.alloc(12 + sub.length); cmap.writeUInt16BE(1, 2); cmap.writeUInt16BE(3, 4);
-  cmap.writeUInt16BE(10, 6); cmap.writeUInt32BE(12, 8); sub.copy(cmap, 12);
-  return replaceTables(bytes, { cmap });
-}
-function outlineCounters(glyph) {
-  const contours = []; let current;
-  for (const command of glyph.path.commands) {
-    if (command.command === 'moveTo') { current = []; contours.push(current); }
-    current?.push(command);
-  }
-  // FontForge uses clockwise outer contours and counterclockwise counters.
-  return contours.filter(commands => edges({ path: { commands } }).reduce((sum, [a, b]) =>
-    sum + a[0] * b[1] - b[0] * a[1], 0) > 0).length;
-}
-
-const done = heartbeat('Checking all glyphs at 10–32 px and four phases in native Windows Chromium');
-const temporary = await mkdtemp(join(tmpdir(), 'inconsolata-native-raster-'));
-let windowsTemporary;
+const done = heartbeat('Checking every glyph at 8–50 px and eight phases in native Windows Chromium');
+let native;
 try {
-  const chromium = process.env.WINDOWS_CHROMIUM ?? [
-    '/mnt/c/Program Files/Google/Chrome/Application/chrome.exe',
-    '/mnt/c/Program Files (x86)/Microsoft/Edge/Application/msedge.exe',
-  ].find(path => existsSync(path));
-  if (!chromium) throw new Error('Native raster checks require WSL and a Windows Chromium executable; set WINDOWS_CHROMIUM.');
-  const temp = (await execute('/mnt/c/Windows/System32/cmd.exe', ['/d', '/c', 'echo', '%TEMP%'], '/mnt/c/Windows')).toString('utf8').trim();
-  windowsTemporary = await mkdtemp(join(toWsl(temp), 'inconsolata-raster-'));
+  native = await nativeWorkspace();
   const web = JSON.parse(await readFile(join(root, 'webfonts/build-info.json'), 'utf8'));
-  const baselineBuild = JSON.parse((await execute('git', ['show', `${hintPolicy.baselineRevision}:fonts/build-info.json`])).toString('utf8'));
+  const build = JSON.parse(await readFile(join(root, 'fonts/build-info.json'), 'utf8'));
+  const baselineBuild = JSON.parse((await execute('git', ['show', hintPolicy.baselineRevision + ':fonts/build-info.json'])).toString('utf8'));
   const references = new Map(), results = [], panels = [], fontHashes = [];
   for (const style of styles) {
-    console.log(`RASTER ${style.name}: loading baseline and every original named glyph`);
-    const beforeBytes = await execute('git', ['show', `${hintPolicy.baselineRevision}:fonts/InconsolataRefined-${style.file}.ttf`]);
+    console.log('RASTER ' + style.name + ': all glyphs, local ink, counters, parts, modes, bounds, and headers');
+    const beforeBytes = await execute('git', ['show', hintPolicy.baselineRevision + ':fonts/InconsolataRefined-' + style.file + '.ttf']);
     const afterBytes = await readFile(fontFile(style));
     const before = create(beforeBytes), after = create(afterBytes), original = create(await sourceBytes(style.source));
-    assert.equal(glyphGeometryHash(before), hintPolicy.geometrySha256[style.file]);
-    assert.equal(glyphGeometryHash(after, hintPolicy.preservedGlyphCount), hintPolicy.geometrySha256[style.file], 'Every existing outline and advance is unchanged');
-    const afterTables = sfntTables(afterBytes), beforeTables = sfntTables(beforeBytes);
-    for (const tag of ['GPOS', 'GSUB', 'GDEF']) assert.deepEqual(afterTables.get(tag)?.data, beforeTables.get(tag)?.data, tag + ' unchanged');
+    assert.equal(glyphGeometryHash(before, hintPolicy.preservedGlyphCount), hintPolicy.previousGeometrySha256[style.file]);
+    assert.equal(glyphGeometryHash(after, hintPolicy.preservedGlyphCount), hintPolicy.geometrySha256[style.file], 'Reviewed geometry is exact');
+    assert.equal(before.numGlyphs, after.numGlyphs);
+    assert.deepEqual(before.availableFeatures.toSorted(), after.availableFeatures.toSorted(), 'Original layout features preserved');
     for (let id = 0; id < before.numGlyphs; id++) {
-      assert.equal(after.getGlyph(id).name, before.getGlyph(id).name, 'Original glyph IDs preserved');
-      assert.equal(after.getGlyph(id).advanceWidth, before.getGlyph(id).advanceWidth, 'Original advances preserved');
+      assert.equal(after.getGlyph(id).name, before.getGlyph(id).name, 'Glyph IDs preserved');
+      assert.equal(after.getGlyph(id).advanceWidth, before.getGlyph(id).advanceWidth, 'All advances preserved');
     }
+    const { terminal, selected, direct } = hintGlyphSets(after, style);
+    const refinement = build.instances.find(instance => instance.style === style.name).hintRefinement;
+    const base = measuredHintPrograms(afterBytes, refinement, selected, modeHintProgram, restoreHintProgram(refinement.flagCvt));
+    assert.equal(hintFingerprint(base, hintPolicy.preservedGlyphCount), hintPolicy.styles[style.file].baseHintSha256);
     const ref = weightTargets.references[style.file], path = join(root, 'reference', ref.file);
     if (!references.has(path)) references.set(path, await readFile(path));
     const refBytes = references.get(path); assert.equal(sha256(refBytes), ref.sha256);
-    const offset = refBytes.readUInt32BE(12 + ref.faceIndex * 4);
-    const standalone = replaceTables(refBytes, {}, offset);
-    const files = { before: 'before.ttf', after: 'after.ttf', beforeProbe: 'before-probe.ttf', afterProbe: 'after-probe.ttf', reference: 'reference.ttf' };
+    const offset = refBytes.readUInt32BE(12 + ref.faceIndex * 4), standalone = replaceTables(refBytes, {}, offset);
+    const files = { before: 'before.ttf', after: 'after.ttf', beforeProbe: 'before-probe.ttf',
+      afterProbe: 'after-probe.ttf', reference: 'reference.ttf', qProbe: 'q-probe.ttf', nProbe: 'n-probe.ttf', sProbe: 's-probe.ttf' };
     for (const [key, bytes] of Object.entries({ before: beforeBytes, after: afterBytes,
-      beforeProbe: probeFont(beforeBytes, before), afterProbe: probeFont(afterBytes, after), reference: standalone })) {
-      await writeFile(join(windowsTemporary, files[key]), bytes);
-    }
+      beforeProbe: probeFont(beforeBytes, before), afterProbe: probeFont(afterBytes, after), reference: standalone,
+      qProbe: probeFont(base, create(base)), nProbe: probeFont(modeCandidate(base, 'n'), create(base)),
+      sProbe: probeFont(modeCandidate(base, 's'), create(base)) })) await writeFile(join(native.directory, files[key]), bytes);
     const codes = new Map();
     for (const code of original.characterSet) {
       const name = original.glyphForCodePoint(code).name;
       if (!codes.has(name)) codes.set(name, []); codes.get(name).push(code);
     }
-    const { terminal, eligible, natural } = hintGlyphSets(after, style);
-    const oldEligible = new Set(baselineBuild.instances.find(instance => instance.style === style.name).hintRefinement.eligibleGlyphs);
+    const old = baselineBuild.instances.find(instance => instance.style === style.name).hintRefinement;
+    const previousTables = sfntTables(baselineHintPrograms(beforeBytes, old)), baseTables = sfntTables(base);
+    const globalHintsChanged = ['fpgm', 'prep', 'cvt '].some(tag => !previousTables.get(tag).data.equals(baseTables.get(tag).data));
+    const oldEligible = new Set(old.eligibleGlyphs), oldNatural = new Set(old.naturalGlyphs);
     const sourceIds = new Map(Array.from({ length: original.numGlyphs }, (_, id) => [original.getGlyph(id).name, id]));
     const symbolCodes = new Map(terminalSymbols.map(({ code, name }) => [name, code]));
     const glyphs = Array.from({ length: after.numGlyphs }, (_, id) => {
-      const g = after.getGlyph(id);
-      const symbol = symbolCodes.has(g.name);
+      const g = after.getGlyph(id), prior = before.getGlyph(id), symbol = symbolCodes.has(g.name);
+      const geometryChanged = JSON.stringify(g.path.commands) !== JSON.stringify(prior.path.commands);
+      const program = glyphInstructions(baseTables, id), oldProgram = glyphInstructions(previousTables, id);
+      const sourceHintsChanged = !!(program.length || oldProgram.length) && (globalHintsChanged || !program.equals(oldProgram));
+      const selection = selected.get(id) ?? null;
+      const allowedSizes = hintPolicy.selection.sizes.filter(size => {
+        if (geometryChanged || sourceHintsChanged) return true;
+        const oldMode = old.strongPpemRanges.some(([low, high]) => size >= low && size <= high)
+          ? oldNatural.has(g.name) ? 'n' : oldEligible.has(g.name) ? 's' : 'q' : 'q';
+        const mode = ['n', 's'].find(mode => selection?.[mode].some(([low, high]) => size >= low && size <= high)) ?? 'q';
+        return mode !== oldMode;
+      });
       return { id: g.id, name: g.name, sourceId: sourceIds.get(g.name) ?? null,
         codePoints: symbol ? [symbolCodes.get(g.name)] : codes.get(g.name) ?? [], advance: g.advanceWidth,
         bounds: g.path.commands.length ? [g.bbox.minX, g.bbox.minY, g.bbox.maxX, g.bbox.maxY] : null,
-        counters: outlineCounters(g), terminal: terminal.has(g.id), eligible: eligible.has(g.id), natural: natural.has(g.id),
-        mayChange: oldEligible.has(g.name) !== eligible.has(g.id) || natural.has(g.id),
-        existed: id < before.numGlyphs, symbol };
+        commands: g.path.commands, ...outlineTopology(g), terminal: terminal.has(g.id),
+        geometryChanged, sourceHintsChanged, directRaster: direct.has(id), selection, allowedSizes, existed: true, symbol };
     });
     const data = { fonts: files, style: style.name, version, baselineVersion: hintPolicy.baselineVersion, glyphs,
-      ranges: hintPolicy.styles[style.file].strongPpemRanges };
-    const html = `<!doctype html><meta charset="utf-8"><body>loading<script>(${rasterPage.toString()})(${JSON.stringify(data)}).then(r=>document.body.textContent='BEGIN_REPORT'+btoa(JSON.stringify(r))+'END_REPORT').catch(e=>document.body.textContent='BEGIN_REPORT'+btoa(JSON.stringify({error:e.stack}))+'END_REPORT')</script>`;
-    const page = join(windowsTemporary, 'raster.html'); await writeFile(page, html);
-    const fileUrl = 'file:///' + toWindows(page).replaceAll('\\', '/').split('/').map((part, i) => i ? encodeURIComponent(part) : part).join('/');
-    const output = (await execute(chromium, ['--headless=new', '--no-first-run', '--no-default-browser-check',
-      '--disable-background-networking', '--disable-component-update', '--disable-extensions', '--allow-file-access-from-files',
-      '--virtual-time-budget=10000', '--dump-dom', '--user-data-dir=' + toWindows(join(windowsTemporary, 'profile-' + style.file)), fileUrl])).toString('utf8');
-    const encoded = output.match(/<body[^>]*>BEGIN_REPORT([A-Za-z0-9+/=]+)END_REPORT/);
-    if (!encoded) throw new Error('Windows browser returned no raster report: ' + output.slice(-1200));
-    const result = JSON.parse(Buffer.from(encoded[1], 'base64').toString('utf8'));
-    if (result.error) throw new Error(result.error);
-    assert.equal(result.platform, 'Win32', 'Actual native Windows browser');
-    await writeFile(join(root, `docs/native-coverage-${style.file}.png`), Buffer.from(result.coveragePng.split(',')[1], 'base64'));
+      sizes: hintPolicy.selection.sizes, phases: hintPolicy.selection.phases, settings: hintPolicy.selection, legacyRanges: old.strongPpemRanges };
+    const result = await native.page('(' + rasterPage.toString() + ')(' + JSON.stringify(data) + ',' + inkTools.toString() + ')', 'validate-' + style.file);
+    await writeFile(join(root, 'docs/native-coverage-' + style.file + '.png'), Buffer.from(result.coveragePng.split(',')[1], 'base64'));
     panels.push(PNG.sync.read(Buffer.from(result.comparisonPng.split(',')[1], 'base64')));
     delete result.coveragePng; delete result.comparisonPng;
-    const hash = sha256(afterBytes); fontHashes.push({ file: `fonts/InconsolataRefined-${style.file}.ttf`, sha256: hash });
+    const hash = sha256(afterBytes); fontHashes.push({ file: 'fonts/InconsolataRefined-' + style.file + '.ttf', sha256: hash });
     results.push({ style: style.name, sha256: hash, baselineSha256: sha256(beforeBytes), referenceSha256: ref.sha256,
-      geometrySha256: glyphGeometryHash(after), preservedGeometrySha256: glyphGeometryHash(after, hintPolicy.preservedGlyphCount), ...result });
-    const failures = ['vanished', 'clipped', 'counterRegressions', 'unexpectedChanges', 'boundErrors', 'strokeBalanceErrors', 'headerErrors'];
+      geometrySha256: glyphGeometryHash(after), ...result });
+    const failures = ['vanished', 'clipped', 'counterRegressions', 'unexpectedChanges', 'boundErrors',
+      'strokeBalanceErrors', 'headerErrors', 'detailRegressions', 'modeMismatches'];
     const issueCount = failures.reduce((sum, key) => sum + result[key].length, 0);
-    console.log(`RASTER ${style.name}: ${glyphs.length} glyphs × ${result.sizes.length} sizes × ${result.phases.length} phases; ${issueCount} flagged cases`);
+    console.log('RASTER ' + style.name + ': ' + glyphs.length + ' glyphs × ' + result.sizes.length + ' sizes × ' + result.phases.length + ' phases; ' + issueCount + ' flagged cases');
     if (issueCount) await writeFile(join(root, 'docs/native-raster-validation.json'), JSON.stringify({ family, fontVersion: version, results }, null, 2) + '\n');
     for (const key of failures) assert.deepEqual(result[key], [], style.name + ' ' + key);
   }
   const image = new PNG({ width: panels[0].width, height: panels.reduce((height, panel) => height + panel.height, 0) });
-  let y = 0;
-  for (const panel of panels) { panel.data.copy(image.data, y * image.width * 4); y += panel.height; }
+  let y = 0; for (const panel of panels) { panel.data.copy(image.data, y * image.width * 4); y += panel.height; }
   await writeFile(join(root, 'docs/native-comparison.png'), PNG.sync.write(image));
   await writeFile(join(root, 'docs/native-raster-validation.json'), JSON.stringify({ family, fontVersion: version,
     baselineVersion: hintPolicy.baselineVersion, baselineRevision: hintPolicy.baselineRevision,
-    method: 'Native Windows Chromium canvas, exact reference collections, every output glyph addressed through temporary private-use cmap probes. Empty glyph zero uses an identical nonzero empty glyph to avoid browser fallback. All 966 existing geometries, GPOS/GSUB/GDEF, glyph IDs and advances are unchanged; two sort triangles are appended. Pixel comparisons cover 10–32 px and four quarter-pixel phases. Counter regressions are checked against original outline counters; accidental extra raster islands are not treated as required counters. Full-size s/S stroke-band balance is checked at strengthened sizes, and one-cell triangles and adjacent htop headers are checked at every tested size/phase on light and dark backgrounds. Terminal glyph raster bounds must follow their original outlines within 1.51 px. Other 32 px glyph bounds allow 4 px for existing blue-zone fitting of compact numerals. Prose luminance is sRGB-linearized; concentration and band sums are rendering proxies, not readability scores. This is a Windows browser test, not Windows Terminal application equivalence.',
+    method: 'Native Windows Chromium. Every output glyph is addressed through a private-use probe. Original-source outlines receive shared source-relative perpendicular stroke compensation, reviewed separately in outline-review.json; advances, glyph IDs, coverage and features are preserved. Every glyph is tested at integer 8–50 px and eight horizontal phases. Actual compiled-policy pixels must equal independent fixed natural/quantized/strong candidates. Counter and component regressions are checked at 35%, 50%, and 65% coverage. Local multiscale ink profiles describe all glyphs, with s/S and f/curved-letter visual regressions and one-cell htop headers. Measurements are rendering/shape proxies, not readability scores or Windows Terminal equivalence.',
     fontHashes, webFontHashes: web.outputs.map(({ file, sha256 }) => ({ file, sha256 })), results }, null, 2) + '\n');
   console.log('Native Windows raster checks passed for all four faces.');
-} finally {
-  if (windowsTemporary) await rm(windowsTemporary, { recursive: true, force: true });
-  await rm(temporary, { recursive: true, force: true }); done();
-}
+} finally { if (native) await native.close(); done(); }

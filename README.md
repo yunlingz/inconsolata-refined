@@ -1,6 +1,6 @@
 # Inconsolata Refined
 
-Four static fonts rebuilt from original **Inconsolata 3.100**, calibrated against the user’s Windows-installed **Iosevka 33.3.5**, and freshly hinted with **ttfautohint 1.8.4**. Font version: **1.400**.
+Four static fonts rebuilt from original **Inconsolata 3.100**, calibrated against the user’s Windows-installed **Iosevka 33.3.5**, and freshly hinted with **ttfautohint 1.8.4**. Font version: **1.500**.
 
 | Style | Installable file |
 | --- | --- |
@@ -40,13 +40,15 @@ All **964 original named glyphs**, **883 original cmap entries**, and **17 OpenT
 
 ## Small-size rendering
 
-Version **1.400** corrects uneven curve fitting in 1.300 while preserving **all 966 existing outlines and advances from 1.200 exactly**. Stronger stem rounding had thickened the ends of `s` while thinning its diagonal middle; a higher overall text brightness had concealed this local imbalance. Full-size `s`/`S` and all 20 supplied accented forms now use natural stem widths when the adaptive policy is active. `8`, alternate zero, and ordinal letters retain quantized fitting. No letter is redrawn or individually thickened.
+Version **1.500** corrects stroke balance in the outline geometry and the hinting. The shared height fit can compress strokes above capital height, notably in `f`’s upper hook. [Source-aware compensation](scripts/outline-balance.mjs) compares perpendicular strokes in the original and resized cubic contours, then corrects the extra distortion from resizing. It preserves Inconsolata’s intended stroke contrast, straight stems, counter contours, and advances. Every original glyph is reviewed; a proposal must improve the measured balance and pass contour and native rendering checks. Character names do not select the correction.
 
-Other suitable text retains stronger rounding at Regular/Italic **22–26 PPEM** and Bold/Bold Italic **16–19 and 26–28 PPEM**. Other sizes, blue zones, and existing GDI strong mode remain as before. Compact glyphs, marks, punctuation, symbols, narrow `æ` forms, and Bold Italic `ů` remain protected. Native regression checks now measure the middle versus ends of `s`/`S`, alongside the complete glyph audit.
+The four faces retain their previous size, spacing, and Iosevka stem calibration. Fresh ttfautohint programs receive a [generated fitting policy](reference/hinting.json), measured for every glyph at **8–50 px and eight horizontal positions**. Natural or quantized fitting is preferred; stronger rounding is used only when gentler fitting fails the detail checks. The old hand-selected `s`/`S` rule is gone.
 
-Native Windows testing uncovered an older hinting defect: full blocks and several vertical box-drawing characters collapsed or appeared on the wrong side of the baseline. Terminal artwork now renders directly from its cell-fitted outlines, without those faulty text-hinting instructions. The rest of the font retains fresh ttfautohint bytecode and the scoped stem policy. [Hint settings](reference/hinting.json) and [implementation](scripts/hinting.mjs) record the details.
+The review distinguishes resolvable counters and separate ink cores from small details whose antialiasing changes across pixel positions. Those smaller features influence the fitting score rather than requiring identical binary masks. [Unhinted outlines](docs/outline-comparison.svg), [source stroke measurements](docs/outline-review.json), and [native fitting measurements](docs/hinting-review.json) expose the two stages separately. These are shape and rendering measurements, not universal readability scores.
 
-The htop header `CPU%▽MEM%` exposed a separate missing-symbol problem: the original Inconsolata lacks `△`/`▽`, while the installed Iosevka uses two-cell forms. Version 1.400 adds original geometric triangles with 500-unit advances, upright in all four styles. They render directly without text hints, retain hollow centers, and fit htop’s one-cell allocation. Existing glyphs, cmap mappings, GPOS/GSUB/GDEF tables, size, and spacing are preserved. [Symbol construction](scripts/symbols.mjs) is separate from the original font transformations.
+A generic [bounds safeguard](docs/hint-bounds.json) also tests every hinted glyph against its outline position. It bypasses a program only after direct rendering passes the same visibility and detail checks across the tested range. This catches displaced symbols such as the integral sign without adding character-name rules.
+
+Terminal artwork still renders directly from its cell-fitted outlines to avoid the autohinter programs that previously collapsed or inverted its spans. The one-cell `△`/`▽` symbols added in 1.400 remain upright and fit htop’s `CPU%▽MEM%` header. They retain their geometric construction, 500-unit advances, and hollow centers. [Symbol construction](scripts/symbols.mjs) is separate from the original font transformations.
 
 ## Web fonts
 
@@ -71,7 +73,8 @@ CSS uses `font-style: normal` or `italic`, and `font-weight: 400` or `700`. `reg
 - [Every original glyph in all four styles](docs/glyph-audit.html), including 81 unencoded alternates/ligatures; serve the repository through HTTP to use the viewer.
 - Complete encoded sheets: [Regular](docs/coverage-Regular.png), [Italic](docs/coverage-Italic.png), [Bold](docs/coverage-Bold.png), [Bold Italic](docs/coverage-BoldItalic.png).
 - [All supplied combining marks on digits](docs/combining-marks.png).
-- [Native Windows before/after comparison](docs/native-comparison.png) and [pixel validation](docs/native-raster-validation.json), covering every output glyph at 10–32 px and four fractional positions, plus enlarged curves and htop headers.
+- [Unhinted outline comparison](docs/outline-comparison.svg) and [its PNG](docs/outline-comparison.png), showing the geometric correction independently of hinting.
+- [Native Windows before/after comparison](docs/native-comparison.png) and [pixel validation](docs/native-raster-validation.json), covering every output glyph at 8–50 px and eight fractional positions, plus enlarged curves and htop headers.
 - Native Windows glyph sheets: [Regular](docs/native-coverage-Regular.png), [Italic](docs/native-coverage-Italic.png), [Bold](docs/native-coverage-Bold.png), [Bold Italic](docs/native-coverage-BoldItalic.png), including unencoded alternates and ligatures.
 - [Review and limits](docs/REVIEW.md), [per-glyph audit](docs/glyph-audit.json), [desktop validation](docs/validation.json), [web validation](docs/web-validation.json), and [browser validation](docs/web-browser-validation.json).
 
@@ -91,18 +94,20 @@ npm run test:browser
 npm run test:raster
 ```
 
+After changing the geometric fit or autohinter inputs, regenerate the measured policy with `npm run calibrate:hinting -- --reset-outline-safety`, then rebuild and rerun validation. Calibration uses native Windows Chromium under WSL and the pinned 1.400 Git baseline. Ordinary builds use the recorded policy and do not need a Windows browser. Native rejection data in [outline-native-limits.json](reference/outline-native-limits.json) is generated by the review, not a hand-authored list of glyph exceptions.
+
 On other systems, provide FontTools, FontForge, ttfautohint **1.8.4**, hb-shape, hb-view with PNG output, and ots-sanitize. Executable overrides are `PYTHON3, FONTFORGE, TTFAUTOHINT, HB_SHAPE, HB_VIEW, OTS_SANITIZE`. Browser checks use cached Playwright Chromium when available, or `CHROMIUM=/path/to/chrome`. No browser dependency is installed into this project.
 
 - `npm run build` regenerates all four TTFs and eight web fonts.
 - `npm test` runs desktop/web checks and the complete glyph audit, including 18,755 spacing pairs per style and 275 digit/mark cases per style.
 - `npm run test:browser` checks WOFF2 and forced WOFF fallback, real family faces, natural cell/line metrics, emphasis, size slider, mobile layout, and the glyph viewer.
-- `npm run test:raster` requires WSL, Windows Chrome/Edge, the local reference collections, and the recorded **1.300** Git baseline. It checks all **968 output glyphs/style** at every integer size from 10 through 32 px and four pixel phases, plus stroke-band balance, dark/bright htop headers, prose density, counters, unchanged pixels outside the tuning scope, and terminal-art bounds. Set `WINDOWS_CHROMIUM` to override browser discovery. It uses temporary fonts/profiles and changes no installed fonts or application settings.
+- `npm run test:raster` requires WSL, Windows Chrome/Edge, the local reference collections, and the recorded **1.400** Git baseline. It checks all **968 output glyphs/style** at every integer size from 8 through 50 px and eight pixel phases, including compiled-policy agreement with independent fitting candidates, local ink distribution, resolvable counters and components, visibility, clipping, glyph bounds, curve balance, and dark/bright htop headers. Set `WINDOWS_CHROMIUM` to override browser discovery. It uses temporary fonts/profiles and changes no installed fonts or application settings.
 - `npm run build:web` / `npm run test:web` handle web exports only.
 - `npm run calibrate` searches source axes and rounded native candidates, then rejects finalists that fail full-glyph outline/cleanup checks. It requires local reference collections; review the resulting fonts before release.
 
 The measured reference files are local, ignored `reference/Iosevka-Regular.ttc` and `reference/Iosevka-Bold.ttc`, copied from the Windows `SGr-Iosevka-*.ttc` installation. Regular/Bold use face 0; Italic/Bold Italic use face 4. Their checksums and targets are pinned in [weights.json](reference/weights.json) and [metrics.json](reference/metrics.json). Building uses recorded settings and needs no Iosevka binary/network after setup. Preview overrides are `IOSEVKA_REGULAR` and `IOSEVKA_BOLD`.
 
-The release uses FontTools 4.29.1 and ttfautohint 1.8.4, verified as the latest stable release on October 24, 2026. Base hint options are centralized in [scripts/lib.mjs](scripts/lib.mjs); the subsequent refinement is recorded in [reference/hinting.json](reference/hinting.json). The build rejects other ttfautohint versions, checks all 966 existing glyphs against the 1.200 geometry fingerprint, and appends only the two documented symbols. Fixed release timestamps and checksum-verified original inputs give reproducible outputs. [Build manifests](fonts/build-info.json) record the exact settings.
+The release uses FontTools 4.29.1 and ttfautohint 1.8.4, verified as the latest stable release on October 24, 2026. Base hint options are centralized in [scripts/lib.mjs](scripts/lib.mjs); the subsequent refinement is recorded in [reference/hinting.json](reference/hinting.json). The build rejects other ttfautohint versions, fingerprints every source-derived outline, advance, and base hint program against the current geometric review, and appends only the two documented symbols. Fixed release timestamps and checksum-verified original inputs give reproducible outputs; an isolated build reproduced all 12 font files byte for byte. [Build manifests](fonts/build-info.json) record the exact settings.
 
 ## License and credits
 

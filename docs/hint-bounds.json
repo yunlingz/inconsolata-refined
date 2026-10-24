@@ -1,0 +1,117 @@
+{
+  "fontVersion": "1.500",
+  "method": "Test every hinted glyph at all fitted sizes/phases against its outline bounds. Allow 2 px for raster/blue-zone rounding plus PPEM/16 for proportional fitting (4 px at 32 PPEM, matching the prior release check). If a program exceeds that budget, require direct rasterization to preserve bounds, visibility, and resolvable counters/ink cores at every tested size before omitting that program. No character-name selection rules.",
+  "results": [
+    {
+      "style": "Regular",
+      "sourceSha256": "b5d38ed4f644afe0ce71533f3d799fa8afedf10daf8abb9ad34e0dd85e094591",
+      "platform": "Win32",
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/155.0.0.0 Safari/537.36",
+      "cases": 273480,
+      "direct": [
+        {
+          "id": 687,
+          "name": "integral",
+          "failingSizes": [
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17,
+            18,
+            19,
+            20,
+            21,
+            22,
+            23,
+            24,
+            25,
+            26,
+            27,
+            28,
+            29,
+            30
+          ],
+          "maximumHintedDeviationPx": 8.86,
+          "maximumDirectDeviationPx": 1.4329999999999998
+        }
+      ],
+      "failures": []
+    },
+    {
+      "style": "Italic",
+      "sourceSha256": "582bb3a82ca57e16030cc984a38e820bc786bfffade33927a8344fc13161cbe1",
+      "platform": "Win32",
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/155.0.0.0 Safari/537.36",
+      "cases": 273480,
+      "direct": [
+        {
+          "id": 687,
+          "name": "integral",
+          "failingSizes": [
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17,
+            18,
+            19,
+            20,
+            21,
+            22,
+            23,
+            24,
+            25,
+            26,
+            27,
+            28,
+            29,
+            30,
+            31,
+            32,
+            33,
+            34,
+            35
+          ],
+          "maximumHintedDeviationPx": 9.635000000000002,
+          "maximumDirectDeviationPx": 1.4589999999999996
+        }
+      ],
+      "failures": []
+    },
+    {
+      "style": "Bold",
+      "sourceSha256": "b36b8c22603b9ad208d18034f79f59e710cdd23331bf6613c42ec1a13e2bdfd0",
+      "platform": "Win32",
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/155.0.0.0 Safari/537.36",
+      "cases": 273136,
+      "direct": [],
+      "failures": []
+    },
+    {
+      "style": "Bold Italic",
+      "sourceSha256": "b836ccbb8c3ab4b75a24f3058cafe4d254842f7c71d0228365cde5d19a6553f6",
+      "platform": "Win32",
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/155.0.0.0 Safari/537.36",
+      "cases": 273480,
+      "direct": [
+        {
+          "id": 439,
+          "name": "uni1E1C",
+          "failingSizes": [
+            10
+          ],
+          "maximumHintedDeviationPx": 2.630000000000001,
+          "maximumDirectDeviationPx": 1.343
+        }
+      ],
+      "failures": []
+    }
+  ]
+}

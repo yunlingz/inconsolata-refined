@@ -1,6 +1,6 @@
 {
   "name": "inconsolata-refined",
-  "version": "1.4.0",
+  "version": "1.5.0",
   "private": true,
   "type": "module",
   "description": "Four original Inconsolata faces calibrated against installed Iosevka and freshly hinted with ttfautohint.",
@@ -16,6 +16,7 @@
     "test:web": "node scripts/verify-web.mjs",
     "preview": "node scripts/preview.mjs",
     "calibrate": "node scripts/calibrate.mjs",
+    "calibrate:hinting": "node scripts/calibrate-hinting.mjs",
     "audit": "node scripts/audit.mjs",
     "test:browser": "node scripts/check-browser.mjs",
     "test:raster": "node scripts/check-raster.mjs"

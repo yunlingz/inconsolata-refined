@@ -75,7 +75,7 @@ export async function refineInstance(input, output, style, settings, samples = f
     String(settings.outlineScaleX), String(sourceCell / font.unitsPerEm), version,
     fitting.expressions[0], String(target.ascender), String(target.descender), String(target.lineGap),
     String(target.typoLineGap), String(target.italicAngle), String(settings.outlineOffsetX), String(target.capHeight),
-    ...fitting.expressions.slice(1), samples ? 'samples' : 'all',
+    ...fitting.expressions.slice(1), samples ? 'samples' : 'all', output + '.sfd',
   ]);
   return { verticalLandmarks: fitting.knots, ...JSON.parse(stdout.trim()) };
 }

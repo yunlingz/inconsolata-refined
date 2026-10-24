@@ -1,7 +1,7 @@
 // Serialized into an isolated Windows Chromium page by check-raster.mjs.
 // Keep this function self-contained; it has no Node or project globals.
-export async function rasterPage(data) {
-  const sizes = Array.from({ length: 23 }, (_, i) => i + 10), phases = [0, .25, .5, .75];
+export async function rasterPage(data, makeInkTools) {
+  const sizes = data.sizes, phases = data.phases, ink = makeInkTools();
   for (const [name, file] of Object.entries(data.fonts)) {
     const face = new FontFace(name, `url("${file}")`, { featureSettings: '"calt" 0,"liga" 0,"dlig" 0' });
     await face.load(); document.fonts.add(face);
@@ -13,30 +13,9 @@ export async function rasterPage(data) {
   const linear = Array.from({ length: 256 }, (_, v) => v / 255 <= .04045 ? v / 255 / 12.92 : ((v / 255 + .055) / 1.055) ** 2.4);
   const luminance = rgb => rgb.reduce((sum, v, c) => sum + linear[v] * [.2126, .7152, .0722][c], 0);
   const bgY = luminance(bg), rangeY = luminance(fg) - bgY;
-  function counters(pixels, stride, box) {
-    if (!box) return 0;
-    const [left, top, right, bottom] = box, width = right - left + 3, height = bottom - top + 3;
-    const occupied = new Uint8Array(width * height), queue = new Int32Array(width * height);
-    for (let y = top; y <= bottom; y++) for (let x = left; x <= right; x++) {
-      if (pixels[(y * stride + x) * 4] >= 130) occupied[(y - top + 1) * width + x - left + 1] = 1;
-    }
-    const flood = start => {
-      let read = 0, write = 1; queue[0] = start; occupied[start] = 1;
-      while (read < write) {
-        const p = queue[read++], x = p % width, y = Math.floor(p / width);
-        if (x > 0 && !occupied[p - 1]) { occupied[p - 1] = 1; queue[write++] = p - 1; }
-        if (x < width - 1 && !occupied[p + 1]) { occupied[p + 1] = 1; queue[write++] = p + 1; }
-        if (y > 0 && !occupied[p - width]) { occupied[p - width] = 1; queue[write++] = p - width; }
-        if (y < height - 1 && !occupied[p + width]) { occupied[p + width] = 1; queue[write++] = p + width; }
-      }
-    };
-    flood(0);
-    let count = 0;
-    for (let i = 0; i < occupied.length; i++) if (!occupied[i]) { flood(i); count++; }
-    return count;
-  }
   function pixels(context, width, height, topology = false) {
     const rgba = context.getImageData(0, 0, width, height).data;
+    const regions = ink.measure(context, width, height, 40, 180, topology, rgba);
     let signal = 0, square = 0, light = 0, active = 0, faint = 0;
     let minX = width, minY = height, maxX = -1, maxY = -1;
     for (let p = 0; p < width * height; p++) {
@@ -52,12 +31,12 @@ export async function rasterPage(data) {
       }
     }
     const box = active ? [minX, minY, maxX, maxY] : null;
-    return { signal, light, concentration: signal ? square / signal : null, faint: active ? faint / active : null,
+    return { ...regions, signal, light, concentration: signal ? square / signal : null, faint: active ? faint / active : null,
       box, clipped: !!box && (minX === 0 || minY === 0 || maxX === width - 1 || maxY === height - 1),
-      ...(topology ? { counters: counters(rgba, width, box) } : {}),
+      ...(topology ? { counters: regions.topology[1].counters } : {}),
       words: new Uint32Array(rgba.buffer, rgba.byteOffset, rgba.byteLength / 4) };
   }
-  function glyph(family, g, size, phase) {
+  function glyph(family, g, size, phase, metrics = true) {
     const origin = 18 - Math.floor(Math.min(g.bounds?.[0] ?? 0, 0) * size / 1000);
     const baseline = 18 + Math.ceil(965 * size / 1000);
     const width = Math.ceil((Math.max(g.bounds?.[2] ?? 0, g.advance) - Math.min(g.bounds?.[0] ?? 0, 0)) * size / 1000) + 38;
@@ -65,6 +44,10 @@ export async function rasterPage(data) {
     ctx.fillStyle = '#282c34'; ctx.fillRect(0, 0, width, height);
     ctx.fillStyle = '#dcdfe4'; ctx.font = `${size}px "${family}"`;
     ctx.fillText(String.fromCodePoint(0xf0000 + g.id), origin + phase, baseline);
+    if (!metrics) {
+      const rgba = ctx.getImageData(0, 0, width, height).data;
+      return { words: new Uint32Array(rgba.buffer, rgba.byteOffset, rgba.byteLength / 4) };
+    }
     const result = pixels(ctx, width, height, true);
     const b = result.box;
     result.bounds = b ? [b[0] - origin - phase, baseline - b[3] - 1, b[2] + 1 - origin - phase, baseline - b[1]] : null;
@@ -80,39 +63,63 @@ export async function rasterPage(data) {
     return result;
   }
   const glyphs = [], vanished = [], clipped = [], counterRegressions = [], unexpectedChanges = [], boundErrors = [];
-  const strokeBands = [], strokeBalanceErrors = [], headerErrors = [];
+  const strokeBands = [], strokeBalanceErrors = [], headerErrors = [], detailRegressions = [], modeMismatches = [];
   const totals = sizes.map(size => ({ size, rasterizations: 0, changed: 0, beforeLight: 0, afterLight: 0 }));
   for (const g of data.glyphs) {
     let changed = 0, checked = 0;
+    const outline = ink.outline(g);
+    if (outline) { g.counters = Math.min(g.counters, outline.topology[1].counters); g.parts = outline.topology[1].parts; }
+    let beforeRegionError = 0, afterRegionError = 0, improvedRegions = 0, worsenedRegions = 0, unresolvedCounterChanges = 0;
     const changedSizes = new Set();
     let minLightRatio = Infinity, maxLightRatio = 0;
     for (const size of sizes) for (const phase of phases) {
       const before = g.existed ? glyph('beforeProbe', g, size, phase) : null, after = glyph('afterProbe', g, size, phase);
       const different = !!before && before.words.some((value, i) => value !== after.words[i]);
       checked++;
-      const total = totals[size - 10]; total.rasterizations++; total.beforeLight += before?.light ?? 0; total.afterLight += after.light;
+      const total = totals[size - sizes[0]]; total.rasterizations++; total.beforeLight += before?.light ?? 0; total.afterLight += after.light;
       if (different) { changed++; changedSizes.add(size); total.changed++; }
-      const active = data.ranges.some(([low, high]) => size >= low && size <= high);
-      if (different && !g.terminal && !(g.mayChange && active)) unexpectedChanges.push({ name: g.name, size, phase });
+      const active = data.legacyRanges.some(([low, high]) => size >= low && size <= high);
+      const resolvable = outline ? ink.resolvable(outline, size, data.settings) : { counters: 0, parts: 0 };
+      resolvable.counters = Math.min(g.counters, resolvable.counters);
+      if (different && !g.allowedSizes.includes(size)) unexpectedChanges.push({ name: g.name, size, phase });
+      const mode = ['n', 's'].find(mode => g.selection?.[mode].some(([low, high]) => size >= low && size <= high)) ?? 'q';
+      const expected = glyph(mode + 'Probe', g, size, phase, false);
+      if (expected.words.some((value, i) => value !== after.words[i])) modeMismatches.push({ name: g.name, size, phase, expectedMode: mode });
+      if (outline) {
+        const a = ink.error(before, outline), b = ink.error(after, outline);
+        beforeRegionError += a; afterRegionError += b;
+        if (a - b > .005) improvedRegions++; if (b - a > .005) worsenedRegions++;
+      }
       if ((before?.signal > .1 || (!g.existed && g.bounds)) && after.signal <= .1) vanished.push({ name: g.name, size, phase });
       if (!g.bounds && after.signal > .1) vanished.push({ name: g.name, size, phase, issue: 'expected empty glyph rendered ink' });
       if (after.clipped) clipped.push({ name: g.name, size, phase });
       // Small raster islands can be accidental holes in letters such as h/U.
       // Flag a loss only if it also drops below the outline's true counter count.
-      if (before && !g.terminal && after.counters < before.counters && before.counters >= g.counters && after.counters < g.counters) {
-        counterRegressions.push({ name: g.name, size, phase, expected: g.counters, before: before.counters, after: after.counters });
+      if (before && !g.terminal && after.counters < before.counters && after.counters < Math.min(resolvable.counters, before.counters)) {
+        counterRegressions.push({ name: g.name, size, phase, expected: resolvable.counters, before: before.counters, after: after.counters });
       }
+      else if (before && after.counters < Math.min(g.counters, before.counters)) unresolvedCounterChanges++;
       if (g.symbol && size >= 18 && after.counters < g.counters) counterRegressions.push({ name: g.name, size, phase, expected: g.counters, after: after.counters });
-      if (after.bounds && (g.terminal || g.symbol || size === 32)) {
+      if (size >= 8 && size <= 50 && before && !g.terminal) {
+        for (const field of ['counters', 'parts']) {
+          const required = Math.min(resolvable[field], before.topology[1][field]);
+          const sweepRequired = Math.min(resolvable[field], Math.max(...before.topology.map(t => t[field])));
+          if ((field === 'counters' && after.topology[1][field] < required) || Math.max(...after.topology.map(t => t[field])) < sweepRequired) detailRegressions.push({ name: g.name, size, phase,
+            field, expected: required, before: before.topology, after: after.topology });
+        }
+      }
+      if (after.bounds) {
         const differences = after.bounds.map((v, i) => Math.abs(v - g.bounds[i] * size / 1000));
-        if (Math.max(...differences) > (g.terminal || g.symbol ? 1.51 : 4)) boundErrors.push({ name: g.name, size, phase,
+        if (Math.max(...differences) > (g.terminal || g.symbol ? 1.51 : 2 + size / 16)) boundErrors.push({ name: g.name, size, phase,
           rendered: after.bounds, expected: g.bounds.map(v => v * size / 1000) });
       }
       if (before?.light > .01) { const ratio = after.light / before.light; minLightRatio = Math.min(minLightRatio, ratio); maxLightRatio = Math.max(maxLightRatio, ratio); }
       if (after.strokeBands) strokeBands.push({ name: g.name, size, phase, active, before: before.strokeBands, after: after.strokeBands });
     }
     glyphs.push({ id: g.id, name: g.name, sourceId: g.sourceId, codePoints: g.codePoints,
-      rasterizations: checked, changed, changedSizes: [...changedSizes], terminal: g.terminal, eligible: g.eligible, natural: g.natural,
+      rasterizations: checked, changed, changedSizes: [...changedSizes], terminal: g.terminal, directRaster: g.directRaster, geometryChanged: g.geometryChanged, sourceHintsChanged: g.sourceHintsChanged,
+      regionalInk: { before: beforeRegionError / checked, after: afterRegionError / checked, improvedCases: improvedRegions, worsenedCases: worsenedRegions },
+      unresolvedCounterChanges,
       existedInBaseline: g.existed, supplementalSymbol: g.symbol,
       lightRatioRange: Number.isFinite(minLightRatio) ? [minLightRatio, maxLightRatio] : null });
   }
@@ -178,18 +185,18 @@ export async function rasterPage(data) {
     sc.fillStyle = '#8e96a4'; sc.font = '8px monospace';
     sc.fillText((g.sourceId ?? 'new') + ' ' + (g.codePoints.length ? 'U+' + g.codePoints[0].toString(16).toUpperCase() : 'alt'), x + 2, y + 46);
   }
-  const sample = 'Hn minimum 0123456789 | Completed v1.200, rebuilt from original Inconsolata.';
-  const textCanvas = document.createElement('canvas'); textCanvas.width = 1600; textCanvas.height = 80;
+  const sample = 'Hn minimum 0123456789 | Completed work, rebuilt from original Inconsolata.';
+  const textCanvas = document.createElement('canvas'); textCanvas.width = 2400; textCanvas.height = 120;
   const tc = textCanvas.getContext('2d', { willReadFrequently: true }); tc.fontKerning = 'none';
   const text = [];
   for (const size of sizes) for (const phase of phases) {
     const measures = {};
     for (const name of ['before', 'after', 'reference']) {
-      tc.fillStyle = '#282c34'; tc.fillRect(0, 0, 1600, 80);
+      tc.fillStyle = '#282c34'; tc.fillRect(0, 0, textCanvas.width, textCanvas.height);
       tc.fillStyle = '#dcdfe4'; tc.font = `${size}px "${name}"`;
       tc.fillText(sample, 8 + phase, Math.ceil(size * 1.1) + 4);
       const width = Math.ceil(tc.measureText(sample).width) + 16;
-      const result = pixels(tc, width, 64); delete result.words;
+      const result = pixels(tc, width, Math.ceil(size * 1.25) + 16); delete result.words; delete result.profile; delete result.density; delete result.topology;
       measures[name] = result;
       if (Math.abs(tc.measureText('000000000000').width - size * 6) > .001) throw new Error(name + ' cell-width mismatch');
     }
@@ -209,21 +216,23 @@ export async function rasterPage(data) {
       cc.fillText('if (value != 0) { return x + 42; }', x, y + size * 2.4);
       y += size * 2.6 + 18;
     }
-    cc.font = `24px "${family}"`; cc.fillText('┌────┬────┐  ▁▂▃▄▅▆▇█', x, 458);
+    cc.fillStyle = '#8e96a4'; cc.font = '12px sans-serif'; cc.fillText('Accents and symbols, 24 px', x, 383);
+    cc.fillStyle = '#dcdfe4'; cc.font = `24px "${family}"`; cc.fillText('f s S # § äëöü ÅŮ', x, 412);
+    cc.fillText('┌────┬────┐  ▁▂▃▄▅▆▇█', x, 458);
     cc.fillText('│    │    │  ████████', x, 488); cc.fillText('└────┴────┘  ████████', x, 518);
     cc.fillStyle = '#8e96a4'; cc.font = '12px sans-serif'; cc.fillText('htop: 24 px, explicit one-cell placement', x, 548);
     cc.fillStyle = '#10a6ca'; cc.fillRect(x, 558, 60, 30); cc.fillStyle = '#0cbb84'; cc.fillRect(x + 60, 558, 48, 30);
     cc.fillStyle = '#000'; cc.font = `24px "${family}"`;
     [...'CPU%▽MEM%'].forEach((ch, i) => cc.fillText(ch, x + 12 * i, 581));
-    const detail = document.createElement('canvas'); detail.width = 70; detail.height = 34;
-    const dc = detail.getContext('2d'); dc.fillStyle = '#282c34'; dc.fillRect(0, 0, 70, 34);
+    const detail = document.createElement('canvas'); detail.width = 95; detail.height = 34;
+    const dc = detail.getContext('2d'); dc.fillStyle = '#282c34'; dc.fillRect(0, 0, 95, 34);
     dc.fillStyle = '#dcdfe4'; dc.font = `${data.style.includes('Bold') ? 26 : 24}px "${family}"`;
-    dc.fillText('s S 8', 6, 26);
-    cc.imageSmoothingEnabled = false; cc.drawImage(detail, x, 610, 420, 204);
+    dc.fillText('f s e c', 6, 26);
+    cc.imageSmoothingEnabled = false; cc.drawImage(detail, x, 610, 570, 204);
     cc.fillStyle = '#8e96a4'; cc.font = '12px sans-serif'; cc.fillText('Curves at ' + (data.style.includes('Bold') ? 26 : 24) + ' px (6× pixels)', x, 607);
   }
   return { userAgent: navigator.userAgent, platform: navigator.platform, sizes, phases, sample, glyphs, totals, text,
     vanished, clipped, counterRegressions, unexpectedChanges, boundErrors, strokeBalance, strokeBalanceErrors,
-    headerCases, headerErrors,
+    headerCases, headerErrors, detailRegressions, modeMismatches,
     coveragePng: sheet.toDataURL('image/png'), comparisonPng: comparison.toDataURL('image/png') };
 }

@@ -1,89 +1,110 @@
 # Development context
 
-Updated October 24, 2026. Read before changing fonts or the pipeline. [README.md](../README.md) covers installation; [REVIEW.md](REVIEW.md) gives results and limits. Keep this handoff current when decisions or verified state change.
+Updated October 24, 2026. Read before changing fonts or the pipeline. [README.md](../README.md) covers installation; [REVIEW.md](REVIEW.md) explains the measurements and their limits. Keep this handoff current.
 
-## Current objective and state
+## Objective and current state
 
-- Active family **Inconsolata Refined**, font version **1.400**, npm version **1.4.0**. Iosevka 33.3.5 remains the reference. This release corrects uneven `s`/`S` curve hinting and adds one-cell htop sort triangles, preserving all 966 existing outlines and advances from 1.200/1.300 exactly.
-- Rebuild from the **original** Inconsolata source, never earlier refined fonts. Match Iosevka’s size, stroke weight, character/word spacing, vertical metrics, side bearings, and representative internal gaps across all four paired styles.
-- Preserve Inconsolata’s character designs. The user explicitly made **1% a soft goal**: choose the best visual balance and do not redraw individual characters to force a number.
-- Treat Iosevka as measured guidance, not infallible data to copy. Independently check every original glyph in every style, including unencoded alternates and ligatures.
-- Desktop, web, full-glyph, Linux Chromium, and native Windows Chromium checks cover this release. The user's 1.300 installation revealed the curve and header issues corrected here. Windows Terminal review of 1.400 remains manual: browser rendering is not application equivalence.
+- Family **Inconsolata Refined**, font version **1.500**, npm **1.5.0**. Four TTFs and eight WOFF/WOFF2 files are built. Desktop, web-format, complete-glyph, spacing, preview, browser, and compiled native raster checks passed. Native verification reported zero flagged cases across **1,331,968 glyph cases** and **5,504 header cases**. An isolated rebuild from the original sources reproduced all **12 font binaries byte for byte**.
+- The user requested a **generic** correction of uneven strokes, explicitly including **original outline geometry** and hinting. Matching the corresponding Iosevka faces' overall weight remains required. Do not treat hinting as the sole cause or add hand-selected s/f exceptions.
+- Always rebuild from **original Inconsolata sources**, never an earlier refined binary. Preserve recognizable Inconsolata forms, all original glyphs/features/coverage, advances, and the established size/spacing. **1% is a soft goal**, not a reason to redraw characters into another typeface.
+- Treat installed Iosevka as measured guidance, not infallible data to copy. Check every original glyph in each style, including unencoded alternates/ligatures.
 
-## Deliverables and naming
+## Deliverables, sources, and reference
 
-- Exactly four tracked TTFs under `fonts/`: **Regular, Italic, Bold, Bold Italic**.
-- Same faces as eight tracked WOFF/WOFF2 files under `webfonts/`, with CSS, example HTML, and license.
-- One family `Inconsolata Refined`, weight metadata/CSS 400 or 700, CSS styles normal/italic. Display subfamily Regular is not a CSS style keyword.
-- Preserve all 964 original named glyphs, 883 original cmap entries, 17 source feature tags, marks, optional ligatures/alternates, source license, and attribution. Outputs have **968 glyphs and 885 cmap entries**, with two standard controls and new `△`/`▽` symbols.
+- Exactly four tracked TTFs in fonts/: **Regular, Italic, Bold, Bold Italic**.
+- Eight tracked WOFF/WOFF2 files in webfonts/, one family stylesheet, example HTML, and license.
+- One family, weights **400/700**, CSS **normal/italic**. The display subfamily Regular is not a CSS style keyword.
+- All **964 original named glyphs**, **883 original cmap entries**, and **17 feature tags** remain. Outputs contain **968 glyphs and 885 cmap entries**: original glyphs plus two standard controls and the two one-cell sort triangles.
+- [upstream/sources.json](../upstream/sources.json) pins Inconsolata **3.100**, revision fc1fc21081558b39a2db43bfd9b65bf9acb50701, compressed source checksums, and **ttfautohint 1.8.4**, verified latest stable October 24, 2026. Original variable/Regular/Bold inputs are in upstream/inconsolata/. Only the four final TTFs are tracked as .ttf files.
+- Reference **Iosevka 33.3.5** is the user's installed collection: /mnt/c/Users/yunlingzhu/AppData/Local/Microsoft/Windows/Fonts/SGr-Iosevka-Regular.ttc and the corresponding Bold collection. Ignored local snapshots are reference/Iosevka-Regular.ttc and reference/Iosevka-Bold.ttc.
+- Select **face 0** for Regular/Bold and **face 4** for Italic/Bold Italic, family exactly Iosevka. [weights.json](../reference/weights.json) pins versions, hashes, indices, source axes, and stem/spacing targets. [metrics.json](../reference/metrics.json) records shared metrics.
+- Shipping builds need original sources and recorded settings, not reference font binaries. References are needed for paired audits/previews/native comparisons. Preview overrides: IOSEVKA_REGULAR and IOSEVKA_BOLD. Old Cascadia files are historical and unused.
 
-## Sources and reference
-
-[upstream/sources.json](../upstream/sources.json) pins Inconsolata **3.100**, revision `fc1fc21081558b39a2db43bfd9b65bf9acb50701`, checksums, and ttfautohint. Compressed original variable/Regular/Bold inputs are tracked in `upstream/inconsolata/`. The only tracked .ttf files are the four finished fonts.
-
-The exact installed Iosevka references come from `/mnt/c/Users/yunlingzhu/AppData/Local/Microsoft/Windows/Fonts/SGr-Iosevka-Regular.ttc` and the corresponding `SGr-Iosevka-Bold.ttc`. Local snapshots are ignored `reference/Iosevka-Regular.ttc` and `reference/Iosevka-Bold.ttc`. Each has normal/extended/oblique/italic faces: select **face 0** for Regular/Bold and **face 4** for Italic/Bold Italic, family exactly Iosevka. Checksums, indices, versions, targets, and source axes are in [weights.json](../reference/weights.json); shared metrics are in [metrics.json](../reference/metrics.json).
-
-Builds need only recorded settings and original inputs. References are needed for calibration and paired previews; tests remeasure/checksum them when present. Preview overrides are `IOSEVKA_REGULAR` and `IOSEVKA_BOLD`. Old local Cascadia references/license are historical and unused.
-
-| Output style | Source wght | Source wdth | Largest calibration-stem difference |
+| Style | Source wght | Source wdth | Largest H/n calibration-stem difference |
 | --- | ---: | ---: | ---: |
 | Regular | 420 | 83 | 3.21% |
 | Italic | 435 | 88 | 2.72% |
 | Bold | 690 | 82 | 1.04% |
 | Bold Italic | 705 | 81 | 0.42% |
 
-Source axes are separate from finished 400/700 weights. The measurements use H/n vertical spans and the H crossbar; full-glyph profiles supplement them. They do not imply every visible stroke matches within those percentages.
+Source axes are separate from finished 400/700 metadata. These samples are not a bound on every visible stroke in two different designs.
 
-## Geometry and metadata
+## Shared sizing and metadata
 
-- 1000 units/em; 500-unit cell and six shared whitespace advances; x height 520; capitals 735; letter descender −215. Shared monotonic vertical fitting covers baseline, lowercase, capitals, descenders, and accent regions (top 955/bottom −275).
-- hhea 965/−215/70; typo 965/−285/0; WinAscent/Descent 965/285. All give 1250-unit natural lines. Full blocks span x=0..500, y=−285..965; halves meet at y=340.
-- Italics are 9° obliques; terminal artwork U+2500–U+259F stays upright. Caret rise/run is 1000/158; this is calculated independently, not copied from the reference’s 1000/25. Underline position/thickness −50/50; strikeout 265/51.
-- Unlink composites before transforms. Preserve source cell counts, zero-width marks, and two-/three-cell feature advances. A common transform fits side bearings/ink width; no per-character weight correction is applied.
-- FontForge nonlinear transforms need cubic contours. Its evaluator crashes on unary-negative constants; [spacing.mjs](../scripts/spacing.mjs) uses binary subtraction and simple composed hinge maps. Export returns to quadratic TTFs.
-- TrueType rounding can create tiny contacts (notably percent). Full-glyph native checks reject unsafe calibration finalists. [transform.mjs](../scripts/transform.mjs) repairs only new contour intersection/direction warnings and checks every output glyph’s filled geometry before/after. Avoid blanket RemoveOverlap: it unnecessarily perturbs curves in unrelated glyphs.
-- [marks.mjs](../scripts/marks.mjs) adds a separate digit/alternate-zero mark lookup before original lookups. It fixes missing digit attachment without changing existing letter anchors, outlines, or advances. All 25 supplied marks are exercised on 10 digits plus alternate zero (275 cases/style); stacking remains active.
-- Very tall/stacked combining sequences can overhang the natural line box. Current bold cases involving U+0312, U+0328 are recorded in desktop validation; preserve the forms and disclose the bounds. Standalone glyphs all fit.
-- Strip old instructions; generate fresh hints with pinned **ttfautohint 1.8.4**, verified latest stable October 24, 2026. Flags in [lib.mjs](../scripts/lib.mjs): range 8–50, limit 200, x-height increase 14, stem mode qsq, Windows compatibility, detailed info, TTFA table.
-- [hinting.mjs](../scripts/hinting.mjs) applies policy **2** from [hinting.json](../reference/hinting.json). Suitable full-size text retains stronger rounding at Regular/Italic 22–26 PPEM and Bold/Bold Italic 16–19 and 26–28. At those ranges, `s`/`S` plus all 20 supplied canonical accented forms use **natural** stem widths: 1.300's strong rounding thickened their ends and weakened the diagonal middle. `eight` and its alternates, `zero.zero`, `ordfeminine`, and `ordmasculine` retain **quantized** widths. Other compact glyphs, marks, punctuation, symbols, and explicit `æ`/`ǽ`/`ů` exceptions remain protected. Eligibility uses the actual `x` outline height, because OS/2 x-height is normalized later.
-- The policy uses ttfautohint **1.8.4’s internal CVT[3] mode** (-100 natural / 0 quantized / 100 strong), after checking the version/base `qsq` initialization. One appended zero CVT entry flags activation. Balanced entry/exit guards restore strong mode after natural or protected glyphs. Blue zones, other sizes, and GDI's existing strong mode remain untouched. Tool upgrades require reviewing this ABI and rerunning native pixel checks.
-- Remove autohinter instructions from **U+2500–U+259F**. Their previous programs collapse/invert terminal geometry on Windows; direct rasterization of the existing grid-fitted outlines fixes it. All 966 existing outlines/advances, glyph IDs, and GPOS/GSUB/GDEF remain identical to 1.200. Geometry fingerprints plus `preservedGlyphCount: 966` are pinned in hinting.json and enforced in builds/tests.
-- [symbols.mjs](../scripts/symbols.mjs) appends only **U+25B3/U+25BD** after hint refinement. htop 3.0.5 uses them in one cell; Inconsolata lacks them, while the installed Iosevka has two-cell `WWID` forms. New geometric outlines have advance 500, x=60..440, y=145..585, and 60/80-unit borders. They stay upright in italics and render without text hints. Their height was enlarged after native tests found disappearing bold counters in smaller prototypes. Appending updates glyf/loca/maxp/post/cmap/hmtx/hhea without altering any existing outlines, mappings, hints, layout tables, advances, or side bearings. The hmtx table is repacked, so compare existing metrics rather than full-table bytes.
-- Normalize actual x/capital metadata, fixed-pitch fields, Win/caret/decoration metrics, style flags, and checksums. Release date is fixed to `2026-10-24T00:00:00+08:00` for deterministic outputs. Update version/date/documentation deliberately for a later release.
+- 1000 units/em, 500-unit cell, six equal whitespace advances, x height 520, capitals 735, letter descender −215. A shared monotonic vertical map fits baseline, lowercase, capitals, descenders, and accent regions.
+- hhea **965/−215/70**; typo **965/−285/0**; Win ascent/descent **965/285**. Every route gives 1250-unit natural lines. Full blocks cover x=0..500, y=−285..965, halves meet at y=340.
+- Italics are **9° obliques**. U+2500–U+259F artwork remains upright. Caret rise/run is 1000/158, independently calculated rather than copying the reference's inconsistent value. Underline −50/50; strikeout 265/51.
+- Unlink composites before transforms. Preserve source cell counts, zero-width marks, and two-/three-cell feature advances. The horizontal fit and italic pivot remain as before.
+- FontForge nonlinear transforms require cubic contours. Its evaluator crashes on unary-negative constants; [spacing.mjs](../scripts/spacing.mjs) uses binary subtraction and composed hinge expressions.
+- Normalize actual x/cap metadata, fixed-pitch fields, Win/caret/decoration metrics, style flags, and checksums. Release date is fixed to **2026-10-24T00:00:00+08:00** for reproducibility. Update version/date deliberately for later releases.
 
-## Commands and validation
+## Generic outline stroke preservation
 
-```sh
-npm ci --ignore-scripts
-npm run bootstrap
-npm run build
-npm test
-npm run preview
-npm run test:browser
-npm run test:raster
-```
+The shared height map compresses the region above capitals and can thin curved strokes before hinting. In Regular f, the minimum sampled perpendicular width in the resized cubic outline was 41.18 units; compensation raises it to 60.35 while preserving the common stem calibration.
 
-Node 22+. Bootstrap is local Debian/Ubuntu x86-64/WSL, no sudo. Python is used only for the existing FontTools CLI; all custom helpers are Node.js. This build used FontTools **4.29.1**, obtained by bootstrap from apt rather than enforced as an exact pin. Tool overrides: PYTHON3, FONTFORGE, TTFAUTOHINT, HB_SHAPE, HB_VIEW, OTS_SANITIZE. Set CHROMIUM when no cached Playwright Chromium is available.
+- [refine.pe](../scripts/refine.pe) saves original and fitted **cubic** SFDs in the build's temporary directory. This gives curve correspondence before quadratic export.
+- [outline-balance.mjs](../scripts/outline-balance.mjs) measures corresponding perpendicular strokes, accepting compatible opposing boundaries. Intended width is source width × abs(det(A)) / length(A × source unit tangent), where A is the established horizontal/lowercase scale plus italic shear.
+- This preserves original stroke contrast under a common stem scale while correcting extra distortion from height fitting. It does not equalize every stroke or copy Iosevka letterforms.
+- Normal displacements are bounded by 20% of the reference vertical stem and 30% of the intended local width. Existing counter contours stay fixed; the opposite outer edge supplies compensation. Straight stems stay straight and smooth joins retain tangent continuity.
+- Candidate strengths 1/.75/.5/.25 use one acceptance rule: improved source-relative normal-width error, a protected error tail, at least 98% comparable samples, no new non-extrema contour warnings, preserved advances, and valid line bounds. Named f/s/S checks select detailed report rows only; names never select a correction.
+- All **964 source glyphs/style** are reviewed. Retained geometric corrections: **669 Regular, 650 Italic, 640 Bold, 568 Bold Italic**. [outline-review.json](outline-review.json) records every glyph and valid normal-ray statistics in cubic geometry. These are source-relative metrics, not Iosevka errors or universal readability scores.
+- Native acceptance may reject a geometric proposal. [outline-native-limits.json](../reference/outline-native-limits.json) is generated data, currently **23** rejections (2/5/7/9 by style). Do not hand-author a list of letter exceptions.
+- [export-outlines.pe](../scripts/export-outlines.pe) returns to quadratic TTF. [transform.mjs](../scripts/transform.mjs) repairs only new intersection/direction warnings and checks filled geometry before/after cleanup. Avoid blanket RemoveOverlap: it perturbs unrelated curves. Proposals such as unsafe percent corrections retain the prior resized source before the established cleanup.
+- [Unhinted SVG](outline-comparison.svg) and [PNG](outline-comparison.png) separate the geometric effect from raster hinting.
 
-- `npm run build` creates all 12 font files, CSS, and manifests; `build:web` exports existing TTFs only.
-- `npm test` runs [verify.mjs](../scripts/verify.mjs), [verify-web.mjs](../scripts/verify-web.mjs), and [audit.mjs](../scripts/audit.mjs). Checks include sanitizer, checksums, hints, original names/features/coverage, all advances, all glyph bounds, paired stems/counters, decoration/caret/line metrics, shaping, 275 digit-mark cases/style, full-font native outline validation, 18,755 spacing pairs/style, and the new triangles' hollow geometry/one-cell headers.
-- All 964 original glyphs/style have size, bearing, outline, and scanline-profile records. All 880 printable source characters have paired Iosevka profiles. The 81 unencoded glyphs lack reliable cross-family naming; review their preserved source-derived outlines separately.
-- [glyph-audit.html](glyph-audit.html) displays every original glyph and per-style measurements; serve the repository through HTTP. Encoded entries use real WOFF2 faces; unencoded SVG previews show geometry, not bytecode hinting. [glyph-audit.json](glyph-audit.json) also records the two new triangles under each style's `supplementalGlyphs`; the web example includes their htop headers.
-- Preview produces comparison/small-size/combining-mark PNGs; verification retains four complete encoded coverage PNGs at 24 px and renders all encoded coverage at seven sizes (10–32 px).
-- `test:browser` is now a permanent dependency-free CDP helper: [check-browser.mjs](../scripts/check-browser.mjs). It launches local Chromium, serves localhost, validates WOFF2/WOFF fallback and family/native spacing/demo/viewer, saves reports/screenshots, and cleans temporary processes/profile. It is separate from npm test.
-- Current Chromium: **153.0.8010.12**; desktop/mobile 1280×1000 and 375×900. The browser report carries exact font/audit hashes. After font changes rerun browser checks or explicitly mark the old report stale.
-- `test:raster` uses [check-raster.mjs](../scripts/check-raster.mjs) and [raster-page.mjs](../scripts/raster-page.mjs). It requires WSL, Windows Chrome/Edge (`WINDOWS_CHROMIUM` override), local references, and pinned **1.300 commit `38f47b105f10ca12ee0963980ddd7965e5fa830a`**. Temporary cmap probes address all **968 output glyphs/style**, including unencoded glyphs, controls, and symbols; empty .notdef is aliased to an identical empty nonzero glyph to prevent browser fallback. No font installation or application settings changes occur.
-- Native raster checks cover all integer 10–32 px sizes and phases 0/.25/.5/.75: actual RGBA identity outside the tuning scope, required counters, empty/visible glyphs, padding, terminal-art bounds, `s`/`S` band balance, and dark/bright one-cell htop headers. Header checks compare actual neighboring ink masks; rounded bounding boxes can overlap harmlessly with half-pixel cells. They save [native-raster-validation.json](native-raster-validation.json), [native-comparison.png](native-comparison.png), and four native coverage sheets. Enlarged curves and htop rows appear in the comparison. These are rendering proxies, not readability scores or exact Windows Terminal equivalence.
-- Current native user agent: Windows HeadlessChrome **155.0.0.0** (reduced version). All **356,224 glyph cases** pass, including **355,488 existing-glyph before/after comparisons**, plus **1,472** header cases. Only 27 existing glyphs/style change pixels, within the policy ranges. Regular `s` at 24 px changes from **0.741 to 1.194** middle/end coverage ratio (unchanged outline ratio 1.193). Passage luminance remains essentially unchanged: **98.23 → 98.19**, relative to Iosevka = 100. These ratios are not perpendicular stroke widths or readability scores. REVIEW.md records all styles and limits. All 12 font files reproduce identical hashes on repeat builds.
-- Original variable/static inputs can differ in contour count (e.g. uni01B8). Compare geometric topology with the actual variable design instance; static inputs remain the coverage/feature regression baseline.
-- Inherited FontForge warnings and new missing-extrema advisories for quadratic TTFs are recorded. All new non-extrema validation warnings fail the audit. Do not claim that passing finite tests proves universal bug-free rendering.
-- After font changes regenerate both desktop/web outputs, relevant specimens/reports, and this context. Repeat-build hashes matched all 12 final font files. Documentation-only edits need no font rebuild.
+## Generic hint policy
+
+- Generate fresh hints with pinned **ttfautohint 1.8.4**: range 8–50, limit 200, x-height increase 14, **qsq**, Windows compatibility, detailed info, TTFA table. Settings are in [lib.mjs](../scripts/lib.mjs).
+- [hinting.json](../reference/hinting.json) uses **policy 3, selection algorithm 6**. [hint-selection.mjs](../scripts/hint-selection.mjs) chooses natural or quantized fitting for every glyph/size using local multiscale ink distribution, density, contrast, phase variation, and small-detail retention. Strong fitting is a fallback for resolvable details: currently **seven glyph-size choices** (0/6/1/0 by style).
+- The 1.400 s/S-only rule and hand-selected letter protections are gone. The generated name/ID/range records are measurement results.
+- [hinting.mjs](../scripts/hinting.mjs) uses ttfautohint **1.8.4's internal CVT[3] ABI**: −100 natural / 0 quantized / 100 strong. Check version/base initialization before use. Balanced entry/exit programs restore quantized mode and clear a new CVT flag; GDI's existing strong renderer mode and natural renderers keep their behavior.
+- Every source-derived geometry and every base hint program is fingerprinted. A build fails if it does not match the calibrated geometry and fpgm/prep/cvt/glyph programs. Hint refinement preserves that reviewed geometry and all advances exactly. Tool upgrades require reviewing this ABI and recalibrating.
+- [hint-bounds.mjs](../scripts/hint-bounds.mjs) additionally checks every hinted glyph at every fitted size/phase. Text fitting permits 2 px + PPEM/16 (4 px at 32 PPEM); cell artwork retains 1.51 px. A program that exceeds this budget is omitted only after direct rendering passes all-size bounds, visibility, and resolvable-detail checks. Current generated fallbacks: Regular/Italic integral and Bold Italic U+1E1C. Names never select the rule. Omitted source programs have recorded hashes; the remaining programs retain their combined fingerprint. GDI's normal mode is preserved for glyphs retaining hint programs.
+- U+2500–U+259F text hint programs are removed: their old programs collapsed/inverted cell geometry on Windows. Two appended one-cell sort triangles also render directly.
+- Earlier **1.400 commit 2b83b5cca96a41efab1b07d0c74905e429d02dda** is a comparison baseline, not a shipping build input. Unlike 1.400, this release intentionally changes outline geometry and regenerates global hint parameters. Retain glyph IDs, advances, coverage, and feature behavior, not old glyf/GPOS bytes.
+
+## Native measurements and their interpretation
+
+[ink-profile.mjs](../scripts/ink-profile.mjs) uses direct paths at 256 px/em to measure the filled union. Raw outer-contour counts are not connected components.
+
+- Review all integer **8–50 px** and phases **0/.125/.25/.375/.5/.625/.75/.875**.
+- Resolvable counters have approximately **2 px inscribed diameter**. Component regions need **0.5 px²**, with regions separated by less than **1 px** grouped into unresolved clusters.
+- Hard checks preserve resolvable middle-coverage counters and distinct ink cores through a **35%/50%/65%** threshold sweep. Halos can touch while two bright dots remain distinct; do not require identical connectivity at every threshold.
+- Smaller details contribute to scores/diagnostics; exact subpixel binary topology is not a valid universal invariant. Do not weaken meaningful outline or visibility checks to force a result.
+- Native geometry acceptance rebuilds rejected proposals before final fitting. [outline-safety-page.mjs](../scripts/outline-safety-page.mjs), [hint-review-page.mjs](../scripts/hint-review-page.mjs), and [calibrate-hinting.mjs](../scripts/calibrate-hinting.mjs) implement the review.
+- The fitting review covers **5,327,872 candidate rasterizations**. Filled ink relative to 1.400 for the autohinted corpus is **100.04%, 99.94%, 99.59%, 99.60%**. Average local distortion scores improve, while some glyph-size cases worsen. These are proxies, not readability scores.
+- [check-raster.mjs](../scripts/check-raster.mjs) compares compiled mode pixels with independent fixed-mode candidates, tests every output glyph, local ink, resolvable detail, bounds, clipping/disappearance, s/S regressions, and one-cell headers. All 968 glyphs/style, including unencoded glyphs and controls, use private-use cmap probes. Empty glyph zero aliases an identical nonzero empty glyph to prevent fallback.
+- Expected compiled coverage: **1,331,968 glyph cases** plus **5,504 header cases**. Each glyph case also checks its compiled mode against the corresponding fixed candidate. Web conversion must preserve every outline and hint exactly.
+- Windows user agent is HeadlessChrome **155.0.0.0** (reduced version); Linux browser **153.0.8010.12**. Browser rendering is not Windows Terminal equivalence. The user must reinstall all four TTFs/restart Terminal for actual visual approval. No fonts are installed or application settings changed automatically.
+
+## Build, calibration, and checks
+
+Node 22+. Bootstrap is unprivileged Debian/Ubuntu x86-64/WSL, no sudo. Python is used only for the established FontTools CLI; custom helpers are **Node.js**. This toolchain uses FontTools **4.29.1** from apt and the recorded FontForge build. Overrides: PYTHON3, FONTFORGE, TTFAUTOHINT, HB_SHAPE, HB_VIEW, OTS_SANITIZE, CHROMIUM, WINDOWS_CHROMIUM.
+
+    npm ci --ignore-scripts
+    npm run bootstrap
+    npm run build
+    npm test
+    npm run preview
+    npm run test:browser
+    npm run test:raster
+
+- Normal builds use recorded settings and original sources, without a Windows browser.
+- After changing geometric fit/axes/autohinter inputs, run **npm run calibrate:hinting -- --reset-outline-safety**, then build and validate again. This needs WSL, Windows Chrome/Edge, and the pinned 1.400 Git history.
+- Calibration prepares original-source inputs, performs native geometry acceptance, rebuilds rejected proposals, and chooses fitting modes. Debug reuse: node scripts/build.mjs --hint-inputs=<unique-OS-temp-directory>, then node scripts/calibrate-hinting.mjs --inputs=<directory>. Delete owned temporary inputs after use.
+- Calibration ends with the hint-bounds safeguard. It can be rerun against prepared original-source inputs using node scripts/hint-bounds.mjs --inputs=<directory>; then rebuild and validate. [hint-bounds.json](hint-bounds.json) records its evidence. Aggregate fitting ink scores in hinting-review.json precede this final safeguard; the compiled native report uses the actual final programs.
+- npm test checks metadata, original names/features/coverage, all advances/bounds, H/n stems/counters/bearings, marks, sanitization, seven Linux sizes, every original glyph, and **18,755 spacing pairs/style**.
+- All 25 combining marks are exercised on 10 digits plus alternate zero (275 pairs/style). [marks.mjs](../scripts/marks.mjs) recomputes missing digit attachment against current geometry; original letter lookups remain. Very tall/stacked sequences can overhang the natural line box; their actual bounds are recorded rather than deforming glyphs to force a fit.
+- Browser checks load real WOFF2 and forced WOFF faces, verify family/emphasis and native 0.5 em cells/1.25 em lines, mobile layout, demo slider, and every viewer page. The viewer indexes **964 original glyphs**; the two new symbols have supplemental records.
+- Keep reports current after font changes: [desktop](validation.json), [web](web-validation.json), [glyph audit](glyph-audit.json), [browser](web-browser-validation.json), [native raster](native-raster-validation.json), [outline review](outline-review.json), [hint review](hinting-review.json). Font hashes must match final binaries. Repeat-build hashes must match all 12 font files before publication.
+- Finite checks do not prove universal bug-free rendering. Preserve source forms and disclose meaningful limits.
 
 ## Files and Git workflow
 
-Core files: [build.mjs](../scripts/build.mjs), [refine.pe](../scripts/refine.pe), [transform.mjs](../scripts/transform.mjs), [marks.mjs](../scripts/marks.mjs), [hinting.mjs](../scripts/hinting.mjs), [symbols.mjs](../scripts/symbols.mjs), [calibrate.mjs](../scripts/calibrate.mjs), [spacing.mjs](../scripts/spacing.mjs), and [lib.mjs](../scripts/lib.mjs). Manifests are generated [fonts/build-info.json](../fonts/build-info.json) and [webfonts/build-info.json](../webfonts/build-info.json). Reports: [desktop](validation.json), [web](web-validation.json), [glyph audit](glyph-audit.json), [browser](web-browser-validation.json), and [native raster](native-raster-validation.json).
+Core: build.mjs, refine.pe, transform.mjs, outline-balance.mjs, export-outlines.pe, marks.mjs, hinting.mjs, hint-selection.mjs, calibrate-hinting.mjs, symbols.mjs, spacing.mjs, lib.mjs. Generated manifests: fonts/build-info.json and webfonts/build-info.json.
 
-- Use one agent unless the user explicitly requests delegation. Prefer existing commands. Node helpers only; temporary dependencies/scripts in unique OS temp directories, cleaned afterward.
-- Keep progress visible roughly every 20–30 seconds, with resumable commands and short waits. Bound network fetches and use the existing shell proxy configuration once on direct failures without printing credentials.
-- Staging, committing, and pushing project changes are authorized. Preserve unrelated edits. Remote `git@github.com:yunlingz/inconsolata-refined.git`; branch `master` tracks `origin/master`. Use **SSH** and short imperative commit subjects.
-- Before publishing, confirm exactly four TTFs/eight web fonts are tracked, every report/hash matches the final binaries, links and staged diff are sound, and no temporary server/browser remains. Root AGENTS.md and CLAUDE.md already point here.
+- One agent unless the user explicitly requests delegation. Use existing commands and Node helpers. Disposable scripts/dependencies/artifacts belong in unique OS temporary directories and must be cleaned.
+- Keep progress visible around every 20–30 seconds, with resumable commands and short waits. Bound network fetches and use the existing shell proxy configuration once on direct failures without printing credentials.
+- Staging, committing, and pushing are authorized. Preserve unrelated edits. Branch **master** tracks origin/master, SSH remote **git@github.com:yunlingz/inconsolata-refined.git**. Use short imperative commit subjects.
+- Before publishing, confirm exactly four TTFs/eight web fonts tracked, matching report hashes, valid local documentation links, a clean staged diff, and no temporary server/browser left.
+- Root AGENTS.md and CLAUDE.md already point to this context.

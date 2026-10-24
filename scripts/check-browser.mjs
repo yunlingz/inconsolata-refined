@@ -13,7 +13,7 @@ const temporary = await mkdtemp(join(tmpdir(), 'inconsolata-browser-check-'));
 let child, socket, server, blockWoff2 = false;
 const loaded = [], pending = new Map(), events = new Map(), errors = [];
 let sequence = 0;
-const types = { '.html': 'text/html', '.css': 'text/css', '.json': 'application/json', '.png': 'image/png', '.woff': 'font/woff', '.woff2': 'font/woff2' };
+const types = { '.html': 'text/html', '.css': 'text/css', '.json': 'application/json', '.svg': 'image/svg+xml', '.png': 'image/png', '.woff': 'font/woff', '.woff2': 'font/woff2' };
 function call(method, params = {}, sessionId) {
   return new Promise((resolvePromise, reject) => {
     const id = ++sequence;
@@ -155,6 +155,8 @@ try {
         await screenshot(sessionId, `unencoded-${page + 1}.png`, true);
       }
       results.at(-1).glyphViewer.unencodedPages = unencoded.pages;
+      await navigate(sessionId, `${address}/docs/outline-comparison.svg`);
+      await screenshot(sessionId, 'outline-comparison.png', true);
     }
     await call('Target.disposeBrowserContext', { browserContextId });
   }

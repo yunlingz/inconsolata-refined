@@ -4,7 +4,8 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { PNG } from 'pngjs';
 import { create } from 'fontkit';
-import { root, styles, weightTargets, fontFile, sourceBytes, run, tool, heartbeat } from './lib.mjs';
+import { root, version, hintPolicy, styles, weightTargets, fontFile, sourceBytes, run, tool, heartbeat } from './lib.mjs';
+import { execute } from './native-raster.mjs';
 
 const done = heartbeat('Rendering the font comparison and small-size specimens');
 const temporary = await mkdtemp(join(tmpdir(), 'inconsolata-refined-preview-'));
@@ -138,6 +139,28 @@ try {
   } else {
     console.log('Paired stroke preview needs both local Iosevka collections; see reference/weights.json.');
   }
+  const outlineParts = ['<svg xmlns="http://www.w3.org/2000/svg" width="2040" height="1220" viewBox="0 0 2040 1220">',
+    '<rect width="2040" height="1220" fill="#282c34"/>',
+    '<g font-family="sans-serif" fill="#dcdfe4"><text x="24" y="28" font-size="20">Original-source stroke compensation — outlines without hinting</text>',
+    '<text x="24" y="52" font-size="14">Same size and advances; resize-only 1.400 (left) and source-aware ' + version + ' (right). Paths at 160 px/em.</text></g>'];
+  const characters = ['f', 's', 'S', 'e', 'c', 'g', '8', 'ä', 'Å'];
+  for (const [row, style] of styles.entries()) {
+    const previous = create(await execute('git', ['show', hintPolicy.baselineRevision + ':fonts/InconsolataRefined-' + style.file + '.ttf']));
+    const current = create(await readFile(fontFile(style))), top = 78 + row * 280, baseline = top + 190;
+    outlineParts.push('<g font-family="sans-serif" font-size="15" fill="#a6e3a1"><text x="24" y="' + top + '">' + style.name + '</text></g>');
+    for (const height of [0, 520, 735]) outlineParts.push('<path d="M24 ' + (baseline - height * .16) + 'H2010" stroke="#3a424f" stroke-width="1"/>');
+    for (const [column, character] of characters.entries()) {
+      const x = 24 + column * 220;
+      outlineParts.push('<g font-family="sans-serif" font-size="12" fill="#8e96a4"><text x="' + x + '" y="' + (top + 24) + '">' + character + ' · 1.400 / ' + version + '</text></g>');
+      for (const [index, font] of [previous, current].entries()) {
+        const glyph = font.glyphForCodePoint(character.codePointAt(0));
+        outlineParts.push('<path fill="#dcdfe4" d="' + glyph.path.toSVG() + '" transform="translate(' + (x + 8 + index * 108) + ' ' + baseline + ') scale(.16 -.16)"/>');
+      }
+    }
+  }
+  outlineParts.push('</svg>');
+  await writeFile(join(root, 'docs/outline-comparison.svg'), outlineParts.join('\n') + '\n');
+  console.log('Saved docs/outline-comparison.svg with unhinted geometry in all four styles.');
 } finally {
   done();
   await rm(temporary, { recursive: true, force: true });

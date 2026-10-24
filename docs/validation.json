@@ -53,20 +53,65 @@
         }
       },
       "digitMarkPairsChecked": 275,
-      "digitMarkOverhangs": [],
+      "digitMarkOverhangs": [
+        {
+          "text": "0̨",
+          "alternateZero": false,
+          "minY": -296,
+          "maxY": -12,
+          "reason": "Tall combining sequences may exceed natural line spacing; glyph shapes are preserved"
+        },
+        {
+          "text": "3̨",
+          "alternateZero": false,
+          "minY": -297,
+          "maxY": -13,
+          "reason": "Tall combining sequences may exceed natural line spacing; glyph shapes are preserved"
+        },
+        {
+          "text": "5̨",
+          "alternateZero": false,
+          "minY": -297,
+          "maxY": -13,
+          "reason": "Tall combining sequences may exceed natural line spacing; glyph shapes are preserved"
+        },
+        {
+          "text": "6̨",
+          "alternateZero": false,
+          "minY": -295,
+          "maxY": -11,
+          "reason": "Tall combining sequences may exceed natural line spacing; glyph shapes are preserved"
+        },
+        {
+          "text": "8̨",
+          "alternateZero": false,
+          "minY": -295,
+          "maxY": -11,
+          "reason": "Tall combining sequences may exceed natural line spacing; glyph shapes are preserved"
+        },
+        {
+          "text": "9̨",
+          "alternateZero": false,
+          "minY": -296,
+          "maxY": -12,
+          "reason": "Tall combining sequences may exceed natural line spacing; glyph shapes are preserved"
+        },
+        {
+          "text": "0̨",
+          "alternateZero": true,
+          "minY": -296,
+          "maxY": -12,
+          "reason": "Tall combining sequences may exceed natural line spacing; glyph shapes are preserved"
+        }
+      ],
       "hintRefinement": {
-        "policyVersion": 2,
-        "strongPpemRanges": [
-          [
-            22,
-            26
-          ]
-        ],
-        "eligibleGlyphs": 470,
-        "naturalGlyphs": 22,
-        "protectedGlyphs": 302,
+        "policyVersion": 3,
+        "algorithmVersion": 6,
+        "selectedGlyphs": 634,
         "terminalGlyphs": 160,
-        "geometrySha256": "7e0ae87f79d08d0627a5c3a241cd3787e1107008fb3a19ef32097ad7faae254a"
+        "directRasterGlyphs": 1,
+        "baseHintSha256": "a8609c29f00c6ecbad4f82a7301a47e29328a8da7b9541ac316d93bca5e187ff",
+        "geometrySha256": "312f900f384d057f40d866331597065a0583cde573014dbd0b48ead36d36c801"
       },
       "lineMetrics": {
         "hhea": [
@@ -102,7 +147,7 @@
         24,
         32
       ],
-      "sha256": "f1a325cb8a72f815bead1e76626ce631d9daab01b511cd97b1336cf1cf381922"
+      "sha256": "bba54f95af97157407a07ad0140010e5ac2235b799ed3191e78c901b181ba97d"
     },
     {
       "style": "Italic",
@@ -156,20 +201,72 @@
         }
       },
       "digitMarkPairsChecked": 275,
-      "digitMarkOverhangs": [],
+      "digitMarkOverhangs": [
+        {
+          "text": "0̨",
+          "alternateZero": false,
+          "minY": -288,
+          "maxY": -12,
+          "reason": "Tall combining sequences may exceed natural line spacing; glyph shapes are preserved"
+        },
+        {
+          "text": "3̨",
+          "alternateZero": false,
+          "minY": -289,
+          "maxY": -13,
+          "reason": "Tall combining sequences may exceed natural line spacing; glyph shapes are preserved"
+        },
+        {
+          "text": "5̨",
+          "alternateZero": false,
+          "minY": -289,
+          "maxY": -13,
+          "reason": "Tall combining sequences may exceed natural line spacing; glyph shapes are preserved"
+        },
+        {
+          "text": "6̨",
+          "alternateZero": false,
+          "minY": -286,
+          "maxY": -10,
+          "reason": "Tall combining sequences may exceed natural line spacing; glyph shapes are preserved"
+        },
+        {
+          "text": "8̒",
+          "alternateZero": false,
+          "minY": 752,
+          "maxY": 973,
+          "reason": "Tall combining sequences may exceed natural line spacing; glyph shapes are preserved"
+        },
+        {
+          "text": "8̨",
+          "alternateZero": false,
+          "minY": -289,
+          "maxY": -13,
+          "reason": "Tall combining sequences may exceed natural line spacing; glyph shapes are preserved"
+        },
+        {
+          "text": "9̨",
+          "alternateZero": false,
+          "minY": -288,
+          "maxY": -12,
+          "reason": "Tall combining sequences may exceed natural line spacing; glyph shapes are preserved"
+        },
+        {
+          "text": "0̨",
+          "alternateZero": true,
+          "minY": -288,
+          "maxY": -12,
+          "reason": "Tall combining sequences may exceed natural line spacing; glyph shapes are preserved"
+        }
+      ],
       "hintRefinement": {
-        "policyVersion": 2,
-        "strongPpemRanges": [
-          [
-            22,
-            26
-          ]
-        ],
-        "eligibleGlyphs": 470,
-        "naturalGlyphs": 22,
-        "protectedGlyphs": 302,
+        "policyVersion": 3,
+        "algorithmVersion": 6,
+        "selectedGlyphs": 616,
         "terminalGlyphs": 160,
-        "geometrySha256": "ffaf59ec3796325ed092911580727b43e19b0ba473eb601da2de554835b786fa"
+        "directRasterGlyphs": 1,
+        "baseHintSha256": "995143c041dc7ca809ea63318862224afecf8278ac345096e2536a6599842cf7",
+        "geometrySha256": "90611ac439c894da45a56d695a56bf58572be9469e0e36a4d9b775cac71d9992"
       },
       "lineMetrics": {
         "hhea": [
@@ -205,7 +302,7 @@
         24,
         32
       ],
-      "sha256": "a3935e14ac378b2ebe72883af5fe39bccd415a94c451fe6eadfe0066ca4cc05f"
+      "sha256": "06042648ccf619b0bd25996fdb41e1d800b6e9bbf95542abb3445a4ca5a1b831"
     },
     {
       "style": "Bold",
@@ -263,15 +360,15 @@
         {
           "text": "0̒",
           "alternateZero": false,
-          "minY": 751,
-          "maxY": 1002,
+          "minY": 736,
+          "maxY": 987,
           "reason": "Tall combining sequences may exceed natural line spacing; glyph shapes are preserved"
         },
         {
           "text": "0̨",
           "alternateZero": false,
-          "minY": -294,
-          "maxY": -14,
+          "minY": -293,
+          "maxY": -13,
           "reason": "Tall combining sequences may exceed natural line spacing; glyph shapes are preserved"
         },
         {
@@ -284,22 +381,22 @@
         {
           "text": "2̒",
           "alternateZero": false,
-          "minY": 751,
-          "maxY": 1002,
+          "minY": 743,
+          "maxY": 994,
           "reason": "Tall combining sequences may exceed natural line spacing; glyph shapes are preserved"
         },
         {
           "text": "3̒",
           "alternateZero": false,
-          "minY": 751,
-          "maxY": 1002,
+          "minY": 744,
+          "maxY": 995,
           "reason": "Tall combining sequences may exceed natural line spacing; glyph shapes are preserved"
         },
         {
           "text": "3̨",
           "alternateZero": false,
-          "minY": -294,
-          "maxY": -14,
+          "minY": -293,
+          "maxY": -13,
           "reason": "Tall combining sequences may exceed natural line spacing; glyph shapes are preserved"
         },
         {
@@ -319,22 +416,22 @@
         {
           "text": "5̨",
           "alternateZero": false,
-          "minY": -294,
-          "maxY": -14,
+          "minY": -293,
+          "maxY": -13,
           "reason": "Tall combining sequences may exceed natural line spacing; glyph shapes are preserved"
         },
         {
           "text": "6̒",
           "alternateZero": false,
-          "minY": 753,
-          "maxY": 1004,
+          "minY": 748,
+          "maxY": 999,
           "reason": "Tall combining sequences may exceed natural line spacing; glyph shapes are preserved"
         },
         {
           "text": "6̨",
           "alternateZero": false,
-          "minY": -294,
-          "maxY": -14,
+          "minY": -293,
+          "maxY": -13,
           "reason": "Tall combining sequences may exceed natural line spacing; glyph shapes are preserved"
         },
         {
@@ -347,63 +444,54 @@
         {
           "text": "8̒",
           "alternateZero": false,
-          "minY": 753,
-          "maxY": 1004,
+          "minY": 739,
+          "maxY": 990,
           "reason": "Tall combining sequences may exceed natural line spacing; glyph shapes are preserved"
         },
         {
           "text": "8̨",
           "alternateZero": false,
-          "minY": -294,
-          "maxY": -14,
+          "minY": -292,
+          "maxY": -12,
           "reason": "Tall combining sequences may exceed natural line spacing; glyph shapes are preserved"
         },
         {
           "text": "9̒",
           "alternateZero": false,
-          "minY": 751,
-          "maxY": 1002,
+          "minY": 744,
+          "maxY": 995,
           "reason": "Tall combining sequences may exceed natural line spacing; glyph shapes are preserved"
         },
         {
           "text": "9̨",
           "alternateZero": false,
-          "minY": -294,
-          "maxY": -14,
+          "minY": -293,
+          "maxY": -13,
           "reason": "Tall combining sequences may exceed natural line spacing; glyph shapes are preserved"
         },
         {
           "text": "0̒",
           "alternateZero": true,
-          "minY": 751,
-          "maxY": 1002,
+          "minY": 736,
+          "maxY": 987,
           "reason": "Tall combining sequences may exceed natural line spacing; glyph shapes are preserved"
         },
         {
           "text": "0̨",
           "alternateZero": true,
-          "minY": -294,
-          "maxY": -14,
+          "minY": -293,
+          "maxY": -13,
           "reason": "Tall combining sequences may exceed natural line spacing; glyph shapes are preserved"
         }
       ],
       "hintRefinement": {
-        "policyVersion": 2,
-        "strongPpemRanges": [
-          [
-            16,
-            19
-          ],
-          [
-            26,
-            28
-          ]
-        ],
-        "eligibleGlyphs": 469,
-        "naturalGlyphs": 22,
-        "protectedGlyphs": 303,
+        "policyVersion": 3,
+        "algorithmVersion": 6,
+        "selectedGlyphs": 559,
         "terminalGlyphs": 160,
-        "geometrySha256": "91e1399544ab3f6e46d6b64f34a3683bb6a01cff1c859089a7691675a4898209"
+        "directRasterGlyphs": 0,
+        "baseHintSha256": "69c06961b82bab1de97725f23c2e91afeebbbc844095fe08ac9f14020d5b627d",
+        "geometrySha256": "1aa09d05051878f31a3adb99b6de28c149a1a1ff8d7e356c852a77b7a6803be5"
       },
       "lineMetrics": {
         "hhea": [
@@ -439,7 +527,7 @@
         24,
         32
       ],
-      "sha256": "0aa467f766202ec5d6c0bd930433adba1cf466df72a48c2139f11b2700ae12bf"
+      "sha256": "fecdeca1c2675676a2569051b32da0674e374ba1e6020948f08292a34ab2213e"
     },
     {
       "style": "Bold Italic",
@@ -476,7 +564,7 @@
           ],
           "n": [
             10,
-            443.26086956521743
+            442.76190476190476
           ]
         },
         "counters": {
@@ -497,15 +585,15 @@
         {
           "text": "0̒",
           "alternateZero": false,
-          "minY": 751,
-          "maxY": 1004,
+          "minY": 732,
+          "maxY": 985,
           "reason": "Tall combining sequences may exceed natural line spacing; glyph shapes are preserved"
         },
         {
           "text": "0̨",
           "alternateZero": false,
-          "minY": -294,
-          "maxY": -14,
+          "minY": -290,
+          "maxY": -10,
           "reason": "Tall combining sequences may exceed natural line spacing; glyph shapes are preserved"
         },
         {
@@ -518,22 +606,22 @@
         {
           "text": "2̒",
           "alternateZero": false,
-          "minY": 751,
-          "maxY": 1004,
+          "minY": 746,
+          "maxY": 999,
           "reason": "Tall combining sequences may exceed natural line spacing; glyph shapes are preserved"
         },
         {
           "text": "3̒",
           "alternateZero": false,
-          "minY": 751,
-          "maxY": 1004,
+          "minY": 741,
+          "maxY": 994,
           "reason": "Tall combining sequences may exceed natural line spacing; glyph shapes are preserved"
         },
         {
           "text": "3̨",
           "alternateZero": false,
-          "minY": -294,
-          "maxY": -14,
+          "minY": -293,
+          "maxY": -13,
           "reason": "Tall combining sequences may exceed natural line spacing; glyph shapes are preserved"
         },
         {
@@ -553,22 +641,22 @@
         {
           "text": "5̨",
           "alternateZero": false,
-          "minY": -294,
-          "maxY": -14,
+          "minY": -293,
+          "maxY": -13,
           "reason": "Tall combining sequences may exceed natural line spacing; glyph shapes are preserved"
         },
         {
           "text": "6̒",
           "alternateZero": false,
-          "minY": 753,
-          "maxY": 1006,
+          "minY": 751,
+          "maxY": 1004,
           "reason": "Tall combining sequences may exceed natural line spacing; glyph shapes are preserved"
         },
         {
           "text": "6̨",
           "alternateZero": false,
-          "minY": -294,
-          "maxY": -14,
+          "minY": -293,
+          "maxY": -13,
           "reason": "Tall combining sequences may exceed natural line spacing; glyph shapes are preserved"
         },
         {
@@ -581,63 +669,54 @@
         {
           "text": "8̒",
           "alternateZero": false,
-          "minY": 753,
-          "maxY": 1006,
+          "minY": 740,
+          "maxY": 993,
           "reason": "Tall combining sequences may exceed natural line spacing; glyph shapes are preserved"
         },
         {
           "text": "8̨",
           "alternateZero": false,
-          "minY": -294,
-          "maxY": -14,
+          "minY": -291,
+          "maxY": -11,
           "reason": "Tall combining sequences may exceed natural line spacing; glyph shapes are preserved"
         },
         {
           "text": "9̒",
           "alternateZero": false,
-          "minY": 751,
-          "maxY": 1004,
+          "minY": 741,
+          "maxY": 994,
           "reason": "Tall combining sequences may exceed natural line spacing; glyph shapes are preserved"
         },
         {
           "text": "9̨",
           "alternateZero": false,
-          "minY": -294,
-          "maxY": -14,
+          "minY": -293,
+          "maxY": -13,
           "reason": "Tall combining sequences may exceed natural line spacing; glyph shapes are preserved"
         },
         {
           "text": "0̒",
           "alternateZero": true,
-          "minY": 751,
-          "maxY": 1004,
+          "minY": 731,
+          "maxY": 984,
           "reason": "Tall combining sequences may exceed natural line spacing; glyph shapes are preserved"
         },
         {
           "text": "0̨",
           "alternateZero": true,
-          "minY": -294,
-          "maxY": -14,
+          "minY": -290,
+          "maxY": -10,
           "reason": "Tall combining sequences may exceed natural line spacing; glyph shapes are preserved"
         }
       ],
       "hintRefinement": {
-        "policyVersion": 2,
-        "strongPpemRanges": [
-          [
-            16,
-            19
-          ],
-          [
-            26,
-            28
-          ]
-        ],
-        "eligibleGlyphs": 468,
-        "naturalGlyphs": 22,
-        "protectedGlyphs": 304,
+        "policyVersion": 3,
+        "algorithmVersion": 6,
+        "selectedGlyphs": 561,
         "terminalGlyphs": 160,
-        "geometrySha256": "ee887659c97ab50b5abf65085b577f9a51809cb864852f0e3ecb079726aadb24"
+        "directRasterGlyphs": 1,
+        "baseHintSha256": "6f8cad85745df9988daeb9632ff77cdbc21921fa7c3717f216a43f08958b5ab2",
+        "geometrySha256": "4a98e17384cb8cf004f8a8bd7a8211751b32b62140bd6c1fd0515b1c1717e23e"
       },
       "lineMetrics": {
         "hhea": [
@@ -673,7 +752,7 @@
         24,
         32
       ],
-      "sha256": "0469cf51adcb945447fa4f84e65c61f04ac09b16a8806afe4075c451f90beb77"
+      "sha256": "962e8ec0f4e29cf9f2ca32e2c337e1bfab240573f9a9f9b5174be3f39f88a5aa"
     }
   ]
 }

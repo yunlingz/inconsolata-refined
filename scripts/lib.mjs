@@ -9,7 +9,7 @@ import { create } from 'fontkit';
 
 export const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 export const family = 'Inconsolata Refined';
-export const version = '1.400';
+export const version = '1.500';
 export const styles = [
   { file: 'Regular', name: 'Regular', source: 'Regular', weight: 400, italic: false },
   { file: 'Italic', name: 'Italic', source: 'Regular', weight: 400, italic: true },

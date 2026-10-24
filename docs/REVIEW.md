@@ -1,17 +1,14 @@
 # Font review
 
-Reviewed October 24, 2026. Scope: Inconsolata Refined **1.400**, all four TTFs, eight web fonts, every original glyph and the two added sort symbols, paired installed Iosevka references, metadata, hinting, shaping, and browser use.
+Reviewed October 24, 2026. Scope: Inconsolata Refined **1.500**, four TTFs and eight web fonts, all original glyphs, and the two one-cell sort symbols. The review separates source geometry, resizing, hint fitting, and actual rendered pixels.
 
-## Design decisions
+## Size and overall weight
 
-- The active target is Windows-installed Iosevka 33.3.5, replacing the previous Cascadia comparison. Inputs are the original pinned Inconsolata 3.100 variable source, never the previous refined binaries.
-- Preserve Inconsolata’s recognizable forms. Weight/width axes and common transforms provide the best visual balance; 1% is a soft goal. There are no individual weight redraws.
-- Match x height 520, capitals 735, letter descenders −215, cell/space 500, and natural line height 1250 in a 1000-unit em. Accent regions are fitted with a shared monotonic map. All original named glyphs fit the typographic line box.
-- Use 9° obliques for the italic styles. Terminal artwork stays upright and fills its own grid.
+The reference remains the installed **Iosevka 33.3.5**, with upright face 0 and italic face 4 of the corresponding Regular/Bold collections. Each output starts from the original Inconsolata 3.100 variable source. No Iosevka outlines or layout tables are copied.
 
-## Paired stroke calibration
+The x height is **520**, capitals **735**, cell/word space **500**, and natural line height **1250**, in a 1000-unit em. Original names, coverage, advances, marks, and 17 feature tags remain. There are 968 output glyphs and 885 cmap entries.
 
-The three calibration samples are filled spans through H at 25% capital height, n at 35% x height, and the H crossbar. Values below are **refined / Iosevka**, in a 1000-unit em.
+The H/n calibration is unchanged. Values below are **refined / Iosevka**:
 
 | Style | Vertical H | Vertical n | Horizontal H | Largest difference |
 | --- | ---: | ---: | ---: | ---: |
@@ -20,77 +17,90 @@ The three calibration samples are filled spans through H at 25% capital height, 
 | Bold | 112.00 / 111.00 | 110.00 / 111.00 | 97.00 / 96.00 | 1.04% |
 | Bold Italic | 113.30 / 113.00 | 113.26 / 112.78 | 96.00 / 96.00 | 0.42% |
 
-These are representative stem measurements, not a bound on every visible stroke. Every glyph has a separate recorded scanline profile. Diagonals, curves, serifs, and different letterforms change those profiles; for example, a horizontal cut across a diagonal A leg is not its perpendicular stroke width.
+These are representative filled-span measurements, not a bound on every stroke in different typefaces. All original glyphs also receive their own size, bearing, spacing, and scanline audit; 880 printable source characters have paired Iosevka profiles.
 
-## Curve balance corrected in 1.400
+## Shared geometric correction
 
-The user's 1.300 screenshots exposed a local imbalance that whole-passage brightness had missed: the curved ends of `s` grew heavier while its diagonal middle grew thinner. At 14 pt the issue disappeared; at the reported 12 pt it was visible. Native Windows tests reproduce it at 24 px inside Regular's 22–26 PPEM strengthening range, while 28 px lies outside that range. The large bitmap specimen on the original author's website has a different size and rasterization, so it is useful as a design reference rather than a direct pixel comparison.
+The earlier height fit uses different slopes around the baseline, x height, capitals, and accents. Above capital height its compression can thin a curved stroke even before hinting. The upper hook of Regular f had a minimum sampled perpendicular width of **41.18 units** in the resized cubic outline; the source-aware correction raises that minimum to **60.35 units** while keeping the common stem calibration.
 
-Comparing natural, quantized, strong, and original-source renderings isolates our added strong rounding as the cause. The unchanged Regular outline's middle-to-ends vertical-cut ratio is 1.193; the 1.300 raster measured 0.741. This is a hinting distortion, not a missing stroke in the outline. A diagonal's vertical cut is naturally wider than its perpendicular stroke, so the desired ratio is not necessarily 1.
+[outline-balance.mjs](../scripts/outline-balance.mjs) compares corresponding original and resized cubic curves. It measures a filled stroke along the local normal, accepting a nearby opposing boundary with a compatible direction. The intended width preserves the original stroke under the common affine stem scale:
 
-Version 1.400 retains fresh ttfautohint 1.8.4 `qsq` base programs. During the adaptive ranges, full-size `s`/`S` and all 20 supplied accented forms use **natural** stem widths. Eight (including the numerator alternate), alternate zero, and the two ordinal letters use **quantized** fitting. A regional coverage scan across the glyph set informed these choices; its ratios were diagnostic, not universal readability scores. Other suitable text retains stronger rounding at Regular/Italic 22–26 PPEM and Bold/Bold Italic 16–19 or 26–28 PPEM. Blue zones, other sizes, and existing GDI strong mode stay unchanged. Existing compact-glyph, symbol, mark, `æ`/`ǽ`, and Bold Italic `ů` protections remain.
+    intended perpendicular width = original width × |det(A)| / |A × original unit tangent|
 
-The native regression sums normalized pixel coverage through three central columns, split into upper/middle/lower bands, then averages four quarter-pixel placements. The table shows the middle band divided by the mean of the end bands for lowercase `s`. These are vertical coverage ratios, not perpendicular stroke widths.
+A contains the existing horizontal scale, lowercase vertical scale, and the italic shear when applicable. The correction removes the extra weight distortion introduced by the shared height fit; it does not force every stroke or character to have an identical thickness.
 
-| Style | Size | 1.300 | 1.400 |
+Normal displacements are bounded. Counter contours remain fixed; an opposing outer edge supplies compensation instead of consuming a narrow hole. Straight stems remain straight and smooth joins retain tangent continuity. Candidate strengths are evaluated by the same rule for every glyph. A candidate needs improved source-relative width error, no material increase in the upper error tail, at least 98% comparable sample retention, valid contours, preserved advances, and valid line bounds. Unsafe proposals retain the existing resized outline. There are no character-name decisions in this algorithm.
+
+| Style | Original glyphs reviewed | Geometric corrections retained | Mean absolute log-width error, before → after |
 | --- | ---: | ---: | ---: |
-| Regular | 24 px | 0.741 | 1.194 |
-| Italic | 24 px | 0.837 | 1.145 |
-| Bold | 18 px | 0.853 | 1.106 |
-| Bold Italic | 18 px | 0.953 | 1.158 |
+| Regular | 964 | 669 | 0.0695 → 0.0283 |
+| Italic | 964 | 650 | 0.0737 → 0.0355 |
+| Bold | 964 | 640 | 0.0730 → 0.0370 |
+| Bold Italic | 964 | 568 | 0.0810 → 0.0478 |
 
-All **966 existing outlines, advances, and glyph IDs remain exact** relative to 1.200/1.300; GPOS/GSUB/GDEF remain byte-identical. There are no individual letter redraws. Only 27 existing glyphs per style change pixels, within the adaptive ranges. Terminal artwork retains the 1.300 repair: U+2500–U+259F renders directly from its cell-fitted outlines without the autohinter programs that collapsed or inverted its spans.
+The last column uses valid normal-ray samples in cubic geometry before quadratic export. It is a unitless source-relative statistic, not an error against Iosevka, a worst-stroke bound, or a readability score. Quadratic export and cleanup receive separate filled-shape and native rendering checks.
 
-## htop sort symbols
+Detailed records for every original glyph are in [outline-review.json](outline-review.json). The [unhinted SVG comparison](outline-comparison.svg) and [PNG](outline-comparison.png) show the geometric result without font hinting.
 
-The crowded `CPU%▽MEM%` header has a separate cause. The installed htop 3.0.5 [header code](https://github.com/htop-dev/htop/blob/3.0.5/ProcessList.c#L96) replaces a single trailing space with the [U+25B3/U+25BD sort indicator](https://github.com/htop-dev/htop/blob/3.0.5/CRT.c#L58). Original Inconsolata lacks both characters, causing Windows font fallback. The measured Iosevka reference maps them to `WWID` glyphs with **1000-unit advances and roughly 780-unit ink widths**, against its ordinary 500-unit cell. Either source can produce the overlapping appearance in the screenshots. Cascadia supplies its own one-cell triangles.
+## Native geometry acceptance
 
-[symbols.mjs](../scripts/symbols.mjs) appends two newly constructed geometric triangles. Each has a **500-unit advance**, x bounds **60–440**, and y bounds **145–585**. They remain upright in italic styles, use 60/80-unit regular/bold borders, and render without text-hint distortion. The vertical extent was chosen after native tests caught disappearing counters in smaller bold prototypes. Their hollow centers pass the 18–32 px counter checks, and all 10–32 px cases remain visible and inside their cells. No Iosevka or Cascadia outline is copied.
+Continuous contour validity alone cannot predict pixel behavior. The calibration therefore checks each geometric proposal in native Windows Chromium over **8–50 px and eight horizontal phases**, trying natural, quantized, and strong fitting.
 
-All existing cmap mappings and hint programs survive this append exactly. The `hmtx` table is expanded to carry the new glyphs; every existing advance and side bearing remains unchanged. The outputs now have **968 glyphs and 885 cmap entries**. Original coverage and features remain intact.
+The acceptance test uses the high-resolution filled union, rather than assuming each outer contour is a disconnected component. It distinguishes resolvable features from subpixel details:
 
-## Native pixel validation
+- A counter is a hard constraint when its approximate inscribed diameter reaches **2 px**.
+- Component regions need at least **0.5 px²** of area; regions separated by less than **1 px** form an unresolved cluster.
+- Resolvable counters are checked at middle coverage and through a 35%/50%/65% threshold sweep.
+- Separate ink cores can remain visible at a higher threshold even when their antialiased halos touch. Component separation is checked through the sweep.
+- Smaller holes, marks, and gray-mask changes remain fitting diagnostics and score terms. Their exact binary topology is not a visual invariant.
 
-[Windows comparisons](native-comparison.png), [all-glyph evidence](native-raster-validation.json), and `npm run test:raster` document the release against the pinned **1.300** Git baseline. The check addresses all 968 output glyphs, including unencoded alternates/ligatures and controls, through temporary private-use cmap mappings. Empty glyph zero uses an identical nonzero empty glyph to prevent browser fallback.
+The completed acceptance pass retained the resized source for **23** otherwise valid proposals: **2 Regular, 5 Italic, 7 Bold, and 9 Bold Italic**. These generated constraints are recorded in [outline-native-limits.json](../reference/outline-native-limits.json). They are measured outcomes, not manually chosen letter exceptions. The rebuilt geometry passed the acceptance pass in every style.
 
-All **356,224 glyph cases** pass at every integer 10–32 px size and four phases, including **355,488 before/after comparisons** for the existing glyphs. Checks cover actual RGBA identity outside the permitted scope, geometry/layout preservation, disappearance, clipping, counters, and raster bounds. New regressions test `s`/`S` band balance and **1,472** up/down header cases on dark and bright backgrounds. Header tests check one-cell advances and actual adjacent ink masks; rounded bounding boxes alone can overlap harmlessly at half-pixel cell widths. Accidentally created raster islands are not treated as required outline counters.
+## Generic hint fitting
 
-Whole-passage luminance remains essentially unchanged. These measurements sum sRGB-linearized text luminance, averaged over four phases, with Iosevka = 100. They combine brightness and shape area and do not measure readability.
+All faces retain fresh **ttfautohint 1.8.4**, base mode qsq, range 8–50, limit 200, x-height increase 14, and Windows compatibility. The 1.400 s/S-only rule has been replaced by [hint-selection.mjs](../scripts/hint-selection.mjs).
 
-| Style | Size | 1.300 | 1.400 |
-| --- | ---: | ---: | ---: |
-| Regular | 24 px | 98.23 | 98.19 |
-| Italic | 24 px | 98.28 | 98.24 |
-| Bold | 18 px | 96.13 | 96.12 |
-| Bold Italic | 18 px | 96.61 | 96.59 |
+The same selection function considers every glyph and size. It prefers natural or quantized fitting, scoring multiscale local ink distribution against the source-balanced outline, density, contrast, phase variation, and small-detail retention. Strong fitting is used only when the gentler modes fail the resolvable-detail constraints. The generated policy contains **seven** strong glyph-size choices across the whole family; GDI's existing strong renderer mode retains its original behavior.
 
-Native Windows Chromium reports **155.0.0.0** in its reduced user agent. The report pins all four TTF and eight web-font hashes. Linux Chromium website checks use **153.0.8010.12**. Repeat builds reproduce identical hashes for all 12 font files.
+The native fitting review includes **5,327,872 candidate rasterizations** across all four faces. Aggregate results for the autohinted text/mark corpus, before the final bounds safeguard below:
 
-## Defects and metadata corrected
+| Style | Local ink-distribution score, before → after | Filled ink relative to 1.400 |
+| --- | ---: | ---: |
+| Regular | 0.15528 → 0.14829 | 100.04% |
+| Italic | 0.14821 → 0.14192 | 99.94% |
+| Bold | 0.13185 → 0.12607 | 99.59% |
+| Bold Italic | 0.12420 → 0.11830 | 99.60% |
 
-1. Transforming and rounding outlines introduced small contour contacts in a few glyphs, including percent. The build compares each glyph’s FontForge validation flags with its exact original source instance and repairs only new intersection/direction warnings. Cleanup checks all 966 source-derived output glyphs, before appending the triangles, using bounds and 14 filled scanline comparisons per inked glyph. Nearby shared-width candidates resolve the Bold Italic rounding case without redrawing percent.
-2. Upstream digits lack combining-mark anchors. A separate fallback lookup now positions all 25 supplied marks on default digits and the alternate zero. It precedes the upstream lookups, so original mark-to-mark stacking remains active. Every outline and advance is compared exactly before/after this metadata step. There are 275 attachment checks per style, plus a stacking regression.
-3. Windows clipping metrics no longer add the previous 32-unit padding. They agree with the complete 965/−285 line box, avoiding larger spacing in applications that use those fields.
-4. The italic caret slope is calculated from our 9° slant (rise 1000/run 158), independently of the installed reference’s 1000/25 values. Underline (−50/50) and strikeout (265/51) position/thickness agree with the measured reference and fit our metrics.
-5. Family/style names, 400/700 weights, fixed-pitch flags, average width, actual x/capital metadata, checksums, and fresh hint bytecode are verified. Zero-width marks and multi-cell feature glyphs retain their advances.
+Lower scores indicate closer agreement with the selected outline under this proxy. Some glyph-size cases score worse while aggregate scores improve; the report records both. Total ink is not perceived darkness, and neither quantity is a universal readability measure. The output preserves the overall weight level while addressing local balance.
 
-## Complete validation
+The [complete fitting report](hinting-review.json) and [candidate sheets](hinting-candidates.png) record the measured choices. [hinting.mjs](../scripts/hinting.mjs) compiles them into balanced per-glyph mode guards, preserving the reviewed geometry and advances exactly. It checks ttfautohint 1.8.4's internal CVT[3] mode ABI and fingerprints every base hint program. The extra CVT flag is restored after each glyph. Tool upgrades require reviewing this ABI and recalibrating.
 
-- All 964 original glyphs per style retain their named outlines; all 883 original cmap entries and 17 feature tags remain. Outputs have 968 glyphs including two standard controls and the two new sort triangles.
-- The audit measures all glyphs, including the 81 unencoded feature/component glyphs. All 880 printable source characters have paired Iosevka profiles. Unencoded glyphs have no reliable cross-family name mapping and are reviewed as Inconsolata source derivatives.
-- All 18,755 tested spacing pairs per style have positive ordinary-text clearance. The remaining overlaps all involve terminal artwork intended to meet/fill cell edges. The two new symbols also receive separate outline and scanline audits.
-- Full-font FontForge checks find no new non-extrema warnings relative to the original variable instances. Existing upstream warnings remain recorded; missing extrema are advisory for these quadratic TTFs. All 12 files pass OpenType Sanitizer.
-- Unicode coverage, every named-glyph advance, original feature substitutions, source licenses, hint programs, metadata, and SFNT/table checksums pass. Every glyph’s geometry, advances, and instructions survive WOFF/WOFF2 compression.
-- Encoded coverage renders at 10, 12, 14, 16, 18, 24, and 32 px. Full coverage sheets, paired comparisons, small sizes, and the combining-mark matrix are provided for visual review.
-- Chromium checks confirm all four real WOFF2 faces and all four forced WOFF fallbacks, natural 10 px cells/25 px lines at 20 px, emphasis, the slider, desktop/mobile layout, and the complete glyph viewer. The report records hashes of the current eight web fonts and the complete glyph audit.
-- Repeat builds produced identical hashes for all four TTFs and eight web fonts.
+## Hint displacement safeguard
+
+Local ink profiles normalize the glyph box, so they cannot alone detect a whole glyph shifted away from its baseline. The compiled review caught this in Italic integral: at 32 px, its hinted image moved about nine pixels upward even though its outline and internal ink distribution remained valid.
+
+[hint-bounds.mjs](../scripts/hint-bounds.mjs) therefore checks every hinted glyph at all fitted sizes and phases against its outline bounds. The allowance is **2 px + PPEM/16** for raster rounding and proportional fitting: **4 px at 32 PPEM**, matching the earlier release's bound. Cell artwork keeps its tighter 1.51 px rule.
+
+If a program exceeds that budget, the same rule requires direct rasterization to preserve bounds, visibility, resolvable counters, and separate ink cores at every tested size before omitting the program. This review bypassed three programs: integral in Regular and Italic, and U+1E1C in Bold Italic. The [bounds report](hint-bounds.json) records each measured case and maximum deviations. No glyph name selects this decision. All other source hint programs remain fingerprinted; the omitted source programs have their own recorded hashes. GDI's mode is unchanged for glyphs that retain hint programs.
+
+## Compiled desktop and web verification
+
+The release checks metadata, naming, all original glyphs/features/coverage, actual hint programs, quadratic contours, **18,755 spacing pairs per style**, mark placement, sanitization, and seven Linux rendering sizes. All WOFF/WOFF2 faces must retain every TTF outline, advance, hint instruction, layout table, and style metric.
+
+The native compiled-font test covers **1,331,968 glyph cases**: all 968 output glyphs, all four styles, 43 integer sizes, and eight horizontal phases. Each compiled-policy image must match the independent fixed-mode candidate, including direct rendering for omitted programs. It also measures local ink for every glyph, tests resolvable detail preservation, disappearance, clipping, bounds at every size, s/S balance at the previously affected sizes, and both one-cell htop sort directions on dark and bright backgrounds.
+
+The final desktop, web-format, complete-glyph, preview, browser, and native Windows checks passed. Native verification reported zero flagged cases across the glyph tests and **5,504 header cases**. An isolated rebuild from the original sources reproduced all four TTFs and eight WOFF/WOFF2 files byte for byte.
+
+[Native comparisons](native-comparison.png), [native pixel results](native-raster-validation.json), [desktop results](validation.json), [web results](web-validation.json), [complete glyph audit](glyph-audit.json), and [browser results](web-browser-validation.json) contain the evidence and font hashes. The browser checks load all four real WOFF2 faces and forced WOFF fallbacks, validate family selection and natural spacing, and inspect the complete glyph viewer and website demo.
+
+## Terminal artwork and sort symbols
+
+The earlier repair to U+2500–U+259F remains: text-hint programs are removed from cell-fitted terminal artwork because they collapsed or inverted its spans on Windows. The new geometric compensation skips these glyphs.
+
+Original Inconsolata lacks U+25B3/U+25BD, while the installed Iosevka supplies two-cell forms. htop 3.0.5 replaces one trailing space with its sort indicator, so these forms can crowd the next column. The [existing one-cell triangles](../scripts/symbols.mjs) remain unchanged: advance 500, x=60–440, y=145–585, 60/80-unit borders, upright in all styles, and direct rasterization. Their counters and adjacent header pixels are tested separately.
 
 ## Limits
 
-Standalone glyphs fit the natural line box. Some unusual bold digit/mark combinations involving U+0312, U+0328 extend above/below it; exact cases and bounds are recorded in [validation.json](validation.json). Their glyph shapes and attachment clearance are preserved. Tall or stacked combining sequences can need more application line spacing.
+Finite glyph, outline, and raster checks do not prove universally bug-free rendering. The pixel measurements are native Windows browser tests, not exact Windows Terminal equivalence; application raster settings and display scaling can differ. Review the actual installed fonts in Terminal after replacing all four TTFs and restarting it.
 
-Native Windows Chromium and Linux/WSL Chromium are checked. The release still needs a manual check in Windows Terminal after installing all four current TTFs; native browser pixels do not reproduce Terminal’s renderer, contrast, or gamma settings. Earlier user approval applied to previous versions. Firefox and Safari were not tested.
-
-Fractional pixel placement and hint quantization can change apparent weight or create fine terminal-block seams. The glyph-unit boundaries and metrics are checked, but two different font designs/renderers cannot be made pixel-identical.
-
-See [glyph-audit.html](glyph-audit.html), [glyph-audit.json](glyph-audit.json), [validation.json](validation.json), [web-validation.json](web-validation.json), [web-browser-validation.json](web-browser-validation.json), and [combining-marks.png](combining-marks.png).
+Very tall or stacked combining sequences can overhang the natural line box. Their bounds remain recorded in desktop validation. Inherited source contour advisories and quadratic missing-extrema notices are retained; new non-extrema outline errors are rejected.

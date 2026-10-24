@@ -7,11 +7,12 @@ import { create } from 'fontkit';
 import {
   root, family, version, styles, sources, target, weightTargets, fontFile, sourceBytes,
   sfntTables, checksum, sha256, tool, run, heartbeat,
-  glyphGeometryHash, glyphInstructions, hintPolicy,
+  glyphGeometryHash, glyphInstructions, hintPolicy, replaceTables,
 } from './lib.mjs';
 import { measureStems, filledSpans } from './strokes.mjs';
 import { measureSpacing } from './spacing.mjs';
-import { hintGlyphSets, hintProgram, protectedHintProgram } from './hinting.mjs';
+import { hintGlyphSets, modeHintProgram, restoreHintProgram } from './hinting.mjs';
+import { hintFingerprint } from './hinting-candidates.mjs';
 import { terminalSymbols } from './symbols.mjs';
 
 const done = heartbeat('Checking metadata, coverage, shaping, hint bytecode, and rendering');
@@ -166,38 +167,37 @@ try {
     const { stdout: hintInfo } = await run(tool('ttfautohint'), ['--ttfa-info', fontFile(style)]);
     assert.match(hintInfo, /1\.8\.4/);
     const refinement = build.instances.find(instance => instance.style === style.name).hintRefinement;
-    const ranges = hintPolicy.styles[style.file].strongPpemRanges;
-    assert.equal(glyphGeometryHash(font, hintPolicy.preservedGlyphCount), hintPolicy.geometrySha256[style.file], 'All 966 existing glyph geometries and advances exactly match v1.200');
-    assert.deepEqual(refinement.strongPpemRanges, ranges);
+    assert.equal(glyphGeometryHash(font, hintPolicy.preservedGlyphCount), hintPolicy.geometrySha256[style.file], 'All source-derived glyphs agree with the reviewed outline geometry');
+    assert.equal(refinement.algorithmVersion, hintPolicy.selection.algorithmVersion);
     assert.equal(refinement.flagCvt, tables.get('cvt ').data.length / 2 - 1);
     assert.equal(tables.get('cvt ').data.readInt16BE(refinement.flagCvt * 2), 0, 'Adaptive mode flag defaults to zero');
-    const policy = hintProgram(ranges, refinement.flagCvt);
-    assert.equal(sha256(policy), refinement.policyBytecodeSha256);
-    assert.deepEqual(tables.get('prep').data.subarray(refinement.originalPrepBytes), policy);
+    const reset = Buffer.from([0xb1, refinement.flagCvt, 0, 0x44]);
+    assert.equal(sha256(reset), refinement.resetBytecodeSha256);
+    assert.deepEqual(tables.get('prep').data.subarray(refinement.originalPrepBytes), reset);
     assert.ok(hintInfo.includes(`refined-hint-policy = ${hintPolicy.policyVersion}`));
-    const { terminal, eligible, natural } = hintGlyphSets(font, style);
-    const prefix = protectedHintProgram(refinement.flagCvt, false), suffix = protectedHintProgram(refinement.flagCvt, true);
-    const naturalPrefix = protectedHintProgram(refinement.flagCvt, false, -100);
-    let protectedCount = 0, naturalCount = 0;
+    const { terminal, selected, direct } = hintGlyphSets(font, style);
+    const suffix = restoreHintProgram(refinement.flagCvt), originalPrograms = new Map();
+    let selectedCount = 0;
     for (let id = 0; id < font.numGlyphs; id++) {
       const glyph = font.getGlyph(id), program = glyphInstructions(tables, id);
-      if (terminal.has(id)) assert.equal(program.length, 0, `${glyph.name}: preserve cell geometry without text hinting`);
-      else if (program.length && natural.has(id)) {
-        assert.deepEqual(program.subarray(0, naturalPrefix.length), naturalPrefix, `${glyph.name}: natural curve fitting`);
-        assert.deepEqual(program.subarray(-suffix.length), suffix, `${glyph.name}: restore hint mode after curve fitting`);
-        naturalCount++;
-      } else if (program.length && glyph.path.commands.length && !eligible.has(id)) {
-        assert.deepEqual(program.subarray(0, prefix.length), prefix, `${glyph.name}: protected hint mode entry`);
+      let originalProgram = program;
+      if (terminal.has(id) || direct.has(id)) assert.equal(program.length, 0, `${glyph.name}: preserve geometry without unsafe text hinting`);
+      else if (selected.has(id)) {
+        const prefix = modeHintProgram(selected.get(id), refinement.flagCvt);
+        assert.deepEqual(program.subarray(0, prefix.length), prefix, `${glyph.name}: measured mode selection`);
         assert.deepEqual(program.subarray(-suffix.length), suffix, `${glyph.name}: restore hint mode`);
-        protectedCount++;
+        originalProgram = program.subarray(prefix.length, -suffix.length);
+        assert.ok(originalProgram.length, `${glyph.name}: retains original auto-hint instructions`);
+        selectedCount++;
       }
+      originalPrograms.set(id, originalProgram);
     }
-    assert.equal(protectedCount, refinement.protectedGlyphs.length);
-    assert.equal(naturalCount, refinement.naturalGlyphs.length);
-    for (const code of original.characterSet) {
-      const base = String.fromCodePoint(code).normalize('NFD').replace(/\p{M}/gu, '');
-      if (hintPolicy.naturalLetterBases.includes(base)) assert.ok(natural.has(font.glyphForCodePoint(code).id), `U+${code.toString(16)}: all accented s/S receive the curve policy`);
-    }
+    assert.equal(selectedCount, refinement.selectedGlyphs.length);
+    assert.equal(direct.size, refinement.directRasterGlyphs.length);
+    const base = replaceTables(bytes, { prep: tables.get('prep').data.subarray(0, refinement.originalPrepBytes),
+      'cvt ': tables.get('cvt ').data.subarray(0, refinement.flagCvt * 2) });
+    assert.equal(hintFingerprint(base, hintPolicy.preservedGlyphCount, originalPrograms), hintPolicy.styles[style.file].baseHintSha256,
+      'Every original instruction agrees with the measured calibration base');
     assert.equal(terminal.size, refinement.terminalGlyphs.length);
 
     await run(tool('ots-sanitize'), [fontFile(style), join(temporary, `${style.file}-sanitized.ttf`)]);
@@ -275,8 +275,8 @@ try {
       xHeight: font.xHeight, capHeight: font.capHeight, cellWidth: target.cellWidth,
       sourceAxes: weightTarget.axes, referenceStyle: style.name, referenceStems: weightTarget.referenceStems,
       stems, strokeErrors, spacing, digitMarkPairsChecked: markPairsChecked, digitMarkOverhangs,
-      hintRefinement: { policyVersion: refinement.policyVersion, strongPpemRanges: ranges,
-        eligibleGlyphs: eligible.size, naturalGlyphs: naturalCount, protectedGlyphs: protectedCount, terminalGlyphs: terminal.size,
+      hintRefinement: { policyVersion: refinement.policyVersion, algorithmVersion: refinement.algorithmVersion,
+        selectedGlyphs: selectedCount, terminalGlyphs: terminal.size, directRasterGlyphs: direct.size, baseHintSha256: refinement.baseHintSha256,
         geometrySha256: refinement.geometrySha256 },
       lineMetrics: { hhea: [font.ascent, font.descent, font.lineGap],
         typo: [target.typoAscender, target.typoDescender, target.typoLineGap] },
