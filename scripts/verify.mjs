@@ -8,6 +8,7 @@ import {
   root, family, version, styles, sources, target, weightTargets, fontFile, sourceBytes,
   sfntTables, checksum, sha256, tool, run, heartbeat,
   glyphGeometryHash, glyphInstructions, hintPolicy, replaceTables,
+  referenceFace,
 } from './lib.mjs';
 import { measureStems, filledSpans } from './strokes.mjs';
 import { measureSpacing } from './spacing.mjs';
@@ -27,8 +28,8 @@ try {
     const path = join(root, 'reference', reference.file);
     if (existsSync(path)) {
       const bytes = await readFile(path);
-      assert.equal(sha256(bytes), reference.sha256, 'Installed Iosevka reference checksum');
-      const face = create(bytes).fonts[reference.faceIndex];
+      assert.equal(sha256(bytes), reference.sha256, 'Recorded weight reference checksum');
+      const face = referenceFace(bytes, reference);
       assert.equal(face.familyName, reference.family);
       assert.equal(face.subfamilyName, reference.style);
       references.set(name, face);
@@ -83,22 +84,22 @@ try {
     const stems = measureStems(font), weightTarget = weightTargets.styles[style.file];
     if (references.has(weightTarget.reference)) {
       assert.deepEqual(measureStems(references.get(weightTarget.reference)),
-        weightTarget.referenceStems, 'Recorded strokes match the actual installed Iosevka face');
+        weightTarget.referenceStems, 'Recorded strokes match the corresponding Cascadia Code face');
       assert.deepEqual(measureSpacing(references.get(weightTarget.reference)), weightTarget.referenceSpacing);
     }
     const strokeErrors = {};
     for (const [sample, expected] of Object.entries(weightTarget.referenceStems)) {
       strokeErrors[sample] = stems[sample] / expected - 1;
       assert.ok(Math.abs(strokeErrors[sample]) <= weightTargets.maxRelativeStrokeError,
-        `${style.name} ${sample}: ${stems[sample]} vs Iosevka ${expected}`);
+        `${style.name} ${sample}: ${stems[sample]} vs Cascadia Code ${expected}`);
     }
     const spacing = measureSpacing(font);
-    assert.deepEqual(spacing.spaces, weightTarget.referenceSpacing.spaces, 'All shared whitespace widths');
+    assert.deepEqual(spacing.spaces, weightTarget.targetSpacing.spaces, 'All whitespace widths follow the enlarged cell');
     for (const character of ['H', 'n']) {
       for (let side = 0; side < 2; side++) assert.ok(Math.abs(spacing.inkBounds[character][side]
-        - weightTarget.referenceSpacing.inkBounds[character][side]) <= weightTargets.maxBearingDifference,
+        - weightTarget.targetSpacing.inkBounds[character][side]) <= weightTargets.maxBearingDifference,
       `${style.name} ${character}: balanced side bearings`);
-      assert.ok(Math.abs(spacing.counters[character] / weightTarget.referenceSpacing.counters[character] - 1)
+      assert.ok(Math.abs(spacing.counters[character] / weightTarget.targetSpacing.counters[character] - 1)
         <= weightTargets.maxRelativeCounterError, `${style.name} ${character}: open counter`);
     }
     const addedCodes = terminalSymbols.map(symbol => symbol.code);
@@ -138,8 +139,9 @@ try {
     for (const symbol of terminalSymbols) {
       const glyph = font.glyphForCodePoint(symbol.code);
       assert.equal(glyph.name, symbol.name);
-      assert.deepEqual([glyph.bbox.minX, glyph.bbox.minY, glyph.bbox.maxX, glyph.bbox.maxY], [60, 145, 440, 585]);
-      assert.equal(filledSpans(glyph, 0, 250).length, 2, 'Sort triangle retains its hollow center');
+      assert.deepEqual([glyph.bbox.minX, glyph.bbox.minY, glyph.bbox.maxX, glyph.bbox.maxY],
+        [60, 145, 440, 585].map(v => Math.round(v * target.sizeScale)));
+      assert.equal(filledSpans(glyph, 0, 250 * target.sizeScale).length, 2, 'Sort triangle retains its hollow center');
       assert.equal(glyphInstructions(tables, glyph.id).length, 0, 'Geometric sort symbols avoid text blue-zone distortion');
       const header = font.layout(`CPU%${String.fromCodePoint(symbol.code)}MEM%`);
       assert.equal(header.glyphs.length, 9);

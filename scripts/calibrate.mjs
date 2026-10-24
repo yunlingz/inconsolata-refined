@@ -3,12 +3,12 @@ import { readFile, writeFile, mkdtemp, rm } from 'node:fs/promises';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 import { create } from 'fontkit';
-import { root, styles, target, sourceBytes, sha256, heartbeat, run, tool } from './lib.mjs';
+import { root, styles, target, weightTargets, referenceFace, sourceBytes, sha256, heartbeat, run, tool } from './lib.mjs';
 import { measureStems } from './strokes.mjs';
 import { measureSpacing, verticalFit } from './spacing.mjs';
 import { refineInstance, cleanOutlines } from './transform.mjs';
 
-const done = heartbeat('Calibrating original Inconsolata against the installed Iosevka faces');
+const done = heartbeat('Calibrating original Inconsolata to Cascadia Code weights and enlarged narrow spacing');
 const temporary = await mkdtemp(join(tmpdir(), 'inconsolata-calibration-'));
 try {
   const source = await sourceBytes('Variable'), original = create(source);
@@ -17,19 +17,23 @@ try {
   const nativeInstances = new Map();
   const references = {}, fonts = new Map();
   for (const style of styles) {
-    const file = `Iosevka-${style.source}.ttc`;
+    const reference = weightTargets.references[style.file], file = reference.file;
     if (!fonts.has(file)) fonts.set(file, await readFile(join(root, 'reference', file)));
-    const bytes = fonts.get(file), faceIndex = style.italic ? 4 : 0;
-    const font = create(bytes).fonts[faceIndex];
-    assert.equal(font.familyName, target.font);
-    assert.equal(font.subfamilyName, style.name);
-    assert.equal(font.unitsPerEm, target.unitsPerEm);
-    assert.deepEqual([font.ascent, font.descent, font.lineGap], [target.ascender, target.descender, target.lineGap]);
-    assert.deepEqual([font['OS/2'].typoAscender, font['OS/2'].typoDescender, font['OS/2'].typoLineGap],
-      [target.typoAscender, target.typoDescender, target.typoLineGap]);
-    references[style.file] = { file, faceIndex, family: font.familyName, style: font.subfamilyName,
-      version: font.version, sha256: sha256(bytes), source: 'Windows-installed SGr-Iosevka collection; normal-width Iosevka face' };
+    const bytes = fonts.get(file), font = referenceFace(bytes, reference);
+    assert.equal(sha256(bytes), reference.sha256);
+    assert.equal(font.familyName, 'Cascadia Code');
+    references[style.file] = reference;
     style.referenceFont = font;
+    const spacingReference = weightTargets.spacingReferences[style.file];
+    const spacingBytes = await readFile(join(root, 'reference', spacingReference.file));
+    assert.equal(sha256(spacingBytes), spacingReference.sha256);
+    style.spacingFont = referenceFace(spacingBytes, spacingReference);
+    assert.equal(style.spacingFont.familyName, target.font);
+    for (const [actual, expected] of [[style.spacingFont.xHeight, target.xHeight],
+      [style.spacingFont.capHeight, target.capHeight],
+      [style.spacingFont.glyphForCodePoint(32).advanceWidth, target.cellWidth]]) {
+      assert.ok(Math.abs(actual * target.sizeScale - expected) <= .51, 'Proportional spacing reference');
+    }
   }
   const cache = new Map();
   function candidate(wght, wdth) {
@@ -41,14 +45,37 @@ try {
     }
     return cache.get(key);
   }
-  const calibrated = {};
+  const calibrationSha256 = sha256(Buffer.from(JSON.stringify({ target, references,
+    spacingReferences: weightTargets.spacingReferences,
+    script: sha256(await readFile(join(root, 'scripts/calibrate.mjs'))) })));
+  const calibrated = { ...weightTargets.styles };
+  const save = () => writeFile(join(root, 'reference/weights.json'), JSON.stringify({
+    family: weightTargets.family, version: weightTargets.version, unitsPerEm: target.unitsPerEm,
+    method: 'Original Inconsolata weight/width instances fitted independently to corresponding Cascadia Code H/n strokes. Iosevka-derived narrow spacing and vertical landmarks grow proportionally by 8%; target counters account for the thicker stems. Native rounded candidates must pass complete-glyph contour checks. No reference outlines or layout tables are copied.',
+    maxRelativeStrokeError: .05, maxBearingDifference: 18, maxRelativeCounterError: .15,
+    references, spacingReferences: weightTargets.spacingReferences, styles: calibrated,
+  }, null, 2) + '\n');
   for (const style of styles) {
+    if (process.argv.includes('--resume') && calibrated[style.file]?.calibrationSha256 === calibrationSha256) {
+      console.log(`${style.name}: reusing completed calibration with matching inputs`);
+      continue;
+    }
     const ref = style.referenceFont;
-    const stems = measureStems(ref), spacing = measureSpacing(ref);
+    const stems = measureStems(ref), originalSpacing = measureSpacing(style.spacingFont);
+    const spacingStems = measureStems(style.spacingFont);
+    const spacing = {
+      inkBounds: Object.fromEntries(Object.entries(originalSpacing.inkBounds)
+        .map(([c, bounds]) => [c, bounds.map(v => v * target.sizeScale)])),
+      counters: Object.fromEntries(Object.entries(originalSpacing.counters).map(([c, width]) => {
+        const key = c === 'H' ? 'verticalH' : 'verticaln';
+        return [c, width * target.sizeScale - 2 * (stems[key] - spacingStems[key] * target.sizeScale)];
+      })),
+      spaces: Object.fromEntries(Object.keys(originalSpacing.spaces).map(code => [code, target.cellWidth])),
+    };
     const shear = style.italic ? Math.tan(target.italicAngle * Math.PI / 180) : 0;
     const unslantedWidth = ['H', 'n'].reduce((sum, c) => {
-      const box = ref.glyphForCodePoint(c.codePointAt(0)).path.transform(1, 0, -shear, 1, 0, 0).bbox;
-      return sum + box.maxX - box.minX;
+      const box = style.spacingFont.glyphForCodePoint(c.codePointAt(0)).path.transform(1, 0, -shear, 1, 0, 0).bbox;
+      return sum + (box.maxX - box.minX) * target.sizeScale;
     }, 0);
     function evaluate(wght, wdth) {
       const { glyphs, cell } = candidate(wght, wdth);
@@ -137,6 +164,7 @@ try {
       const input = nativeInstances.get(`${candidate.axes.wght}-${candidate.axes.wdth}`);
       const raw = join(temporary, 'full-candidate.ttf'), clean = join(temporary, 'full-clean.ttf');
       try {
+        console.log(`${style.name}: checking every glyph for finalist ${candidate.axes.wght}/${candidate.axes.wdth}`);
         await refineInstance(input, raw, style, candidate);
         await cleanOutlines(raw, clean, input);
         accepted = candidate;
@@ -148,17 +176,14 @@ try {
     if (!accepted) throw new Error(`${style.name}: no full-glyph-safe candidate; inspect the native outline audit`);
     best = accepted;
     calibrated[style.file] = { reference: style.file, referenceWeight: style.weight,
-      referenceStems: stems, referenceSpacing: spacing, axes: best.axes,
+      referenceStems: stems, referenceSpacing: measureSpacing(ref), targetSpacing: spacing, axes: best.axes,
       outlineScaleX: best.outlineScaleX, outlineOffsetX: best.outlineOffsetX,
-      xHeight: target.xHeight, capHeight: target.capHeight };
+      xHeight: target.xHeight, capHeight: target.capHeight,
+      calibrationSha256, measuredStems: best.stems };
+    await save();
     console.log(`${style.name}: source ${best.axes.wght}/${best.axes.wdth}; x scale ${best.outlineScaleX.toFixed(6)}; max stem error ${Math.max(...Object.keys(stems).map(key => Math.abs(best.stems[key] / stems[key] - 1))).toFixed(4)}`);
   }
-  await writeFile(join(root, 'reference/weights.json'), JSON.stringify({
-    family: target.font, version: target.version, unitsPerEm: target.unitsPerEm,
-    method: 'Original Inconsolata weight/width instances fitted to Iosevka H/n ink widths, independent horizontal placement, and shared vertical landmarks. Native rounded TrueType candidates are compared per style; no glyph-specific weight correction, Iosevka outline, or layout table is copied. Full-glyph audits complement these calibration samples.',
-    maxRelativeStrokeError: .05, maxBearingDifference: 16, maxRelativeCounterError: .10,
-    references, styles: calibrated,
-  }, null, 2) + '\n');
+  await save();
   console.log('Saved reference/weights.json. Final rounded/hinted binaries must still pass npm test.');
 } finally {
   done();

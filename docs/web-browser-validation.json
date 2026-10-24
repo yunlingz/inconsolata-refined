@@ -1,42 +1,42 @@
 {
   "browser": "Chrome/153.0.8010.12",
-  "fontVersion": "1.500",
+  "fontVersion": "1.600",
   "viewport": "1280x1000 and 375x900",
   "fontHashes": [
     {
       "file": "InconsolataRefined-Regular.woff",
-      "sha256": "8b5f4983e8d9b6b2db63bed6987fa6d35c179f5cbf4a9ecbd4b0bf33649938aa"
+      "sha256": "5c99000e055b8201dea91a3a4e8e63e2d9357fcc61c1cbc0476d4a07eb7793df"
     },
     {
       "file": "InconsolataRefined-Regular.woff2",
-      "sha256": "b5a265adffaba2d2cba924a8bf9637385a172ee37aa5b7ee469d33e9827e272d"
+      "sha256": "080a84d1ec731cc2f4d2688c1b2eb4d460001eb60c83f46fa972a295f05b0ed3"
     },
     {
       "file": "InconsolataRefined-Italic.woff",
-      "sha256": "ba70ff324525ba9d9e22585ab617b8f0d3d486eb1ef8e82d698dccc91b2659c3"
+      "sha256": "88d3f80464a8a45f6399ab148038c239797677903c44f1773a2f7f7798bc545a"
     },
     {
       "file": "InconsolataRefined-Italic.woff2",
-      "sha256": "13f8b6f69028a84719bdadb10c00eabf15415b04908594030b1c915414f68481"
+      "sha256": "454f295aadea0ccc5988b8dbf869a0ea34fcc4511299df9dc2a8a73d77a18824"
     },
     {
       "file": "InconsolataRefined-Bold.woff",
-      "sha256": "f85e5a6a6adf08d59c8dc595d52a5f69c3c85c7df6bbc6b3d6a70260bdc1a63c"
+      "sha256": "5b090e84018b88704b1c3cd64f93adad01bc77d7be1ba983c47cfc4c96a225b1"
     },
     {
       "file": "InconsolataRefined-Bold.woff2",
-      "sha256": "6ce805546e5f4bf3ed835c274c813ee372bf26a534118ecbaa74824fe3d00538"
+      "sha256": "6ed7b778139d22f7d92df70d5d586bd59188bfc1f11c6e5e7547aba752d0050a"
     },
     {
       "file": "InconsolataRefined-BoldItalic.woff",
-      "sha256": "04f77aae5d82c9e6a42e42c113ea780dc393e636fe83f9f9129d6edfc887bbff"
+      "sha256": "ac4101a82a7daa054a784300cd71400703b72cfb1935041ca66a3f9fd67b9ef5"
     },
     {
       "file": "InconsolataRefined-BoldItalic.woff2",
-      "sha256": "8e2ca8d9bbbc8bd7ebed3f141298358ba29fad277a02cc697ea3946d33157bd7"
+      "sha256": "ef055203164e35bb0039a0a5905316cab92ae277743c010d64ae22fa5bf8bdf1"
     }
   ],
-  "glyphAuditSha256": "f258553a2cb7a488d53a79422c13f573ab1a2bd34c7cc67ab6be42c11854f8f3",
+  "glyphAuditSha256": "39c939ff527db4ca2cda71ed49b0ce51075d9cbf456b2970ed6debb70db15a09",
   "results": [
     {
       "format": "woff2",
@@ -74,24 +74,24 @@
       ],
       "metrics": [
         {
-          "twelveCells": 119.99981689453125,
-          "word": 29.999954223632812,
-          "threeLines": 75
+          "twelveCells": 129.599853515625,
+          "word": 32.39996337890625,
+          "threeLines": 81
         },
         {
-          "twelveCells": 119.99981689453125,
-          "word": 29.999954223632812,
-          "threeLines": 75
+          "twelveCells": 129.599853515625,
+          "word": 32.39996337890625,
+          "threeLines": 81
         },
         {
-          "twelveCells": 119.99981689453125,
-          "word": 29.999954223632812,
-          "threeLines": 75
+          "twelveCells": 129.599853515625,
+          "word": 32.39996337890625,
+          "threeLines": 81
         },
         {
-          "twelveCells": 119.99981689453125,
-          "word": 29.999954223632812,
-          "threeLines": 75
+          "twelveCells": 129.599853515625,
+          "word": 32.39996337890625,
+          "threeLines": 81
         }
       ],
       "semanticStyles": [
@@ -155,24 +155,24 @@
       ],
       "metrics": [
         {
-          "twelveCells": 119.99981689453125,
-          "word": 29.999954223632812,
-          "threeLines": 75
+          "twelveCells": 129.599853515625,
+          "word": 32.39996337890625,
+          "threeLines": 81
         },
         {
-          "twelveCells": 119.99981689453125,
-          "word": 29.999954223632812,
-          "threeLines": 75
+          "twelveCells": 129.599853515625,
+          "word": 32.39996337890625,
+          "threeLines": 81
         },
         {
-          "twelveCells": 119.99981689453125,
-          "word": 29.999954223632812,
-          "threeLines": 75
+          "twelveCells": 129.599853515625,
+          "word": 32.39996337890625,
+          "threeLines": 81
         },
         {
-          "twelveCells": 119.99981689453125,
-          "word": 29.999954223632812,
-          "threeLines": 75
+          "twelveCells": 129.599853515625,
+          "word": 32.39996337890625,
+          "threeLines": 81
         }
       ],
       "semanticStyles": [

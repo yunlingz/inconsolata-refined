@@ -7,6 +7,7 @@ import { root, version, styles, glyphInstructions, sfntTables, sha256, heartbeat
 import { nativeWorkspace, probeFont } from './native-raster.mjs';
 import { modeCandidate, hintFingerprint } from './hinting-candidates.mjs';
 import { inkTools } from './ink-profile.mjs';
+import { nativeBaseline } from './native-baseline.mjs';
 
 async function boundsPage(data, makeInkTools) {
   const ink = makeInkTools(), direct = [], failures = [];
@@ -24,27 +25,30 @@ async function boundsPage(data, makeInkTools) {
       maximum = Math.max(maximum, deviation);
       if (deviation > 2 + size / 16) badSizes.add(size);
     }
-    if (!badSizes.size) continue;
+    if (!badSizes.size && !g.directRequired) continue;
     const reference = ink.outline(g);
     let unhintedMaximum = 0, safe = true;
     for (const size of data.settings.sizes) for (const phase of data.settings.phases) {
       const hinted = ink.render(modeFor(g, size), g, size, phase, 0, false);
+      const source = ink.render('geometryBaseline', g, size, phase, 0, false);
       const unhinted = ink.render('u', g, size, phase, 0, false), counts = ink.resolvable(reference, size, data.settings);
       const error = ink.boundsError(unhinted, g, size, phase); cases++; unhintedMaximum = Math.max(unhintedMaximum, error);
       if (error > 2 + size / 16 || unhinted.clipped || (hinted.signal > .1 && unhinted.signal <= .1)) safe = false;
       for (const field of ['counters', 'parts']) {
-        if (field === 'counters' && unhinted.topology[1][field] < Math.min(counts[field], hinted.topology[1][field])) safe = false;
-        if (Math.max(...unhinted.topology.map(t => t[field])) < Math.min(counts[field], Math.max(...hinted.topology.map(t => t[field])))) safe = false;
+        if (field === 'counters' && unhinted.topology[1][field] < Math.min(counts[field], source.topology[1][field])) safe = false;
+        if (Math.max(...unhinted.topology.map(t => t[field])) < Math.min(counts[field], Math.max(...source.topology.map(t => t[field])))) safe = false;
       }
     }
-    const result = { id: g.id, name: g.name, failingSizes: [...badSizes], maximumHintedDeviationPx: maximum,
+    const result = { id: g.id, name: g.name, failingSizes: [...new Set([...badSizes, ...(g.directRequired?.failingSizes ?? [])])],
+      reason: g.directRequired ? 'No natural/quantized/strong mode preserves resized-source details' : 'Hint displacement exceeds the outline bounds budget',
+      maximumHintedDeviationPx: maximum,
       maximumDirectDeviationPx: unhintedMaximum };
     if (safe) direct.push(result); else failures.push(result);
   }
   return { platform: navigator.platform, userAgent: navigator.userAgent, cases, direct, failures };
 }
 
-export async function calibrateHintBounds(policy, inputs) {
+export async function calibrateHintBounds(policy, inputs, geometryReferences) {
   const native = await nativeWorkspace(), reports = [];
   try {
     for (const style of styles) {
@@ -55,12 +59,16 @@ export async function calibrateHintBounds(policy, inputs) {
         fonts[mode] = mode + '.ttf'; const bytes = modeCandidate(base, mode);
         await writeFile(join(native.directory, fonts[mode]), probeFont(bytes, create(bytes)));
       }
+      fonts.geometryBaseline = 'geometry-baseline.ttf';
+      await writeFile(join(native.directory, fonts.geometryBaseline),
+        probeFont(geometryReferences?.get(style.file) ?? await nativeBaseline(style, inputs), font));
       const terminal = new Set(font.characterSet.filter(code => code >= 0x2500 && code <= 0x259f).map(code => font.glyphForCodePoint(code).id));
       const glyphs = Array.from({ length: font.numGlyphs }, (_, id) => {
         const g = font.getGlyph(id);
         return { id, name: g.name, advance: g.advanceWidth,
           bounds: g.path.commands.length ? [g.bbox.minX, g.bbox.minY, g.bbox.maxX, g.bbox.maxY] : null,
           commands: g.path.commands, selection: policy.styles[style.file].selections[g.name], terminal: terminal.has(id),
+          directRequired: policy.styles[style.file].directRasterGlyphs?.[g.name],
           hasInstructions: glyphInstructions(tables, id).length > 0 };
       });
       const result = await native.page(`(${boundsPage.toString()})(${JSON.stringify({ fonts, glyphs, settings: policy.selection })},${inkTools.toString()})`, 'bounds-' + style.file);
@@ -76,7 +84,7 @@ export async function calibrateHintBounds(policy, inputs) {
       reports.push({ style: style.name, sourceSha256: sha256(base), ...result });
       console.log('HINT BOUNDS ' + style.name + ': ' + result.cases + ' cases; ' + result.direct.length + ' unsafe hint programs bypassed');
     }
-    return { fontVersion: version, method: 'Test every hinted glyph at all fitted sizes/phases against its outline bounds. Allow 2 px for raster/blue-zone rounding plus PPEM/16 for proportional fitting (4 px at 32 PPEM, matching the prior release check). If a program exceeds that budget, require direct rasterization to preserve bounds, visibility, and resolvable counters/ink cores at every tested size before omitting that program. No character-name selection rules.', results: reports };
+    return { fontVersion: version, method: 'Test every hinted glyph at all fitted sizes/phases against its outline bounds. Allow 2 px plus PPEM/16. Programs exceeding this budget, or whose fitting modes lose resolvable source details, can be bypassed only after direct rendering passes bounds, visibility and detail checks across the entire range. Detail reference: uncompensated original-source resize at the same new design axes and dimensions. No character-name selection rules.', results: reports };
   } finally { await native.close(); }
 }
 

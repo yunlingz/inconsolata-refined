@@ -1,9 +1,9 @@
 {
   "name": "inconsolata-refined",
-  "version": "1.5.0",
+  "version": "1.6.0",
   "private": true,
   "type": "module",
-  "description": "Four original Inconsolata faces calibrated against installed Iosevka and freshly hinted with ttfautohint.",
+  "description": "Four original Inconsolata faces with enlarged narrow proportions, Cascadia Code stroke weights, and fresh ttfautohint hints.",
   "license": "OFL-1.1",
   "engines": {
     "node": ">=22"
@@ -19,7 +19,8 @@
     "calibrate:hinting": "node scripts/calibrate-hinting.mjs",
     "audit": "node scripts/audit.mjs",
     "test:browser": "node scripts/check-browser.mjs",
-    "test:raster": "node scripts/check-raster.mjs"
+    "test:raster": "node scripts/check-raster.mjs",
+    "test:size": "node scripts/check-size.mjs"
   },
   "devDependencies": {
     "fontkit": "2.0.4",

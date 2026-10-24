@@ -63,9 +63,11 @@ export async function nativeWorkspace() {
     directory,
     async page(script, label) {
       const page = join(directory, 'raster.html');
-      await writeFile(page, '<!doctype html><meta charset="utf-8"><body>loading<script>' + script
-        + '.then(r=>document.body.textContent="BEGIN_REPORT"+btoa(JSON.stringify(r))+"END_REPORT")'
-        + '.catch(e=>document.body.textContent="BEGIN_REPORT"+btoa(JSON.stringify({error:e.stack}))+"END_REPORT")</script>');
+      const encode = 'const encodeReport=r=>{const bytes=new TextEncoder().encode(JSON.stringify(r));let raw="";'
+        + 'for(let p=0;p<bytes.length;p+=32768)raw+=String.fromCharCode(...bytes.subarray(p,p+32768));return btoa(raw);};';
+      await writeFile(page, '<!doctype html><meta charset="utf-8"><body>loading<script>' + encode + script
+        + '.then(r=>document.body.textContent="BEGIN_REPORT"+encodeReport(r)+"END_REPORT")'
+        + '.catch(e=>document.body.textContent="BEGIN_REPORT"+encodeReport({error:e.stack})+"END_REPORT")</script>');
       const fileUrl = 'file:///' + toWindows(page).replaceAll('\\', '/').split('/').map((part, i) => i ? encodeURIComponent(part) : part).join('/');
       const output = (await execute(chromium, ['--headless=new', '--no-first-run', '--no-default-browser-check',
         '--disable-background-networking', '--disable-component-update', '--disable-extensions', '--allow-file-access-from-files',

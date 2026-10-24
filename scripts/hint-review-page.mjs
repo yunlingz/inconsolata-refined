@@ -1,32 +1,35 @@
 // Serialized into native Windows Chromium with the shared measurement and
 // selection functions. Every glyph, including unencoded alternates, is probed.
 export async function hintReviewPage(data, makeInkTools, choose) {
-  const ink = makeInkTools(), rows = [], errors = [], modes = ['q', 'n', 's'];
+  const ink = makeInkTools(), rows = [], errors = [];
   for (const [name, file] of Object.entries(data.fonts)) {
     const face = new FontFace(name, `url("${file}")`, { featureSettings: '"calt" 0,"liga" 0,"dlig" 0' });
     await face.load(); document.fonts.add(face);
   }
   let rasterizations = 0;
   for (const g of data.glyphs) {
+    const modes = g.directRequired ? ['q', 'n', 's', 'u'] : ['q', 'n', 's'];
     const reference = ink.outline(g);
     for (const size of data.settings.sizes) {
       const records = {};
-      for (const mode of ['baseline', ...modes]) {
+      for (const mode of ['baseline', 'geometryBaseline', ...modes]) {
         records[mode] = data.settings.phases.map(phase => ink.render(mode, g, size, phase));
         rasterizations += records[mode].length;
       }
       if (!reference) {
-        for (const mode of ['baseline', ...modes]) if (records[mode].some(r => r.signal > .1)) errors.push({ id: g.id, size, mode, issue: 'empty glyph has ink' });
+        for (const mode of ['baseline', 'geometryBaseline', ...modes]) if (records[mode].some(r => r.signal > .1)) errors.push({ id: g.id, size, mode, issue: 'empty glyph has ink' });
         continue;
       }
       const baseline = ink.summarize(records.baseline, reference);
+      const geometryBaseline = ink.summarize(records.geometryBaseline, reference);
       const candidates = Object.fromEntries(modes.map(mode => [mode, ink.summarize(records[mode], reference)]));
       const baselineMode = modes.find(mode => records[mode].every((r, p) =>
         r.words.length === records.baseline[p].words.length && r.words.every((value, i) => value === records.baseline[p].words[i])));
-      // Geometry has changed deliberately. A candidate must preserve the old
-      // release's real details while avoiding excess distortion relative to
-      // the quantized base for these new outlines.
-      const safetyBaseline = { ...baseline, errors: baseline.errors.map((value, i) => Math.max(value, candidates.q.errors[i])) };
+      // The new source weight and size intentionally change small raster
+      // features. Preserve the same new design before compensation/hinting;
+      // retain the older release as a separate visual/ink comparison.
+      const safetyBaseline = { ...geometryBaseline,
+        errors: geometryBaseline.errors.map((value, i) => Math.max(value, candidates.q.errors[i])) };
       const counts = ink.resolvable(reference, size, data.settings);
       const row = { ...g, counters: Math.min(g.counters, counts.counters), parts: counts.parts,
         allCounters: reference.topology[1].counters, allParts: reference.topology[1].parts,

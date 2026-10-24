@@ -1,18 +1,102 @@
 {
-  "fontVersion": "1.500",
-  "method": "Test every hinted glyph at all fitted sizes/phases against its outline bounds. Allow 2 px for raster/blue-zone rounding plus PPEM/16 for proportional fitting (4 px at 32 PPEM, matching the prior release check). If a program exceeds that budget, require direct rasterization to preserve bounds, visibility, and resolvable counters/ink cores at every tested size before omitting that program. No character-name selection rules.",
+  "fontVersion": "1.600",
+  "method": "Test every hinted glyph at all fitted sizes/phases against its outline bounds. Allow 2 px plus PPEM/16. Programs exceeding this budget, or whose fitting modes lose resolvable source details, can be bypassed only after direct rendering passes bounds, visibility and detail checks across the entire range. Detail reference: uncompensated original-source resize at the same new design axes and dimensions. No character-name selection rules.",
   "results": [
     {
       "style": "Regular",
-      "sourceSha256": "b5d38ed4f644afe0ce71533f3d799fa8afedf10daf8abb9ad34e0dd85e094591",
+      "sourceSha256": "9b265ae4c1435ebcdc1b899152f2ae8c138fe3c82b4470b661967da2c413959c",
       "platform": "Win32",
       "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/155.0.0.0 Safari/537.36",
-      "cases": 273480,
+      "cases": 274168,
       "direct": [
+        {
+          "id": 374,
+          "name": "uni0230",
+          "failingSizes": [
+            37
+          ],
+          "reason": "No natural/quantized/strong mode preserves resized-source details",
+          "maximumHintedDeviationPx": 2.1050000000000004,
+          "maximumDirectDeviationPx": 1.343
+        },
+        {
+          "id": 644,
+          "name": "dong",
+          "failingSizes": [
+            21
+          ],
+          "reason": "No natural/quantized/strong mode preserves resized-source details",
+          "maximumHintedDeviationPx": 1.4549999999999983,
+          "maximumDirectDeviationPx": 1.4549999999999983
+        },
+        {
+          "id": 674,
+          "name": "uni21EA",
+          "failingSizes": [
+            11
+          ],
+          "reason": "No natural/quantized/strong mode preserves resized-source details",
+          "maximumHintedDeviationPx": 1.455,
+          "maximumDirectDeviationPx": 1.455
+        }
+      ],
+      "failures": []
+    },
+    {
+      "style": "Italic",
+      "sourceSha256": "726ad82917ffca954c4b19b9befe8509b94a13b28786bf913164366e252d9145",
+      "platform": "Win32",
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/155.0.0.0 Safari/537.36",
+      "cases": 274856,
+      "direct": [
+        {
+          "id": 374,
+          "name": "uni0230",
+          "failingSizes": [
+            37
+          ],
+          "reason": "No natural/quantized/strong mode preserves resized-source details",
+          "maximumHintedDeviationPx": 2.1050000000000004,
+          "maximumDirectDeviationPx": 1.4607142857142907
+        },
+        {
+          "id": 439,
+          "name": "uni1E1C",
+          "failingSizes": [
+            9
+          ],
+          "reason": "Hint displacement exceeds the outline bounds budget",
+          "maximumHintedDeviationPx": 2.8369999999999997,
+          "maximumDirectDeviationPx": 1.455
+        },
+        {
+          "id": 612,
+          "name": "ellipsis",
+          "failingSizes": [
+            24,
+            25
+          ],
+          "reason": "No natural/quantized/strong mode preserves resized-source details",
+          "maximumHintedDeviationPx": 1.4540909090909082,
+          "maximumDirectDeviationPx": 1.4540909090909082
+        },
+        {
+          "id": 644,
+          "name": "dong",
+          "failingSizes": [
+            20,
+            21
+          ],
+          "reason": "No natural/quantized/strong mode preserves resized-source details",
+          "maximumHintedDeviationPx": 1.4570000000000007,
+          "maximumDirectDeviationPx": 1.4570000000000007
+        },
         {
           "id": 687,
           "name": "integral",
           "failingSizes": [
+            8,
+            9,
             10,
             11,
             12,
@@ -35,23 +119,97 @@
             29,
             30
           ],
-          "maximumHintedDeviationPx": 8.86,
-          "maximumDirectDeviationPx": 1.4329999999999998
+          "reason": "Hint displacement exceeds the outline bounds budget",
+          "maximumHintedDeviationPx": 8.82,
+          "maximumDirectDeviationPx": 1.4540000000000006
         }
       ],
       "failures": []
     },
     {
-      "style": "Italic",
-      "sourceSha256": "582bb3a82ca57e16030cc984a38e820bc786bfffade33927a8344fc13161cbe1",
+      "style": "Bold",
+      "sourceSha256": "3325dcdeee43dd8b4b3c785cb80feba37154136486ab3c81fac221f1015931e8",
       "platform": "Win32",
       "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/155.0.0.0 Safari/537.36",
-      "cases": 273480,
+      "cases": 273824,
       "direct": [
+        {
+          "id": 175,
+          "name": "edieresis",
+          "failingSizes": [
+            27
+          ],
+          "reason": "No natural/quantized/strong mode preserves resized-source details",
+          "maximumHintedDeviationPx": 1.5300000000000002,
+          "maximumDirectDeviationPx": 1.4469999999999992
+        },
+        {
+          "id": 192,
+          "name": "udieresis",
+          "failingSizes": [
+            26,
+            27
+          ],
+          "reason": "No natural/quantized/strong mode preserves resized-source details",
+          "maximumHintedDeviationPx": 1.5300000000000002,
+          "maximumDirectDeviationPx": 1.4549999999999983
+        }
+      ],
+      "failures": []
+    },
+    {
+      "style": "Bold Italic",
+      "sourceSha256": "0e9ad2ba2664022293af3abf14b8e1aa61f29af79f27a591b59e80140ab3ad43",
+      "platform": "Win32",
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/155.0.0.0 Safari/537.36",
+      "cases": 274856,
+      "direct": [
+        {
+          "id": 231,
+          "name": "uni0123",
+          "failingSizes": [
+            9
+          ],
+          "reason": "Hint displacement exceeds the outline bounds budget",
+          "maximumHintedDeviationPx": 2.6479999999999997,
+          "maximumDirectDeviationPx": 1.4570000000000007
+        },
+        {
+          "id": 439,
+          "name": "uni1E1C",
+          "failingSizes": [
+            9
+          ],
+          "reason": "Hint displacement exceeds the outline bounds budget",
+          "maximumHintedDeviationPx": 2.8369999999999997,
+          "maximumDirectDeviationPx": 1.455
+        },
+        {
+          "id": 490,
+          "name": "uni1E7B",
+          "failingSizes": [
+            43
+          ],
+          "reason": "No natural/quantized/strong mode preserves resized-source details",
+          "maximumHintedDeviationPx": 1.8500000000000014,
+          "maximumDirectDeviationPx": 1.4587142857142847
+        },
+        {
+          "id": 525,
+          "name": "uni1EB6",
+          "failingSizes": [
+            9
+          ],
+          "reason": "Hint displacement exceeds the outline bounds budget",
+          "maximumHintedDeviationPx": 2.8369999999999997,
+          "maximumDirectDeviationPx": 1.367
+        },
         {
           "id": 687,
           "name": "integral",
           "failingSizes": [
+            8,
+            9,
             10,
             11,
             12,
@@ -65,50 +223,11 @@
             20,
             21,
             22,
-            23,
-            24,
-            25,
-            26,
-            27,
-            28,
-            29,
-            30,
-            31,
-            32,
-            33,
-            34,
-            35
+            23
           ],
-          "maximumHintedDeviationPx": 9.635000000000002,
-          "maximumDirectDeviationPx": 1.4589999999999996
-        }
-      ],
-      "failures": []
-    },
-    {
-      "style": "Bold",
-      "sourceSha256": "b36b8c22603b9ad208d18034f79f59e710cdd23331bf6613c42ec1a13e2bdfd0",
-      "platform": "Win32",
-      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/155.0.0.0 Safari/537.36",
-      "cases": 273136,
-      "direct": [],
-      "failures": []
-    },
-    {
-      "style": "Bold Italic",
-      "sourceSha256": "b836ccbb8c3ab4b75a24f3058cafe4d254842f7c71d0228365cde5d19a6553f6",
-      "platform": "Win32",
-      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/155.0.0.0 Safari/537.36",
-      "cases": 273480,
-      "direct": [
-        {
-          "id": 439,
-          "name": "uni1E1C",
-          "failingSizes": [
-            10
-          ],
-          "maximumHintedDeviationPx": 2.630000000000001,
-          "maximumDirectDeviationPx": 1.343
+          "reason": "Hint displacement exceeds the outline bounds budget",
+          "maximumHintedDeviationPx": 7.254000000000001,
+          "maximumDirectDeviationPx": 1.4559999999999995
         }
       ],
       "failures": []

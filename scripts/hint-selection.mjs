@@ -1,7 +1,7 @@
 // A font-wide selection rule. Names identify the resulting bytecode records;
 // they never influence which candidate wins.
 export const selectionSettings = {
-  algorithmVersion: 6, sizes: Array.from({ length: 43 }, (_, i) => i + 8), phases: [0, .125, .25, .375, .5, .625, .75, .875],
+  algorithmVersion: 7, sizes: Array.from({ length: 43 }, (_, i) => i + 8), phases: [0, .125, .25, .375, .5, .625, .75, .875],
   modePenalty: { q: 0, n: .0015, s: .004 }, maxPhaseRegression: .015,
   contrastAllowance: .02, contrastPenalty: .2,
   resolvableCounterDiameterPx: 2, resolvablePartAreaPx: .5, resolvablePartGapPx: 1,
@@ -25,6 +25,10 @@ export function selectHintMode(row, settings = selectionSettings) {
     }
     return true;
   };
+  if (row.directRequired) {
+    if (valid('u')) return 'u';
+    throw new Error('Direct fallback loses a resized-source detail in glyph ' + row.id + ' at ' + row.size + ' px');
+  }
   // Extra integer snapping caused the reported curve imbalance. Do not
   // introduce it merely because a low-resolution aggregate score likes it.
   // Retain it only when both gentler modes fail the safety constraints.

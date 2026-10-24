@@ -1,5 +1,5 @@
 // Measure filled spans rather than bounding boxes, including overlapping contours.
-// Results are normalized to a 1000-unit em for the installed Iosevka reference.
+// Results are normalized to a 1000-unit em for cross-family comparisons.
 export function edges(glyph) {
   const result = [];
   let point, start;

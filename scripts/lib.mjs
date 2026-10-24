@@ -9,7 +9,7 @@ import { create } from 'fontkit';
 
 export const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 export const family = 'Inconsolata Refined';
-export const version = '1.500';
+export const version = '1.600';
 export const styles = [
   { file: 'Regular', name: 'Regular', source: 'Regular', weight: 400, italic: false },
   { file: 'Italic', name: 'Italic', source: 'Regular', weight: 400, italic: true },
@@ -19,6 +19,11 @@ export const styles = [
 export const sources = JSON.parse(await readFile(join(root, 'upstream/sources.json'), 'utf8'));
 export const target = JSON.parse(await readFile(join(root, 'reference/metrics.json'), 'utf8'));
 export const weightTargets = JSON.parse(await readFile(join(root, 'reference/weights.json'), 'utf8'));
+export function referenceFace(bytes, reference) {
+  const font = create(bytes);
+  const face = reference.faceIndex === undefined ? font : font.fonts[reference.faceIndex];
+  return reference.axes ? face.getVariation(reference.axes) : face;
+}
 export const hintPolicy = JSON.parse(await readFile(join(root, 'reference/hinting.json'), 'utf8'));
 export const hintOptions = [
   '--hinting-range-min=8', '--hinting-range-max=50', '--hinting-limit=200',
@@ -52,7 +57,12 @@ export const toolEnv = {
 
 export async function run(command, args, options = {}) {
   return new Promise((resolvePromise, reject) => {
-    const child = spawn(command, args, { cwd: root, env: toolEnv, ...options, stdio: ['ignore', 'pipe', 'pipe'] });
+    const fontforge = command === tool('fontforge');
+    const limited = fontforge && process.platform === 'linux' && existsSync('/usr/bin/prlimit');
+    const child = spawn(limited ? '/usr/bin/prlimit' : command,
+      limited ? ['--as=1073741824', '--', command, ...args] : args,
+      { cwd: root, env: toolEnv, ...(fontforge ? { timeout: 30_000, killSignal: 'SIGKILL' } : {}),
+        ...options, stdio: ['ignore', 'pipe', 'pipe'] });
     let stdout = '', stderr = '';
     child.stdout.on('data', data => { stdout += data; });
     child.stderr.on('data', data => { stderr += data; });

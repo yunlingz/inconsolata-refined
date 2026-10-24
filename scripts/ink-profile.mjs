@@ -102,9 +102,9 @@ export function inkTools() {
 
   function render(family, g, size, phase, verticalPhase = 0, withProfile = true, withTopology = true) {
     const origin = 18 - Math.floor(Math.min(g.bounds?.[0] ?? 0, 0) * size / 1000);
-    const baseline = 18 + Math.ceil(965 * size / 1000);
+    const baseline = 18 + Math.ceil(Math.max(g.bounds?.[3] ?? 0, 0) * size / 1000);
     const width = Math.ceil((Math.max(g.bounds?.[2] ?? 0, g.advance) - Math.min(g.bounds?.[0] ?? 0, 0)) * size / 1000) + 38;
-    const height = Math.ceil(size * 1.25) + 38;
+    const height = Math.ceil((Math.max(g.bounds?.[3] ?? 0, 0) - Math.min(g.bounds?.[1] ?? 0, 0)) * size / 1000) + 38;
     ctx.fillStyle = '#282c34'; ctx.fillRect(0, 0, width, height); ctx.fillStyle = '#dcdfe4';
     ctx.font = size + 'px "' + family + '"'; ctx.fillText(String.fromCodePoint(0xf0000 + g.id), origin + phase, baseline + verticalPhase);
     const rgba = ctx.getImageData(0, 0, width, height).data;
@@ -155,7 +155,8 @@ export function inkTools() {
   }
   function boundsError(record, g, size, phase) {
     if (!record.box || !g.bounds) return 0;
-    const origin = 18 - Math.floor(Math.min(g.bounds[0], 0) * size / 1000), baseline = 18 + Math.ceil(965 * size / 1000);
+    const origin = 18 - Math.floor(Math.min(g.bounds[0], 0) * size / 1000);
+    const baseline = 18 + Math.ceil(Math.max(g.bounds[3], 0) * size / 1000);
     const box = record.box, actual = [box[0] - origin - phase, baseline - box[3] - 1, box[2] + 1 - origin - phase, baseline - box[1]];
     return Math.max(...actual.map((value, i) => Math.abs(value - g.bounds[i] * size / 1000)));
   }

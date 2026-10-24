@@ -1,12 +1,58 @@
 {
-  "family": "Iosevka",
-  "version": "33.3.5",
+  "family": "Cascadia Code",
+  "version": "2102.025 upright / 2105.024 italic",
   "unitsPerEm": 1000,
-  "method": "Original Inconsolata weight/width instances fitted to Iosevka H/n ink widths, independent horizontal placement, and shared vertical landmarks. Native rounded TrueType candidates are compared per style; no glyph-specific weight correction, Iosevka outline, or layout table is copied. Full-glyph audits complement these calibration samples.",
+  "method": "Original Inconsolata weight/width instances fitted independently to corresponding Cascadia Code H/n strokes. Iosevka-derived narrow spacing and vertical landmarks grow proportionally by 8%; target counters account for the thicker stems. Native rounded candidates must pass complete-glyph contour checks. No reference outlines or layout tables are copied.",
   "maxRelativeStrokeError": 0.05,
-  "maxBearingDifference": 16,
-  "maxRelativeCounterError": 0.1,
+  "maxBearingDifference": 18,
+  "maxRelativeCounterError": 0.15,
   "references": {
+    "Regular": {
+      "file": "CascadiaCode.ttf",
+      "family": "Cascadia Code",
+      "style": "Regular",
+      "version": "Version 2102.025",
+      "sha256": "cfb6a8d474018fe46d53a427e5fbee44b998822d0d3d8772914bd712cfc55ac4",
+      "axes": {
+        "wght": 400
+      },
+      "source": "User-installed Windows Cascadia Code; matches the recorded local reference"
+    },
+    "Italic": {
+      "file": "CascadiaCodeItalic.ttf",
+      "family": "Cascadia Code",
+      "style": "Italic",
+      "version": "Version 2105.024",
+      "sha256": "793fd26dd53d415f41623112ec2d2d4891521fb9f3df97cff9ff6be62bfa181e",
+      "axes": {
+        "wght": 400
+      },
+      "source": "Recorded upstream Cascadia Code italic companion"
+    },
+    "Bold": {
+      "file": "CascadiaCode.ttf",
+      "family": "Cascadia Code",
+      "style": "Regular",
+      "version": "Version 2102.025",
+      "sha256": "cfb6a8d474018fe46d53a427e5fbee44b998822d0d3d8772914bd712cfc55ac4",
+      "axes": {
+        "wght": 700
+      },
+      "source": "User-installed Windows Cascadia Code; matches the recorded local reference"
+    },
+    "BoldItalic": {
+      "file": "CascadiaCodeItalic.ttf",
+      "family": "Cascadia Code",
+      "style": "Italic",
+      "version": "Version 2105.024",
+      "sha256": "793fd26dd53d415f41623112ec2d2d4891521fb9f3df97cff9ff6be62bfa181e",
+      "axes": {
+        "wght": 700
+      },
+      "source": "Recorded upstream Cascadia Code italic companion"
+    }
+  },
+  "spacingReferences": {
     "Regular": {
       "file": "Iosevka-Regular.ttc",
       "faceIndex": 0,
@@ -49,165 +95,273 @@
       "reference": "Regular",
       "referenceWeight": 400,
       "referenceStems": {
-        "verticalH": 78,
-        "verticaln": 78,
-        "horizontalH": 70
+        "verticalH": 97.65625,
+        "verticaln": 103.515625,
+        "horizontalH": 92.7734375
       },
       "referenceSpacing": {
         "inkBounds": {
           "H": [
-            64,
-            436
+            68.359375,
+            517.578125
           ],
           "n": [
-            64,
-            436
+            82.03125,
+            503.90625
           ]
         },
         "counters": {
-          "H": 216,
-          "n": 216
+          "H": 253.90625,
+          "n": 214.84375
         },
         "spaces": {
-          "20": 500,
-          "2007": 500,
-          "2008": 500,
-          "2009": 500,
-          "a0": 500,
-          "200a": 500
+          "20": 585.9375,
+          "2008": 585.9375,
+          "a0": 585.9375
+        }
+      },
+      "targetSpacing": {
+        "inkBounds": {
+          "H": [
+            69.12,
+            470.88000000000005
+          ],
+          "n": [
+            69.12,
+            470.88000000000005
+          ]
+        },
+        "counters": {
+          "H": 206.44750000000005,
+          "n": 194.72875000000005
+        },
+        "spaces": {
+          "20": 540,
+          "2007": 540,
+          "2008": 540,
+          "2009": 540,
+          "a0": 540,
+          "200a": 540
         }
       },
       "axes": {
-        "wght": 420,
-        "wdth": 83
+        "wght": 580,
+        "wdth": 95
       },
-      "outlineScaleX": 1.1828298887122417,
-      "outlineOffsetX": 1.4785373608903,
-      "xHeight": 520,
-      "capHeight": 735
+      "outlineScaleX": 1.0699334221038617,
+      "outlineOffsetX": 0.2674833555259539,
+      "xHeight": 562,
+      "capHeight": 794,
+      "calibrationSha256": "6139ea6be88764579fcbe90ff1297f20b328f4edc48ba1f74dffbacf830d8c47",
+      "measuredStems": {
+        "verticalH": 101,
+        "verticaln": 99.5,
+        "horizontalH": 95
+      }
     },
     "Italic": {
       "reference": "Italic",
       "referenceWeight": 400,
       "referenceStems": {
-        "verticalH": 78.99999999999997,
-        "verticaln": 79.31294079083568,
-        "horizontalH": 70
+        "verticalH": 101.5625,
+        "verticaln": 105.12594872193384,
+        "horizontalH": 92.7734375
       },
       "referenceSpacing": {
         "inkBounds": {
           "H": [
-            8,
-            501
+            22.94921875,
+            594.23828125
           ],
           "n": [
-            8,
-            436.66666666666663
+            36.62109375,
+            523.8556690705128
           ]
         },
         "counters": {
-          "H": 214.00000000000003,
-          "n": 213.5066765578635
+          "H": 246.09375,
+          "n": 211.14525350819952
         },
         "spaces": {
-          "20": 500,
-          "2007": 500,
-          "2008": 500,
-          "2009": 500,
-          "a0": 500,
-          "200a": 500
+          "20": 585.9375,
+          "2008": 585.9375,
+          "a0": 585.9375
+        }
+      },
+      "targetSpacing": {
+        "inkBounds": {
+          "H": [
+            8.64,
+            541.08
+          ],
+          "n": [
+            8.64,
+            471.59999999999997
+          ]
+        },
+        "counters": {
+          "H": 198.635,
+          "n": 191.65126534683
+        },
+        "spaces": {
+          "20": 540,
+          "2007": 540,
+          "2008": 540,
+          "2009": 540,
+          "a0": 540,
+          "200a": 540
         }
       },
       "axes": {
-        "wght": 435,
-        "wdth": 88
+        "wght": 590,
+        "wdth": 92
       },
-      "outlineScaleX": 1.1144525863091101,
-      "outlineOffsetX": 4.570494062789621,
-      "xHeight": 520,
-      "capHeight": 735
+      "outlineScaleX": 1.110940845766689,
+      "outlineOffsetX": 3.5554512421642386,
+      "xHeight": 562,
+      "capHeight": 794,
+      "calibrationSha256": "6139ea6be88764579fcbe90ff1297f20b328f4edc48ba1f74dffbacf830d8c47",
+      "measuredStems": {
+        "verticalH": 104.07125993956578,
+        "verticaln": 102.15671301076159,
+        "horizontalH": 95
+      }
     },
     "Bold": {
       "reference": "Bold",
       "referenceWeight": 700,
       "referenceStems": {
-        "verticalH": 111,
-        "verticaln": 111,
-        "horizontalH": 96
+        "verticalH": 128.90625,
+        "verticaln": 132.32421875,
+        "horizontalH": 119.140625
       },
       "referenceSpacing": {
         "inkBounds": {
           "H": [
-            59,
-            441
+            60.05859375,
+            525.87890625
           ],
           "n": [
-            59,
-            441
+            73.73046875,
+            512.20703125
           ]
         },
         "counters": {
-          "H": 160,
-          "n": 160
+          "H": 208.0078125,
+          "n": 173.828125
         },
         "spaces": {
-          "20": 500,
-          "2007": 500,
-          "2008": 500,
-          "2009": 500,
-          "a0": 500,
-          "200a": 500
+          "20": 585.9375,
+          "2008": 585.9375,
+          "a0": 585.9375
+        }
+      },
+      "targetSpacing": {
+        "inkBounds": {
+          "H": [
+            63.720000000000006,
+            476.28000000000003
+          ],
+          "n": [
+            63.720000000000006,
+            476.28000000000003
+          ]
+        },
+        "counters": {
+          "H": 154.74750000000003,
+          "n": 147.91156250000003
+        },
+        "spaces": {
+          "20": 540,
+          "2007": 540,
+          "2008": 540,
+          "2009": 540,
+          "a0": 540,
+          "200a": 540
         }
       },
       "axes": {
-        "wght": 690,
-        "wdth": 82
+        "wght": 820,
+        "wdth": 89
       },
-      "outlineScaleX": 1.1402985074626866,
-      "outlineOffsetX": 0,
-      "xHeight": 520,
-      "capHeight": 735
+      "outlineScaleX": 1.0900495772557135,
+      "outlineOffsetX": -1.9075867601975034,
+      "xHeight": 562,
+      "capHeight": 794,
+      "calibrationSha256": "6139ea6be88764579fcbe90ff1297f20b328f4edc48ba1f74dffbacf830d8c47",
+      "measuredStems": {
+        "verticalH": 130.5,
+        "verticaln": 130.5,
+        "horizontalH": 119
+      }
     },
     "BoldItalic": {
       "reference": "BoldItalic",
       "referenceWeight": 700,
       "referenceStems": {
-        "verticalH": 113,
-        "verticaln": 112.78311167982,
-        "horizontalH": 96
+        "verticalH": 129.8828125,
+        "verticaln": 134.22549387793148,
+        "horizontalH": 119.140625
       },
       "referenceSpacing": {
         "inkBounds": {
           "H": [
-            3,
-            506
+            14.6484375,
+            602.5390625
           ],
           "n": [
-            3,
-            440.79999999999995
+            28.3203125,
+            528.5931081279342
           ]
         },
         "counters": {
-          "H": 156,
-          "n": 156.25995113700432
+          "H": 206.0546875,
+          "n": 169.5478205344048
         },
         "spaces": {
-          "20": 500,
-          "2007": 500,
-          "2008": 500,
-          "2009": 500,
-          "a0": 500,
-          "200a": 500
+          "20": 585.9375,
+          "2008": 585.9375,
+          "a0": 585.9375
+        }
+      },
+      "targetSpacing": {
+        "inkBounds": {
+          "H": [
+            3.24,
+            546.48
+          ],
+          "n": [
+            3.24,
+            476.06399999999996
+          ]
+        },
+        "counters": {
+          "H": 152.79437500000003,
+          "n": 143.92128070051294
+        },
+        "spaces": {
+          "20": 540,
+          "2007": 540,
+          "2008": 540,
+          "2009": 540,
+          "a0": 540,
+          "200a": 540
         }
       },
       "axes": {
-        "wght": 705,
-        "wdth": 81
+        "wght": 820,
+        "wdth": 89
       },
-      "outlineScaleX": 1.157392943380366,
-      "outlineOffsetX": 2.3123533566145085,
-      "xHeight": 520,
-      "capHeight": 735
+      "outlineScaleX": 1.101136790488676,
+      "outlineOffsetX": 1.4267668313556499,
+      "xHeight": 562,
+      "capHeight": 794,
+      "calibrationSha256": "6139ea6be88764579fcbe90ff1297f20b328f4edc48ba1f74dffbacf830d8c47",
+      "measuredStems": {
+        "verticalH": 131.8816377561936,
+        "verticaln": 131.60448135750616,
+        "horizontalH": 119
+      }
     }
   }
 }

@@ -6,7 +6,7 @@ import { join, resolve, extname } from 'node:path';
 import { spawn } from 'node:child_process';
 import { once } from 'node:events';
 import { createServer } from 'node:http';
-import { root, version, heartbeat, sha256 } from './lib.mjs';
+import { root, version, target, heartbeat, sha256 } from './lib.mjs';
 
 const done = heartbeat('Checking WOFF2/WOFF loading, native spacing, website demo, and complete glyph viewer in Chromium');
 const temporary = await mkdtemp(join(tmpdir(), 'inconsolata-browser-check-'));
@@ -122,7 +122,10 @@ try {
       slider.value=20; slider.dispatchEvent(new Event('input',{bubbles:true})); return {faces,metrics,semanticStyles,sliderWorks};
     })()`);
     assert.equal(data.faces.length, 4); assert.ok(data.faces.every(f => f.status === 'loaded'));
-    assert.ok(data.metrics.every(m => Math.abs(m.twelveCells - 120) < .001 && Math.abs(m.word - 30) < .001 && m.threeLines === 75), JSON.stringify(data.metrics));
+    const cell = target.cellWidth / target.unitsPerEm * 20;
+    const lines = (target.ascender - target.descender + target.lineGap) / target.unitsPerEm * 20 * 3;
+    assert.ok(data.metrics.every(m => Math.abs(m.twelveCells - cell * 12) < .01 && Math.abs(m.word - cell * 3) < .01
+      && Math.abs(m.threeLines - lines) < .01), JSON.stringify(data.metrics));
     assert.ok(data.sliderWorks);
     assert.deepEqual(data.semanticStyles, [{ weight: '400', style: 'italic' }, { weight: '700', style: 'normal' }, { weight: '700', style: 'normal' }]);
     const fontRequests = [...new Set(loaded)].sort();
@@ -132,7 +135,7 @@ try {
     const mobileFits = await evaluate(sessionId, 'document.documentElement.scrollWidth <= innerWidth'); assert.ok(mobileFits);
     if (format === 'woff2') await screenshot(sessionId, 'web-example-mobile.png', true);
     results.push({ format, loadedFonts: fontRequests, ...data, mobileLayout: 'pass', browserErrors: [...errors] });
-    console.log(`BROWSER ${format.toUpperCase()}: all four faces; 0.5 em cells, 1.25 em natural lines, emphasis, slider, mobile layout`);
+    console.log(`BROWSER ${format.toUpperCase()}: all four faces; ${target.cellWidth / target.unitsPerEm} em cells, ${(target.ascender - target.descender + target.lineGap) / target.unitsPerEm} em natural lines, emphasis, slider, mobile layout`);
     if (format === 'woff2') {
       await call('Emulation.setDeviceMetricsOverride', { width: 1280, height: 1000, deviceScaleFactor: 1, mobile: false }, sessionId);
       await navigate(sessionId, `${address}/docs/glyph-audit.html`);

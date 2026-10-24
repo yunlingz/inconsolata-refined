@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { readFile, writeFile } from 'node:fs/promises';
 import { create } from 'fontkit';
-import { glyphGeometryHash, glyphInstructions, replaceTables, sfntTables, target } from './lib.mjs';
+import { glyphGeometryHash, glyphInstructions, replaceTables, sfntTables, target, weightTargets } from './lib.mjs';
 
 // htop 3.0.5 CRT.c uses these as one-cell sort indicators. The original
 // Inconsolata has neither, and the installed Iosevka maps both to wide glyphs.
@@ -11,20 +11,23 @@ export const terminalSymbols = [
   { code: 0x25bd, name: 'uni25BD', up: false },
 ];
 
-function triangle(up, weight) {
+function triangle(up, style) {
   const outer = [[250, 585], [440, 145], [60, 145]];
   const radius = 190 * 440 / (190 + Math.hypot(190, 440));
-  const thickness = weight === 700 ? 80 : 60, scale = 1 - thickness / radius;
+  const thickness = (style.weight === 700 ? 80 / 111 : 60 / 78)
+    * weightTargets.styles[style.file].referenceStems.verticalH;
+  const scale = 1 - thickness / target.sizeScale / radius;
   const center = [250, 145 + radius];
-  const inner = outer.map(p => p.map((v, axis) => Math.round(center[axis] + (v - center[axis]) * scale))).reverse();
-  const contours = [outer, inner].map(points => up ? points : points.map(([x, y]) => [x, 730 - y]).reverse());
+  const inner = outer.map(p => p.map((v, axis) => center[axis] + (v - center[axis]) * scale)).reverse();
+  const contours = [outer, inner].map(points => (up ? points : points.map(([x, y]) => [x, 730 - y]).reverse())
+    .map(p => p.map(v => Math.round(v * target.sizeScale))));
   const points = contours.flat(), count = points.length;
   // Simple quadratic TrueType glyph, two closed on-curve polygons, no hints.
   // Fractional rasterization preserves the hole and stays inside its cell.
   const length = 10 + 2 * contours.length + 2 + count + 4 * count;
   const data = Buffer.alloc((length + 3) & ~3);
-  data.writeInt16BE(2, 0); data.writeInt16BE(60, 2); data.writeInt16BE(145, 4);
-  data.writeInt16BE(440, 6); data.writeInt16BE(585, 8);
+  data.writeInt16BE(2, 0); data.writeInt16BE(Math.round(60 * target.sizeScale), 2); data.writeInt16BE(Math.round(145 * target.sizeScale), 4);
+  data.writeInt16BE(Math.round(440 * target.sizeScale), 6); data.writeInt16BE(Math.round(585 * target.sizeScale), 8);
   data.writeUInt16BE(2, 10); data.writeUInt16BE(5, 12); data.writeUInt16BE(0, 14);
   data.fill(1, 16, 16 + count);
   let p = 16 + count;
@@ -65,7 +68,7 @@ export async function addTerminalSymbols(input, output, style) {
   assert.equal(count, 966, 'Append symbols after the complete original-derived glyph set');
   assert.equal(tables.get('head').data.readInt16BE(50), 1, 'Long glyph locations');
   assert.equal(tables.get('post').data.readUInt32BE(0), 0x20000, 'Named glyphs in post format 2');
-  const polygons = terminalSymbols.map(symbol => triangle(symbol.up, style.weight));
+  const polygons = terminalSymbols.map(symbol => triangle(symbol.up, style));
   const glyf = tables.get('glyf').data, loca = Buffer.alloc(4 * (count + polygons.length + 1));
   tables.get('loca').data.copy(loca, 0, 0, 4 * (count + 1));
   let offset = loca.readUInt32BE(4 * count);
@@ -78,7 +81,7 @@ export async function addTerminalSymbols(input, output, style) {
     const position = id < oldMetrics ? 4 * id + 2 : 4 * oldMetrics + 2 * (id - oldMetrics);
     hmtx.writeInt16BE(oldHmtx.readInt16BE(position), 4 * id + 2);
   }
-  for (let i = 0; i < polygons.length; i++) { hmtx.writeUInt16BE(target.cellWidth, 4 * (count + i)); hmtx.writeInt16BE(60, 4 * (count + i) + 2); }
+  for (let i = 0; i < polygons.length; i++) { hmtx.writeUInt16BE(target.cellWidth, 4 * (count + i)); hmtx.writeInt16BE(Math.round(60 * target.sizeScale), 4 * (count + i) + 2); }
   hhea.writeUInt16BE(count + polygons.length, 34);
   const maxp = Buffer.from(tables.get('maxp').data); maxp.writeUInt16BE(count + polygons.length, 4);
   const post = tables.get('post').data, indices = Array.from({ length: count }, (_, id) => post.readUInt16BE(34 + 2 * id));
@@ -112,10 +115,11 @@ export async function addTerminalSymbols(input, output, style) {
   for (const symbol of terminalSymbols) {
     const g = after.glyphForCodePoint(symbol.code); assert.equal(g.name, symbol.name); assert.equal(g.advanceWidth, target.cellWidth);
     assert.equal(g.path.commands.filter(p => p.command === 'moveTo').length, 2, 'White triangle has a counter');
-    assert.deepEqual([g.bbox.minX, g.bbox.minY, g.bbox.maxX, g.bbox.maxY], [60, 145, 440, 585]);
+    assert.deepEqual([g.bbox.minX, g.bbox.minY, g.bbox.maxX, g.bbox.maxY], [60, 145, 440, 585].map(v => Math.round(v * target.sizeScale)));
   }
   await writeFile(output, result);
   return { glyphs: terminalSymbols.map(({ code, name }) => ({ codePoint: code, name, advance: target.cellWidth })),
-    strokeThickness: style.weight === 700 ? 80 : 60, uprightInItalic: true,
+    strokeThickness: (style.weight === 700 ? 80 / 111 : 60 / 78) * weightTargets.styles[style.file].referenceStems.verticalH,
+    sizeScale: target.sizeScale, uprightInItalic: true,
     method: 'New geometric one-cell sort triangles, direct rasterization; every existing glyph, mapping, hint and layout table preserved.' };
 }

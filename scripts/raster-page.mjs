@@ -38,9 +38,9 @@ export async function rasterPage(data, makeInkTools) {
   }
   function glyph(family, g, size, phase, metrics = true) {
     const origin = 18 - Math.floor(Math.min(g.bounds?.[0] ?? 0, 0) * size / 1000);
-    const baseline = 18 + Math.ceil(965 * size / 1000);
+    const baseline = 18 + Math.ceil(data.metrics.typoAscender * size / 1000);
     const width = Math.ceil((Math.max(g.bounds?.[2] ?? 0, g.advance) - Math.min(g.bounds?.[0] ?? 0, 0)) * size / 1000) + 38;
-    const height = Math.ceil(size * 1.25) + 38;
+    const height = Math.ceil(size * (data.metrics.typoAscender - data.metrics.typoDescender) / 1000) + 38;
     ctx.fillStyle = '#282c34'; ctx.fillRect(0, 0, width, height);
     ctx.fillStyle = '#dcdfe4'; ctx.font = `${size}px "${family}"`;
     ctx.fillText(String.fromCodePoint(0xf0000 + g.id), origin + phase, baseline);
@@ -74,6 +74,7 @@ export async function rasterPage(data, makeInkTools) {
     let minLightRatio = Infinity, maxLightRatio = 0;
     for (const size of sizes) for (const phase of phases) {
       const before = g.existed ? glyph('beforeProbe', g, size, phase) : null, after = glyph('afterProbe', g, size, phase);
+      const source = glyph('geometryProbe', g, size, phase);
       const different = !!before && before.words.some((value, i) => value !== after.words[i]);
       checked++;
       const total = totals[size - sizes[0]]; total.rasterizations++; total.beforeLight += before?.light ?? 0; total.afterLight += after.light;
@@ -95,17 +96,17 @@ export async function rasterPage(data, makeInkTools) {
       if (after.clipped) clipped.push({ name: g.name, size, phase });
       // Small raster islands can be accidental holes in letters such as h/U.
       // Flag a loss only if it also drops below the outline's true counter count.
-      if (before && !g.terminal && after.counters < before.counters && after.counters < Math.min(resolvable.counters, before.counters)) {
-        counterRegressions.push({ name: g.name, size, phase, expected: resolvable.counters, before: before.counters, after: after.counters });
+      if (!g.terminal && after.counters < source.counters && after.counters < Math.min(resolvable.counters, source.counters)) {
+        counterRegressions.push({ name: g.name, size, phase, expected: resolvable.counters, source: source.counters, after: after.counters });
       }
-      else if (before && after.counters < Math.min(g.counters, before.counters)) unresolvedCounterChanges++;
+      else if (after.counters < Math.min(g.counters, source.counters)) unresolvedCounterChanges++;
       if (g.symbol && size >= 18 && after.counters < g.counters) counterRegressions.push({ name: g.name, size, phase, expected: g.counters, after: after.counters });
-      if (size >= 8 && size <= 50 && before && !g.terminal) {
+      if (size >= 8 && size <= 50 && !g.terminal) {
         for (const field of ['counters', 'parts']) {
-          const required = Math.min(resolvable[field], before.topology[1][field]);
-          const sweepRequired = Math.min(resolvable[field], Math.max(...before.topology.map(t => t[field])));
+          const required = Math.min(resolvable[field], source.topology[1][field]);
+          const sweepRequired = Math.min(resolvable[field], Math.max(...source.topology.map(t => t[field])));
           if ((field === 'counters' && after.topology[1][field] < required) || Math.max(...after.topology.map(t => t[field])) < sweepRequired) detailRegressions.push({ name: g.name, size, phase,
-            field, expected: required, before: before.topology, after: after.topology });
+            field, expected: required, source: source.topology, after: after.topology });
         }
       }
       if (after.bounds) {
@@ -141,9 +142,9 @@ export async function rasterPage(data, makeInkTools) {
   const hc = headerCanvas.getContext('2d', { willReadFrequently: true });
   let headerCases = 0;
   for (const size of sizes) for (const phase of phases) for (const code of [0x25b3, 0x25bd]) {
-    const symbol = String.fromCodePoint(code), header = 'CPU%' + symbol + 'MEM%', cell = size / 2;
+    const symbol = String.fromCodePoint(code), header = 'CPU%' + symbol + 'MEM%', cell = size * data.metrics.cellWidth / 1000;
     hc.font = `${size}px "after"`; hc.fontKerning = 'none';
-    if (Math.abs(hc.measureText(symbol).width - cell) > .001 || Math.abs(hc.measureText(header).width - cell * 9) > .001) {
+    if (Math.abs(hc.measureText(symbol).width - cell) > .01 || Math.abs(hc.measureText(header).width - cell * 9) > .01) {
       headerErrors.push({ code, size, phase, issue: 'triangle or header advance is not one cell per character' });
     }
     for (const [background, foreground] of [['#1e1e1e', '#cccccc'], ['#0cbb84', '#000000']]) {
@@ -196,20 +197,20 @@ export async function rasterPage(data, makeInkTools) {
       tc.fillStyle = '#dcdfe4'; tc.font = `${size}px "${name}"`;
       tc.fillText(sample, 8 + phase, Math.ceil(size * 1.1) + 4);
       const width = Math.ceil(tc.measureText(sample).width) + 16;
-      const result = pixels(tc, width, Math.ceil(size * 1.25) + 16); delete result.words; delete result.profile; delete result.density; delete result.topology;
+      const result = pixels(tc, width, Math.ceil(size * (data.metrics.typoAscender - data.metrics.typoDescender) / 1000) + 16); delete result.words; delete result.profile; delete result.density; delete result.topology;
       measures[name] = result;
-      if (Math.abs(tc.measureText('000000000000').width - size * 6) > .001) throw new Error(name + ' cell-width mismatch');
+      if (Math.abs(tc.measureText('000000000000').width - size * 12 * data.cellWidths[name]) > .01) throw new Error(name + ' cell-width mismatch');
     }
     text.push({ size, phase, ...measures });
   }
   const comparison = document.createElement('canvas'); comparison.width = 1920; comparison.height = 800;
   const cc = comparison.getContext('2d'); cc.fillStyle = '#282c34'; cc.fillRect(0, 0, 1920, 800);
-  const columns = [['reference', 'Iosevka 33.3.5'], ['before', 'Refined ' + data.baselineVersion], ['after', 'Refined ' + data.version]];
+  const columns = [['reference', data.referenceName], ['before', 'Refined ' + data.baselineVersion], ['after', 'Refined ' + data.version]];
   for (const [col, [family, title]] of columns.entries()) {
     const x = col * 640 + 16;
     cc.fillStyle = '#a6e3a1'; cc.font = '18px sans-serif'; cc.fillText(data.style + ' — ' + title, x, 25);
     let y = 58;
-    for (const size of [14, 18, 24, 32]) {
+    for (const size of [12, 16, 24, 32]) {
       cc.fillStyle = '#8e96a4'; cc.font = '12px sans-serif'; cc.fillText(size + ' px', x, y);
       cc.fillStyle = '#dcdfe4'; cc.font = `${size}px "${family}"`;
       cc.fillText('Hn minimum 0123456789 0O1lI', x, y + size * 1.1);
@@ -221,9 +222,10 @@ export async function rasterPage(data, makeInkTools) {
     cc.fillText('┌────┬────┐  ▁▂▃▄▅▆▇█', x, 458);
     cc.fillText('│    │    │  ████████', x, 488); cc.fillText('└────┴────┘  ████████', x, 518);
     cc.fillStyle = '#8e96a4'; cc.font = '12px sans-serif'; cc.fillText('htop: 24 px, explicit one-cell placement', x, 548);
-    cc.fillStyle = '#10a6ca'; cc.fillRect(x, 558, 60, 30); cc.fillStyle = '#0cbb84'; cc.fillRect(x + 60, 558, 48, 30);
+    const cell = 24 * data.cellWidths[family];
+    cc.fillStyle = '#10a6ca'; cc.fillRect(x, 558, cell * 5, 30); cc.fillStyle = '#0cbb84'; cc.fillRect(x + cell * 5, 558, cell * 4, 30);
     cc.fillStyle = '#000'; cc.font = `24px "${family}"`;
-    [...'CPU%▽MEM%'].forEach((ch, i) => cc.fillText(ch, x + 12 * i, 581));
+    [...'CPU%▽MEM%'].forEach((ch, i) => cc.fillText(ch, x + cell * i, 581));
     const detail = document.createElement('canvas'); detail.width = 95; detail.height = 34;
     const dc = detail.getContext('2d'); dc.fillStyle = '#282c34'; dc.fillRect(0, 0, 95, 34);
     dc.fillStyle = '#dcdfe4'; dc.font = `${data.style.includes('Bold') ? 26 : 24}px "${family}"`;

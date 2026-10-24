@@ -4,7 +4,7 @@ import { readFile, writeFile, mkdtemp, rm } from 'node:fs/promises';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 import { create } from 'fontkit';
-import { root, family, version, styles, target, weightTargets, fontFile, sourceBytes, sha256, heartbeat, tool, run } from './lib.mjs';
+import { root, family, version, styles, target, weightTargets, referenceFace, fontFile, sourceBytes, sha256, heartbeat, tool, run } from './lib.mjs';
 import { edges, filledSpans } from './strokes.mjs';
 import { validateOutlines } from './transform.mjs';
 import { terminalSymbols } from './symbols.mjs';
@@ -36,7 +36,7 @@ function profile(glyph) {
 }
 
 function spacingAudit(font) {
-  const levels = [-200, -100, 40, 100, 182, 260, 340, 420, 500, 620, 700, 800, 900];
+  const levels = [-200, -100, 40, 100, 182, 260, 340, 420, 500, 620, 700, 800, 900].map(y => y * target.sizeScale);
   const samples = new Map();
   function sample(code) {
     if (!samples.has(code)) {
@@ -104,7 +104,7 @@ try {
       if (!referenceBytes.has(refPath)) referenceBytes.set(refPath, await readFile(refPath));
       const data = referenceBytes.get(refPath);
       assert.equal(sha256(data), refSettings.sha256);
-      reference = create(data).fonts[refSettings.faceIndex];
+      reference = referenceFace(data, refSettings);
     }
     const glyphs = [];
     for (let id = 0; id < original.numGlyphs; id++) {
@@ -128,7 +128,11 @@ try {
       // All other new validator warnings require investigation.
       assert.equal(newOutlineFlags & ~0x20, 0, `${before.name}: new FontForge outline warnings`);
       const code = codePoints.find(code => code >= 32 && code !== 0xffff && reference?.hasGlyphForCodePoint(code));
-      const paired = code === undefined ? null : reference.glyphForCodePoint(code);
+      const rawPaired = code === undefined ? null : reference.glyphForCodePoint(code);
+      const referenceScale = reference ? target.unitsPerEm / reference.unitsPerEm : 1;
+      const pairedPath = rawPaired?.path.transform(referenceScale, 0, 0, referenceScale, 0, 0);
+      const paired = rawPaired ? { path: pairedPath, bbox: pairedPath.bbox,
+        advanceWidth: rawPaired.advanceWidth * referenceScale } : null;
       const refBox = paired ? box(paired) : null;
       const comparison = paired ? { codePoint: code, bounds: refBox, advance: paired.advanceWidth, strokeProfile: profile(paired) } : null;
       const notes = [];
@@ -148,23 +152,24 @@ try {
       assert.equal(glyph.advanceWidth, target.cellWidth);
       assert.ok(bounds[0] >= 0 && bounds[2] <= target.cellWidth, `${name}: sort indicator fits its one-cell allocation`);
       assert.equal(contourCount(glyph), 2);
-      assert.ok(filledSpans(glyph, 0, 250).length === 2, `${name}: hollow triangle`);
+      assert.ok(filledSpans(glyph, 0, 250 * target.sizeScale).length === 2, `${name}: hollow triangle`);
       return { name, outputId: glyph.id, codePoints: [code], advance: glyph.advanceWidth, bounds,
         contours: contourCount(glyph), outlineValidation: flags, strokeProfile: profile(glyph),
         notes: ['New geometric one-cell htop sort symbol; source glyphs remain unchanged.'] };
     });
     results.push({ style: style.name, file: `fonts/InconsolataRefined-${style.file}.ttf`, sha256: sha256(bytes),
       originalGlyphsChecked: glyphs.length, referenceGlyphsCompared: glyphs.filter(g => g.reference).length,
+      referenceFamily: weightTargets.family, referenceAxes: refSettings.axes,
       sourceCoverage: original.characterSet.length, lineBox: [target.typoDescender, target.typoAscender],
       outlineValidation: { sourceMask: beforeValidation.mask, outputMask: afterValidation.mask,
         glyphsWithNewExtremaWarnings: glyphs.filter(g => g.outlineValidation.newFlags).map(g => g.name) },
       assertions: 'All original glyphs retain outlines and advance relationships; finite nondegenerate bounds fit the line box. Cleanup equivalence is checked for every output glyph during build. All alphanumeric pairs have positive sampled clearance. No new non-extrema FontForge validation flags.',
       spacing, glyphs, supplementalGlyphs });
-    console.log(`AUDIT ${style.name}: all ${glyphs.length} original glyphs, ${glyphs.filter(g => g.reference).length} paired Iosevka profiles, ${spacing.pairsChecked} spacing pairs; ${spacing.possibleOverlaps.length} expected terminal-artwork overlaps`);
+    console.log(`AUDIT ${style.name}: all ${glyphs.length} original glyphs, ${glyphs.filter(g => g.reference).length} paired Cascadia Code profiles, ${spacing.pairsChecked} spacing pairs; ${spacing.possibleOverlaps.length} expected terminal-artwork overlaps`);
   }
   await writeFile(join(root, 'docs/glyph-audit.json'), JSON.stringify({
-    family, version, unitsPerEm: target.unitsPerEm,
-    method: 'Every original named glyph is checked. Five horizontal and five vertical cuts record filled-span profiles, with the corresponding installed Iosevka character where available. Profiles describe geometry, not a universal stroke-width measurement: contours and letterforms differ. Unencoded feature glyphs have no reliable cross-family glyph-name mapping. Pair checks use actual scanline ink rather than bounding-box overlap.',
+    family, version, unitsPerEm: target.unitsPerEm, targetMetrics: target,
+    method: 'Every original named glyph is checked. Five horizontal and five vertical cuts record filled-span profiles, with the corresponding Cascadia Code character where available. Profiles describe geometry, not a universal stroke-width measurement: contours and letterforms differ. Unencoded feature glyphs have no reliable cross-family glyph-name mapping. Pair checks use actual scanline ink rather than bounding-box overlap.',
     results,
   }) + '\n');
   console.log('Saved docs/glyph-audit.json with per-glyph evidence for all four styles.');

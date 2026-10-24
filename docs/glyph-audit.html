@@ -27,7 +27,7 @@
 <body>
   <h1>Complete glyph audit</h1>
   <p>Every original Inconsolata glyph, in all four refined styles. Encoded characters use the actual WOFF2 fonts and native spacing. Unencoded alternates and ligatures use outline previews; those SVG previews do not show TrueType hinting.</p>
-  <p>Each measurement panel includes bounds, bearings, and horizontal/vertical scanline profiles, with paired installed Iosevka measurements where a shared character exists. Different letterforms make scanline span widths an imperfect proxy for perceived stroke weight.</p>
+  <p>Each measurement panel includes bounds, bearings, and horizontal/vertical scanline profiles, with paired Cascadia Code measurements where a shared character exists. Different letterforms make scanline span widths an imperfect proxy for perceived stroke weight.</p>
   <p><a href="glyph-audit.json">Full machine-readable audit</a> · Encoded coverage at 24 px:
     <a href="coverage-Regular.png">Regular</a>, <a href="coverage-Italic.png">Italic</a>,
     <a href="coverage-Bold.png">Bold</a>, <a href="coverage-BoldItalic.png">Bold Italic</a></p>
@@ -76,7 +76,8 @@
               span.style.fontWeight = index >= 2 ? '700' : '400'; span.style.fontStyle = index % 2 ? 'italic' : 'normal'; cell.append(span);
             } else if (glyph.svg) {
               const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-              svg.setAttribute('class', 'outline'); svg.setAttribute('viewBox', `-160 -965 ${Math.max(500, glyph.advance) + 320} 1250`);
+              const metrics = audit.targetMetrics, padding = 160 * metrics.sizeScale;
+              svg.setAttribute('class', 'outline'); svg.setAttribute('viewBox', `${-padding} ${-metrics.typoAscender} ${Math.max(metrics.cellWidth, glyph.advance) + padding * 2} ${metrics.typoAscender - metrics.typoDescender}`);
               const path = document.createElementNS(svg.namespaceURI, 'path'); path.setAttribute('d', glyph.svg); path.setAttribute('transform', 'scale(1,-1)');
               svg.append(path); cell.append(svg);
             } else { const empty = document.createElement('small'); empty.textContent = 'No visible ink'; cell.append(empty); }

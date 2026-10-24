@@ -1,6 +1,6 @@
 # Inconsolata Refined
 
-Four static fonts rebuilt from original **Inconsolata 3.100**, calibrated against the user’s Windows-installed **Iosevka 33.3.5**, and freshly hinted with **ttfautohint 1.8.4**. Font version: **1.500**.
+Four static fonts rebuilt from original **Inconsolata 3.100**, with enlarged narrow proportions, **Cascadia Code** stroke weights, and fresh **ttfautohint 1.8.4** hints. Font version: **1.600**.
 
 | Style | Installable file |
 | --- | --- |
@@ -9,28 +9,30 @@ Four static fonts rebuilt from original **Inconsolata 3.100**, calibrated agains
 | Bold | [InconsolataRefined-Bold.ttf](fonts/InconsolataRefined-Bold.ttf) |
 | Bold Italic | [InconsolataRefined-BoldItalic.ttf](fonts/InconsolataRefined-BoldItalic.ttf) |
 
-On Windows, install all four TTFs, replace the earlier versions, restart the terminal/editor, and select **Inconsolata Refined**. Compare it with Iosevka at the same font size and with application spacing overrides cleared. The four styles share one family and use standard 400/700 weights.
+On Windows, install all four TTFs, replace the earlier versions, restart the terminal/editor, and select **Inconsolata Refined**. Compare it with Cascadia Code at the same font size and with application spacing overrides cleared. The four styles share one family and use standard 400/700 weights.
 
 ## Size, weight, and spacing
 
-Iosevka guides the visual calibration. The build uses Inconsolata’s original variable source, its weight/width axes, and shared outline/spacing transforms. It preserves the recognizable letterforms and original features. It does not use a previously refined font as input or copy Iosevka outlines/layout tables.
+Version 1.600 enlarges the Iosevka-derived narrow proportions by **8%**, including cells, bearings, whitespace, line height, marks, and decorations. Weight is calibrated separately to the corresponding Cascadia Code Regular, Italic, Bold, and Bold Italic. The build uses the original Inconsolata variable source and shared geometric transforms, preserving its recognizable forms and features.
+
+Native Windows measurements show that 1.500 already had comparable overall height, and taller plain capitals, than the installed Cascadia Code. Its smaller optical presence mainly came from a narrower footprint and less ink. The enlargement addresses that preference; it does not claim identical heights between different letterforms. The [pixel size comparison](docs/size-review.json) records both releases against Cascadia at the same requested sizes.
 
 | Metric | Original Inconsolata Regular | Installed Iosevka | Refined |
 | --- | ---: | ---: | ---: |
 | Units per em | 1000 | 1000 | 1000 |
-| Cell and word-space width | 500 | 500 | 500 |
-| Lowercase x height | 457 | 520 | 520 |
-| Capital height | 623 | 735 | 735 |
-| Natural line height | 1049 | 1250 | 1250 |
+| Cell and word-space width | 500 | 500 | 540 |
+| Lowercase x height | 457 | 520 | 562 |
+| Capital height | 623 | 735 | 794 |
+| Natural line height | 1049 | 1250 | 1350 |
 
-All faces use hhea ascent/descent/gap **965 / −215 / 70**, typographic metrics **965 / −285 / 0**, and Windows clipping metrics **965 / 285**. Each route gives a 1.25 em line; the cell is 0.5 em. Baseline, descenders, side bearings, whitespace, representative counters, underline/strikeout positions, and italic caret slope are checked. Box drawing and blocks remain upright and fit the complete terminal cell.
+All faces use hhea ascent/descent/gap **1042 / −232 / 76**, typographic metrics **1042 / −308 / 0**, and Windows clipping metrics **1042 / 308**. Both line-layout routes give a **1.35 em** line; the cell is **0.54 em**, retaining the narrow aspect ratio. Dimensional metrics are rounded to whole font units. Box drawing and blocks remain upright and fit the enlarged terminal cell.
 
 | Style | Source weight axis | Source width axis | Largest calibration-stem difference |
 | --- | ---: | ---: | ---: |
-| Regular | 420 | 83 | 3.21% |
-| Italic | 435 | 88 | 2.72% |
-| Bold | 690 | 82 | 1.04% |
-| Bold Italic | 705 | 81 | 0.42% |
+| Regular | 580 | 95 | 3.88% |
+| Italic | 590 | 92 | 2.82% |
+| Bold | 820 | 89 | 1.38% |
+| Bold Italic | 820 | 89 | 1.95% |
 
 The finished weight metadata remains **400/700**. The last column measures three stem/crossbar samples; it is not an error bound for every stroke in two different typefaces. The 1% goal is a preference, with preservation of Inconsolata’s forms taking priority. Every original glyph also receives its own size, spacing, outline, and scanline-profile audit.
 
@@ -40,15 +42,15 @@ All **964 original named glyphs**, **883 original cmap entries**, and **17 OpenT
 
 ## Small-size rendering
 
-Version **1.500** corrects stroke balance in the outline geometry and the hinting. The shared height fit can compress strokes above capital height, notably in `f`’s upper hook. [Source-aware compensation](scripts/outline-balance.mjs) compares perpendicular strokes in the original and resized cubic contours, then corrects the extra distortion from resizing. It preserves Inconsolata’s intended stroke contrast, straight stems, counter contours, and advances. Every original glyph is reviewed; a proposal must improve the measured balance and pass contour and native rendering checks. Character names do not select the correction.
+The source-based stroke balancing introduced in 1.500 is recalculated for the new weights and size. The shared height fit can compress strokes above capital height, notably in `f`’s upper hook. [Source-aware compensation](scripts/outline-balance.mjs) compares perpendicular strokes in the original and resized cubic contours, then corrects the extra distortion from resizing. It preserves intended stroke contrast, straight stems, counter contours, and advances. Every original glyph is reviewed; a proposal must improve measured balance and pass contour and native checks. Character names do not select the correction.
 
-The four faces retain their previous size, spacing, and Iosevka stem calibration. Fresh ttfautohint programs receive a [generated fitting policy](reference/hinting.json), measured for every glyph at **8–50 px and eight horizontal positions**. Natural or quantized fitting is preferred; stronger rounding is used only when gentler fitting fails the detail checks. The old hand-selected `s`/`S` rule is gone.
+Fresh ttfautohint programs receive a newly [generated fitting policy](reference/hinting.json), measured for every glyph at **8–50 px and eight horizontal positions**. Natural or quantized fitting is preferred; stronger rounding is reserved for detail preservation. Geometry/detail acceptance uses a fresh uncompensated resize of the same original design axes and final dimensions. The older lighter release remains a separate visual/ink comparison.
 
 The review distinguishes resolvable counters and separate ink cores from small details whose antialiasing changes across pixel positions. Those smaller features influence the fitting score rather than requiring identical binary masks. [Unhinted outlines](docs/outline-comparison.svg), [source stroke measurements](docs/outline-review.json), and [native fitting measurements](docs/hinting-review.json) expose the two stages separately. These are shape and rendering measurements, not universal readability scores.
 
-A generic [bounds safeguard](docs/hint-bounds.json) also tests every hinted glyph against its outline position. It bypasses a program only after direct rendering passes the same visibility and detail checks across the tested range. This catches displaced symbols such as the integral sign without adding character-name rules.
+A generic [bounds and detail safeguard](docs/hint-bounds.json) tests every hinted glyph. Displaced programs, or programs whose fitting modes lose source details, can be bypassed only after direct rendering passes bounds, visibility, and detail checks across the entire tested range. There are no character-name selection rules.
 
-Terminal artwork still renders directly from its cell-fitted outlines to avoid the autohinter programs that previously collapsed or inverted its spans. The one-cell `△`/`▽` symbols added in 1.400 remain upright and fit htop’s `CPU%▽MEM%` header. They retain their geometric construction, 500-unit advances, and hollow centers. [Symbol construction](scripts/symbols.mjs) is separate from the original font transformations.
+Terminal artwork renders directly from its cell-fitted outlines to avoid unsafe text hinting. The one-cell `△`/`▽` symbols grow with the 540-unit cell, keep hollow centers, and use borders adjusted to the new weight targets. [Symbol construction](scripts/symbols.mjs) remains separate from the original glyph transformations.
 
 ## Web fonts
 
@@ -69,7 +71,7 @@ CSS uses `font-style: normal` or `italic`, and `font-weight: 400` or `700`. `reg
 
 ## Review and complete coverage
 
-- [Four paired Iosevka comparisons](docs/stroke-comparison.png), [original/refined overview](docs/preview.png), and [small sizes](docs/small-sizes.png).
+- [Four paired Cascadia comparisons](docs/stroke-comparison.png), [original/refined overview](docs/preview.png), and [small sizes](docs/small-sizes.png).
 - [Every original glyph in all four styles](docs/glyph-audit.html), including 81 unencoded alternates/ligatures; serve the repository through HTTP to use the viewer.
 - Complete encoded sheets: [Regular](docs/coverage-Regular.png), [Italic](docs/coverage-Italic.png), [Bold](docs/coverage-Bold.png), [Bold Italic](docs/coverage-BoldItalic.png).
 - [All supplied combining marks on digits](docs/combining-marks.png).
@@ -101,11 +103,13 @@ On other systems, provide FontTools, FontForge, ttfautohint **1.8.4**, hb-shape,
 - `npm run build` regenerates all four TTFs and eight web fonts.
 - `npm test` runs desktop/web checks and the complete glyph audit, including 18,755 spacing pairs per style and 275 digit/mark cases per style.
 - `npm run test:browser` checks WOFF2 and forced WOFF fallback, real family faces, natural cell/line metrics, emphasis, size slider, mobile layout, and the glyph viewer.
-- `npm run test:raster` requires WSL, Windows Chrome/Edge, the local reference collections, and the recorded **1.400** Git baseline. It checks all **968 output glyphs/style** at every integer size from 8 through 50 px and eight pixel phases, including compiled-policy agreement with independent fitting candidates, local ink distribution, resolvable counters and components, visibility, clipping, glyph bounds, curve balance, and dark/bright htop headers. Set `WINDOWS_CHROMIUM` to override browser discovery. It uses temporary fonts/profiles and changes no installed fonts or application settings.
+- `npm run test:raster` requires WSL, Windows Chrome/Edge, the local Cascadia references, and the recorded **1.400** Git baseline. It checks all **968 output glyphs/style** at every integer size from 8 through 50 px and eight pixel phases. A fresh original-source resize at the new weight and dimensions supplies the geometry/detail reference; 1.400 supplies the historical ink comparison. Compiled pixels must agree with independent fitting candidates. Visibility, bounds, resolvable details, curve balance, and dark/bright htop headers are checked. Set `WINDOWS_CHROMIUM` to override browser discovery.
+- Native raster verification can resume per style: `node scripts/check-raster.mjs --checkpoint-dir=<unique-OS-temp-directory> --style=Regular`, then `Italic`, `Bold`, and `BoldItalic`. Completed results are checksum-verified; all four are required for the combined report. Remove the owned checkpoint directory afterward.
+- `npm run test:size` measures every shared printable character against Cascadia and release 1.500, in native Windows Chromium at seven sizes and four phases; it also verifies proportional advances for every output glyph.
 - `npm run build:web` / `npm run test:web` handle web exports only.
-- `npm run calibrate` searches source axes and rounded native candidates, then rejects finalists that fail full-glyph outline/cleanup checks. It requires local reference collections; review the resulting fonts before release.
+- `npm run calibrate` searches source axes and rounded native candidates, then rejects finalists that fail full-glyph outline/cleanup checks. It needs the local stroke and spacing references. Results are saved per style; `-- --resume` reuses only completed styles whose calibration inputs match. FontForge processes have a 30-second timeout and, on Linux with prlimit, a 1 GiB address-space limit.
 
-The measured reference files are local, ignored `reference/Iosevka-Regular.ttc` and `reference/Iosevka-Bold.ttc`, copied from the Windows `SGr-Iosevka-*.ttc` installation. Regular/Bold use face 0; Italic/Bold Italic use face 4. Their checksums and targets are pinned in [weights.json](reference/weights.json) and [metrics.json](reference/metrics.json). Building uses recorded settings and needs no Iosevka binary/network after setup. Preview overrides are `IOSEVKA_REGULAR` and `IOSEVKA_BOLD`.
+The local stroke references are ignored `reference/CascadiaCode.ttf` (2102.025, matching the Windows-installed font) and `reference/CascadiaCodeItalic.ttf` (2105.024), at wght 400/700. The spacing template remains installed Iosevka 33.3.5 in `reference/Iosevka-Regular.ttc` and `reference/Iosevka-Bold.ttc`, faces 0/4. [weights.json](reference/weights.json) pins both reference roles and checksums; [metrics.json](reference/metrics.json) records enlarged dimensions. Ordinary builds use the recorded settings and original Inconsolata sources without reference binaries or network access.
 
 The release uses FontTools 4.29.1 and ttfautohint 1.8.4, verified as the latest stable release on October 24, 2026. Base hint options are centralized in [scripts/lib.mjs](scripts/lib.mjs); the subsequent refinement is recorded in [reference/hinting.json](reference/hinting.json). The build rejects other ttfautohint versions, fingerprints every source-derived outline, advance, and base hint program against the current geometric review, and appends only the two documented symbols. Fixed release timestamps and checksum-verified original inputs give reproducible outputs; an isolated build reproduced all 12 font files byte for byte. [Build manifests](fonts/build-info.json) record the exact settings.
 

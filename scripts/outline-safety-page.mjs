@@ -13,17 +13,22 @@ export async function outlineSafetyPage(data, makeInkTools) {
       const counts = ink.resolvable(reference, size, data.settings); counts.counters = Math.min(counts.counters, g.counters);
       const baseline = data.settings.phases.map(phase => ink.render('baseline', g, size, phase, 0, false));
       let safe = false;
-      for (const mode of ['q', 'n', 's']) {
+      const diagnostics = {};
+      for (const mode of ['q', 'n', 's', 'u']) {
         const records = data.settings.phases.map(phase => ink.render(mode, g, size, phase, 0, false));
         cases += records.length;
-        safe = records.every((record, p) => {
+        const bad = [];
+        const modeSafe = records.every((record, p) => {
           if (record.clipped || (baseline[p].signal > .1 && record.signal <= .1)) return false;
-          return ['counters', 'parts'].every(field => (field !== 'counters' || record.topology[1][field] >= Math.min(counts[field], baseline[p].topology[1][field]))
+          const valid = ['counters', 'parts'].every(field => (field !== 'counters' || record.topology[1][field] >= Math.min(counts[field], baseline[p].topology[1][field]))
             && Math.max(...record.topology.map(t => t[field])) >= Math.min(counts[field], Math.max(...baseline[p].topology.map(t => t[field]))));
+          if (!valid) bad.push({ phase: data.settings.phases[p], expected: counts, baseline: baseline[p].topology, actual: record.topology });
+          return valid;
         });
-        if (safe) break;
+        diagnostics[mode] = { safe: modeSafe, failures: bad };
+        if (mode !== 'u' && modeSafe) { safe = true; break; }
       }
-      if (!safe) failures.push({ id: g.id, name: g.name, size });
+      if (!safe) failures.push({ id: g.id, name: g.name, size, modes: diagnostics });
     }
   }
   return { platform: navigator.platform, userAgent: navigator.userAgent, failures, cases };
