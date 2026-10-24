@@ -1,6 +1,6 @@
 {
   "name": "inconsolata-refined",
-  "version": "1.2.0",
+  "version": "1.3.0",
   "private": true,
   "type": "module",
   "description": "Four original Inconsolata faces calibrated against installed Iosevka and freshly hinted with ttfautohint.",
@@ -17,7 +17,8 @@
     "preview": "node scripts/preview.mjs",
     "calibrate": "node scripts/calibrate.mjs",
     "audit": "node scripts/audit.mjs",
-    "test:browser": "node scripts/check-browser.mjs"
+    "test:browser": "node scripts/check-browser.mjs",
+    "test:raster": "node scripts/check-raster.mjs"
   },
   "devDependencies": {
     "fontkit": "2.0.4",

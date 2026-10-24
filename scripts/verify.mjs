@@ -7,9 +7,11 @@ import { create } from 'fontkit';
 import {
   root, family, version, styles, sources, target, weightTargets, fontFile, sourceBytes,
   sfntTables, checksum, sha256, tool, run, heartbeat,
+  glyphGeometryHash, glyphInstructions, hintPolicy,
 } from './lib.mjs';
 import { measureStems } from './strokes.mjs';
 import { measureSpacing } from './spacing.mjs';
+import { hintGlyphSets, hintProgram, protectedHintProgram } from './hinting.mjs';
 
 const done = heartbeat('Checking metadata, coverage, shaping, hint bytecode, and rendering');
 const temporary = await mkdtemp(join(tmpdir(), 'inconsolata-refined-check-'));
@@ -150,6 +152,30 @@ try {
     assert.match(font.version, /ttfautohint \(v1\.8\.4\)/);
     const { stdout: hintInfo } = await run(tool('ttfautohint'), ['--ttfa-info', fontFile(style)]);
     assert.match(hintInfo, /1\.8\.4/);
+    const refinement = build.instances.find(instance => instance.style === style.name).hintRefinement;
+    const ranges = hintPolicy.styles[style.file].strongPpemRanges;
+    assert.equal(glyphGeometryHash(font), hintPolicy.geometrySha256[style.file], 'All 966 glyph geometries and advances exactly match v1.200');
+    assert.deepEqual(refinement.strongPpemRanges, ranges);
+    assert.equal(refinement.flagCvt, tables.get('cvt ').data.length / 2 - 1);
+    assert.equal(tables.get('cvt ').data.readInt16BE(refinement.flagCvt * 2), 0, 'Adaptive mode flag defaults to zero');
+    const policy = hintProgram(ranges, refinement.flagCvt);
+    assert.equal(sha256(policy), refinement.policyBytecodeSha256);
+    assert.deepEqual(tables.get('prep').data.subarray(refinement.originalPrepBytes), policy);
+    assert.match(hintInfo, /refined-hint-policy = 1/);
+    const { terminal, eligible } = hintGlyphSets(font, style);
+    const prefix = protectedHintProgram(refinement.flagCvt, false), suffix = protectedHintProgram(refinement.flagCvt, true);
+    let protectedCount = 0;
+    for (let id = 0; id < font.numGlyphs; id++) {
+      const glyph = font.getGlyph(id), program = glyphInstructions(tables, id);
+      if (terminal.has(id)) assert.equal(program.length, 0, `${glyph.name}: preserve cell geometry without text hinting`);
+      else if (program.length && glyph.path.commands.length && !eligible.has(id)) {
+        assert.deepEqual(program.subarray(0, prefix.length), prefix, `${glyph.name}: protected hint mode entry`);
+        assert.deepEqual(program.subarray(-suffix.length), suffix, `${glyph.name}: restore hint mode`);
+        protectedCount++;
+      }
+    }
+    assert.equal(protectedCount, refinement.protectedGlyphs.length);
+    assert.equal(terminal.size, refinement.terminalGlyphs.length);
 
     await run(tool('ots-sanitize'), [fontFile(style), join(temporary, `${style.file}-sanitized.ttf`)]);
     const shapingSamples = [
@@ -226,6 +252,9 @@ try {
       xHeight: font.xHeight, capHeight: font.capHeight, cellWidth: target.cellWidth,
       sourceAxes: weightTarget.axes, referenceStyle: style.name, referenceStems: weightTarget.referenceStems,
       stems, strokeErrors, spacing, digitMarkPairsChecked: markPairsChecked, digitMarkOverhangs,
+      hintRefinement: { policyVersion: refinement.policyVersion, strongPpemRanges: ranges,
+        eligibleGlyphs: eligible.size, protectedGlyphs: protectedCount, terminalGlyphs: terminal.size,
+        geometrySha256: refinement.geometrySha256 },
       lineMetrics: { hhea: [font.ascent, font.descent, font.lineGap],
         typo: [target.typoAscender, target.typoDescender, target.typoLineGap] },
       sanitizer: 'pass', renderingSizes: [10, 12, 14, 16, 18, 24, 32], sha256: sha256(bytes) });

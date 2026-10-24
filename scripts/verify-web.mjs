@@ -5,7 +5,7 @@ import { join } from 'node:path';
 import { inflateSync } from 'node:zlib';
 import { create } from 'fontkit';
 import wawoff2 from 'wawoff2';
-import { root, family, styles, fontFile, sfntTables, sha256, tool, run, heartbeat } from './lib.mjs';
+import { root, family, styles, fontFile, sfntTables, glyphInstructions, sha256, tool, run, heartbeat } from './lib.mjs';
 
 function woffTables(bytes) {
   const tables = new Map();
@@ -19,20 +19,6 @@ function woffTables(bytes) {
     tables.set(tag, { data: decoded });
   }
   return tables;
-}
-
-function glyphInstructions(tables, id) {
-  const loca = tables.get('loca').data, glyf = tables.get('glyf').data;
-  const long = tables.get('head').data.readInt16BE(50) === 1;
-  const offset = index => long ? loca.readUInt32BE(index * 4) : loca.readUInt16BE(index * 2) * 2;
-  const start = offset(id), end = offset(id + 1);
-  if (end - start < 12) return Buffer.alloc(0);
-  const contours = glyf.readInt16BE(start);
-  assert.ok(contours >= 0, 'The refined TTFs have flattened outlines');
-  const position = start + 10 + contours * 2;
-  const length = glyf.readUInt16BE(position);
-  assert.ok(position + 2 + length <= end, 'Glyph instructions fit inside the glyph');
-  return glyf.subarray(position + 2, position + 2 + length);
 }
 
 const done = heartbeat('Checking web font geometry, metadata, features, hint preservation, and sanitization');

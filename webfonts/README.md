@@ -2,7 +2,7 @@
 
 This folder is ready to copy to a website. It contains Regular, Italic, Bold, and Bold Italic in both WOFF2 and WOFF, the shared family stylesheet, a standalone HTML example, and the font license.
 
-The current fonts are version **1.200**. Size, stroke weight, and spacing are calibrated against the corresponding Windows-installed Iosevka 33.3.5 styles. These exports come from the same newly hinted TTFs in `fonts/`.
+The current fonts are version **1.300**. Size, stroke weight, and spacing are calibrated against the corresponding Windows-installed Iosevka 33.3.5 styles. These exports come from the same newly hinted TTFs in `fonts/`, including size-aware stem refinement and repaired terminal-art rendering. Every outline and advance remains identical to version 1.200.
 
 ```html
 <link rel="stylesheet" href="./inconsolata-refined.css">

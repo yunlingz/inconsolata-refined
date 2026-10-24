@@ -1,0 +1,18 @@
+{
+  "policyVersion": 1,
+  "baselineVersion": "1.200",
+  "baselineRevision": "0d3ee1f347c344df4458a2aa663c05f40cad044c",
+  "method": "Keep original geometry, advances, blue zones, and ttfautohint 1.8.4 qsq hints. Enable stronger integer stem rounding only for full-size text at measured PPEMs; retain quantized rounding for compact glyphs and symbols. Terminal artwork uses its original cell-fitted outlines without the autohinter programs that collapse or invert its vertical spans on Windows.",
+  "geometrySha256": {
+    "Regular": "7e0ae87f79d08d0627a5c3a241cd3787e1107008fb3a19ef32097ad7faae254a",
+    "Italic": "ffaf59ec3796325ed092911580727b43e19b0ba473eb601da2de554835b786fa",
+    "Bold": "91e1399544ab3f6e46d6b64f34a3683bb6a01cff1c859089a7691675a4898209",
+    "BoldItalic": "ee887659c97ab50b5abf65085b577f9a51809cb864852f0e3ecb079726aadb24"
+  },
+  "styles": {
+    "Regular": { "strongPpemRanges": [[22, 26]], "protectedGlyphs": [] },
+    "Italic": { "strongPpemRanges": [[22, 26]], "protectedGlyphs": [] },
+    "Bold": { "strongPpemRanges": [[16, 19], [26, 28]], "protectedGlyphs": ["ae", "aeacute"] },
+    "BoldItalic": { "strongPpemRanges": [[16, 19], [26, 28]], "protectedGlyphs": ["ae", "aeacute", "uring"] }
+  }
+}

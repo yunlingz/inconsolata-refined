@@ -9,7 +9,7 @@ import { create } from 'fontkit';
 
 export const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 export const family = 'Inconsolata Refined';
-export const version = '1.200';
+export const version = '1.300';
 export const styles = [
   { file: 'Regular', name: 'Regular', source: 'Regular', weight: 400, italic: false },
   { file: 'Italic', name: 'Italic', source: 'Regular', weight: 400, italic: true },
@@ -19,6 +19,7 @@ export const styles = [
 export const sources = JSON.parse(await readFile(join(root, 'upstream/sources.json'), 'utf8'));
 export const target = JSON.parse(await readFile(join(root, 'reference/metrics.json'), 'utf8'));
 export const weightTargets = JSON.parse(await readFile(join(root, 'reference/weights.json'), 'utf8'));
+export const hintPolicy = JSON.parse(await readFile(join(root, 'reference/hinting.json'), 'utf8'));
 export const hintOptions = [
   '--hinting-range-min=8', '--hinting-range-max=50', '--hinting-limit=200',
   '--increase-x-height=14', '--stem-width-mode=qsq', '--windows-compatibility',
@@ -26,6 +27,12 @@ export const hintOptions = [
 ];
 
 export const sha256 = data => createHash('sha256').update(data).digest('hex');
+export const glyphGeometryHash = font => sha256(Buffer.from(JSON.stringify(
+  Array.from({ length: font.numGlyphs }, (_, id) => {
+    const glyph = font.getGlyph(id);
+    return [glyph.name, glyph.advanceWidth, glyph.path.commands];
+  }),
+)));
 export const fontFile = style => join(root, 'fonts', `InconsolataRefined-${style.file}.ttf`);
 export const tool = name => {
   const configured = process.env[name.toUpperCase().replaceAll('-', '_')];
@@ -74,10 +81,10 @@ export async function sourceBytes(weight) {
 }
 
 // Keep untouched tables intact when fixing metadata after FontForge export.
-export function sfntTables(bytes) {
+export function sfntTables(bytes, sfntOffset = 0) {
   const tables = new Map();
-  for (let i = 0; i < bytes.readUInt16BE(4); i++) {
-    const pos = 12 + i * 16;
+  for (let i = 0; i < bytes.readUInt16BE(sfntOffset + 4); i++) {
+    const pos = sfntOffset + 12 + i * 16;
     const tag = bytes.toString('ascii', pos, pos + 4);
     const offset = bytes.readUInt32BE(pos + 8), length = bytes.readUInt32BE(pos + 12);
     tables.set(tag, { directory: pos, offset, data: bytes.subarray(offset, offset + length) });
@@ -93,6 +100,46 @@ export function checksum(bytes) {
     sum = (sum + word) >>> 0;
   }
   return sum;
+}
+
+// Replace existing SFNT tables while preserving every other table verbatim.
+export function replaceTables(bytes, replacements, sfntOffset = 0) {
+  const tables = sfntTables(bytes, sfntOffset);
+  for (const [tag, data] of Object.entries(replacements)) {
+    if (!tables.has(tag)) throw new Error(`Missing SFNT table ${tag}`);
+    tables.get(tag).data = Buffer.from(data);
+  }
+  tables.get('head').data = Buffer.from(tables.get('head').data);
+  tables.get('head').data.writeUInt32BE(0, 8);
+  let offset = 12 + tables.size * 16;
+  const output = Buffer.alloc(offset + [...tables.values()].reduce((size, table) => size + ((table.data.length + 3) & ~3), 0));
+  bytes.copy(output, 0, sfntOffset, sfntOffset + 12);
+  let index = 0, headOffset;
+  for (const [tag, { data }] of tables) {
+    const entry = 12 + index++ * 16;
+    output.write(tag, entry, 4, 'ascii');
+    output.writeUInt32BE(checksum(data), entry + 4);
+    output.writeUInt32BE(offset, entry + 8);
+    output.writeUInt32BE(data.length, entry + 12);
+    data.copy(output, offset);
+    if (tag === 'head') headOffset = offset;
+    offset += (data.length + 3) & ~3;
+  }
+  output.writeUInt32BE((0xb1b0afba - checksum(output)) >>> 0, headOffset + 8);
+  return output;
+}
+
+export function glyphInstructions(tables, id) {
+  const loca = tables.get('loca').data, glyf = tables.get('glyf').data;
+  const long = tables.get('head').data.readInt16BE(50) === 1;
+  const offset = index => long ? loca.readUInt32BE(index * 4) : loca.readUInt16BE(index * 2) * 2;
+  const start = offset(id), end = offset(id + 1);
+  if (end - start < 12) return Buffer.alloc(0);
+  const contours = glyf.readInt16BE(start);
+  if (contours < 0) throw new Error('The refined fonts must have flattened outlines');
+  const position = start + 10 + 2 * contours, length = glyf.readUInt16BE(position);
+  if (position + 2 + length > end) throw new Error(`Invalid glyph ${id} instruction bounds`);
+  return glyf.subarray(position + 2, position + 2 + length);
 }
 
 export async function normalizeMetadata(file) {

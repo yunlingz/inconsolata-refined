@@ -1,6 +1,6 @@
 # Font review
 
-Reviewed October 24, 2026. Scope: Inconsolata Refined **1.200**, all four TTFs, eight web fonts, every original glyph, paired installed Iosevka references, metadata, hinting, shaping, and browser use.
+Reviewed October 24, 2026. Scope: Inconsolata Refined **1.300**, all four TTFs, eight web fonts, every original glyph, paired installed Iosevka references, metadata, hinting, shaping, and browser use.
 
 ## Design decisions
 
@@ -21,6 +21,31 @@ The three calibration samples are filled spans through H at 25% capital height, 
 | Bold Italic | 113.30 / 113.00 | 113.26 / 112.78 | 96.00 / 96.00 | 0.42% |
 
 These are representative stem measurements, not a bound on every visible stroke. Every glyph has a separate recorded scanline profile. Diagonals, curves, serifs, and different letterforms change those profiles; for example, a horizontal cut across a diagonal A leg is not its perpendicular stroke width.
+
+## Rendering refinement in 1.300
+
+The user’s Windows screenshots showed equal cells/lines and foreground/background colors, but about 5% less summed text luminance in Refined across four identical passages. Local stems differed, while an overall edge-concentration measurement was nearly equal. This supported testing hinting before changing weight or spacing.
+
+All 966 output glyphs retain **exactly the same outlines and advances as 1.200**; GPOS/GSUB/GDEF and hmtx also remain unchanged. Builds still start from original Inconsolata. ttfautohint 1.8.4 supplies the base `qsq` programs. A small subsequent `prep` policy enables stronger integer stem rounding for full-size letters/digits at 22–26 PPEM (Regular/Italic), and 16–19 or 26–28 PPEM (Bold/Bold Italic). Blue zones stay unchanged; other sizes and existing GDI strong mode retain their previous behavior.
+
+Compact glyphs, marks, punctuation, and symbols are protected: when the adaptive policy is active, their programs temporarily use the original quantized mode and then restore it. Bold `æ`/`ǽ` and Bold Italic `æ`/`ǽ`/`ů` are explicitly protected after native counter checks. These are hinting decisions, with no character redraws.
+
+Windows rendering exposed a separate existing defect in terminal artwork: generated programs collapsed full blocks/vertical rules and inverted some upper/lower spans. Removing instructions only from U+2500–U+259F glyphs restores the original cell-fitted geometry. Their shapes and advances remain exact. Native pixel bounds and complete glyph sheets now supplement the earlier outline-only checks.
+
+[Native Windows comparisons](native-comparison.png), [all-glyph pixel evidence](native-raster-validation.json), and `npm run test:raster` document this refinement. The native check addresses every named glyph, including unencoded alternates/ligatures, through temporary private-use cmap mappings. Empty glyph zero uses an identical nonzero empty glyph to prevent browser fallback; its geometry, advance, and instructions are identical.
+
+Each face is checked at every integer size from 10 to 32 px and phases 0, 0.25, 0.5, 0.75. The check compares actual RGBA pixels outside the tuning scope, verifies unchanged geometry/layout, rejects disappearance or canvas clipping, checks required counters against the outline, and constrains terminal-art raster bounds. Accidental extra raster islands in a glyph such as `h` are not counted as required counters.
+
+All **354,752 before/after glyph comparisons** pass. The following native Windows prose measurements sum sRGB-linearized text luminance, averaged over four phases, with Iosevka = 100. This measures brightness and shape area together, not a universal stroke-width or readability percentage.
+
+| Style | Size | 1.200 | 1.300 |
+| --- | ---: | ---: | ---: |
+| Regular | 24 px | 94.69 | 98.23 |
+| Italic | 24 px | 96.55 | 98.28 |
+| Bold | 18 px | 94.58 | 96.13 |
+| Bold Italic | 18 px | 95.60 | 96.61 |
+
+Native Windows Chromium reports **155.0.0.0** in its reduced user agent. The report pins all four TTF and eight web-font hashes. Linux Chromium website checks use **153.0.8010.12**. Repeat builds reproduce identical hashes for all 12 font files.
 
 ## Defects and metadata corrected
 
@@ -45,7 +70,7 @@ These are representative stem measurements, not a bound on every visible stroke.
 
 Standalone glyphs fit the natural line box. Some unusual bold digit/mark combinations involving U+0312, U+0328 extend above/below it; exact cases and bounds are recorded in [validation.json](validation.json). Their glyph shapes and attachment clearance are preserved. Tall or stacked combining sequences can need more application line spacing.
 
-The new release has not been automatically tested in native Windows Terminal/DirectWrite. Earlier user approval applied to the previous Cascadia-based release. Reinstall all four current TTFs and check this release on the intended display. Chromium/FreeType results are not a substitute for that check; Firefox and Safari were not tested.
+Native Windows Chromium and Linux/WSL Chromium are checked. The release still needs a manual check in Windows Terminal after installing all four current TTFs; native browser pixels do not reproduce Terminal’s renderer, contrast, or gamma settings. Earlier user approval applied to previous versions. Firefox and Safari were not tested.
 
 Fractional pixel placement and hint quantization can change apparent weight or create fine terminal-block seams. The glyph-unit boundaries and metrics are checked, but two different font designs/renderers cannot be made pixel-identical.
 
