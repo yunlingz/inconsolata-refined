@@ -3,7 +3,7 @@
   "results": [
     {
       "style": "Regular",
-      "characters": 883,
+      "characters": 885,
       "features": 17,
       "xHeight": 520,
       "capHeight": 735,
@@ -55,15 +55,16 @@
       "digitMarkPairsChecked": 275,
       "digitMarkOverhangs": [],
       "hintRefinement": {
-        "policyVersion": 1,
+        "policyVersion": 2,
         "strongPpemRanges": [
           [
             22,
             26
           ]
         ],
-        "eligibleGlyphs": 497,
-        "protectedGlyphs": 297,
+        "eligibleGlyphs": 470,
+        "naturalGlyphs": 22,
+        "protectedGlyphs": 302,
         "terminalGlyphs": 160,
         "geometrySha256": "7e0ae87f79d08d0627a5c3a241cd3787e1107008fb3a19ef32097ad7faae254a"
       },
@@ -79,6 +80,18 @@
           0
         ]
       },
+      "terminalSymbols": [
+        {
+          "codePoint": 9651,
+          "name": "uni25B3",
+          "advance": 500
+        },
+        {
+          "codePoint": 9661,
+          "name": "uni25BD",
+          "advance": 500
+        }
+      ],
       "sanitizer": "pass",
       "renderingSizes": [
         10,
@@ -89,11 +102,11 @@
         24,
         32
       ],
-      "sha256": "0b69a5b666833feb61dada3399f3c97c2c5f79a0037f39deff7987f2a99aa7ad"
+      "sha256": "f1a325cb8a72f815bead1e76626ce631d9daab01b511cd97b1336cf1cf381922"
     },
     {
       "style": "Italic",
-      "characters": 883,
+      "characters": 885,
       "features": 17,
       "xHeight": 520,
       "capHeight": 735,
@@ -145,15 +158,16 @@
       "digitMarkPairsChecked": 275,
       "digitMarkOverhangs": [],
       "hintRefinement": {
-        "policyVersion": 1,
+        "policyVersion": 2,
         "strongPpemRanges": [
           [
             22,
             26
           ]
         ],
-        "eligibleGlyphs": 497,
-        "protectedGlyphs": 297,
+        "eligibleGlyphs": 470,
+        "naturalGlyphs": 22,
+        "protectedGlyphs": 302,
         "terminalGlyphs": 160,
         "geometrySha256": "ffaf59ec3796325ed092911580727b43e19b0ba473eb601da2de554835b786fa"
       },
@@ -169,6 +183,18 @@
           0
         ]
       },
+      "terminalSymbols": [
+        {
+          "codePoint": 9651,
+          "name": "uni25B3",
+          "advance": 500
+        },
+        {
+          "codePoint": 9661,
+          "name": "uni25BD",
+          "advance": 500
+        }
+      ],
       "sanitizer": "pass",
       "renderingSizes": [
         10,
@@ -179,11 +205,11 @@
         24,
         32
       ],
-      "sha256": "ff3d8ff5f2657c2a6d0a6186949f61fb43fb946854688e331c574e95be6c11de"
+      "sha256": "a3935e14ac378b2ebe72883af5fe39bccd415a94c451fe6eadfe0066ca4cc05f"
     },
     {
       "style": "Bold",
-      "characters": 883,
+      "characters": 885,
       "features": 17,
       "xHeight": 520,
       "capHeight": 735,
@@ -362,7 +388,7 @@
         }
       ],
       "hintRefinement": {
-        "policyVersion": 1,
+        "policyVersion": 2,
         "strongPpemRanges": [
           [
             16,
@@ -373,8 +399,9 @@
             28
           ]
         ],
-        "eligibleGlyphs": 496,
-        "protectedGlyphs": 298,
+        "eligibleGlyphs": 469,
+        "naturalGlyphs": 22,
+        "protectedGlyphs": 303,
         "terminalGlyphs": 160,
         "geometrySha256": "91e1399544ab3f6e46d6b64f34a3683bb6a01cff1c859089a7691675a4898209"
       },
@@ -390,6 +417,18 @@
           0
         ]
       },
+      "terminalSymbols": [
+        {
+          "codePoint": 9651,
+          "name": "uni25B3",
+          "advance": 500
+        },
+        {
+          "codePoint": 9661,
+          "name": "uni25BD",
+          "advance": 500
+        }
+      ],
       "sanitizer": "pass",
       "renderingSizes": [
         10,
@@ -400,11 +439,11 @@
         24,
         32
       ],
-      "sha256": "c43a062a332076250bca2e6041df9134b126d9851f97a576cf2c1003dd369a12"
+      "sha256": "0aa467f766202ec5d6c0bd930433adba1cf466df72a48c2139f11b2700ae12bf"
     },
     {
       "style": "Bold Italic",
-      "characters": 883,
+      "characters": 885,
       "features": 17,
       "xHeight": 520,
       "capHeight": 735,
@@ -583,7 +622,7 @@
         }
       ],
       "hintRefinement": {
-        "policyVersion": 1,
+        "policyVersion": 2,
         "strongPpemRanges": [
           [
             16,
@@ -594,8 +633,9 @@
             28
           ]
         ],
-        "eligibleGlyphs": 495,
-        "protectedGlyphs": 299,
+        "eligibleGlyphs": 468,
+        "naturalGlyphs": 22,
+        "protectedGlyphs": 304,
         "terminalGlyphs": 160,
         "geometrySha256": "ee887659c97ab50b5abf65085b577f9a51809cb864852f0e3ecb079726aadb24"
       },
@@ -611,6 +651,18 @@
           0
         ]
       },
+      "terminalSymbols": [
+        {
+          "codePoint": 9651,
+          "name": "uni25B3",
+          "advance": 500
+        },
+        {
+          "codePoint": 9661,
+          "name": "uni25BD",
+          "advance": 500
+        }
+      ],
       "sanitizer": "pass",
       "renderingSizes": [
         10,
@@ -621,7 +673,7 @@
         24,
         32
       ],
-      "sha256": "2230f18d8ea33b6f8fb9bfcd9436af415417570ca9c204f2eb9e60929e62f152"
+      "sha256": "0469cf51adcb945447fa4f84e65c61f04ac09b16a8806afe4075c451f90beb77"
     }
   ]
 }

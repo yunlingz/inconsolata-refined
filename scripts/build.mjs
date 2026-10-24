@@ -8,6 +8,7 @@ import {
 import { refineInstance, cleanOutlines } from './transform.mjs';
 import { addDigitAnchors } from './marks.mjs';
 import { refineHints } from './hinting.mjs';
+import { addTerminalSymbols } from './symbols.mjs';
 
 const done = heartbeat('Building Inconsolata Refined');
 const temporary = await mkdtemp(join(tmpdir(), 'inconsolata-refined-build-'));
@@ -38,13 +39,15 @@ try {
     await run(tool('ttfautohint'), [...hintOptions, anchored, hinted]);
     const tuned = join(temporary, `InconsolataRefined-${style.file}-tuned.ttf`);
     const hintRefinement = await refineHints(hinted, tuned, style);
-    await normalizeMetadata(tuned);
-    const bytes = await readFile(tuned);
+    const complete = join(temporary, `InconsolataRefined-${style.file}-complete.ttf`);
+    const terminalSymbols = await addTerminalSymbols(tuned, complete, style);
+    await normalizeMetadata(complete);
+    const bytes = await readFile(complete);
     await writeFile(fontFile(style), bytes);
     outputs.push({ file: `fonts/InconsolataRefined-${style.file}.ttf`, sha256: sha256(bytes), bytes: bytes.length });
     instances.push({ style: style.name, axes: settings.axes, xHeight: settings.xHeight,
       capHeight: settings.capHeight,
-      outlineOffsetX: settings.outlineOffsetX, ...transformed, outlineCleanup, digitAnchors, hintRefinement });
+      outlineOffsetX: settings.outlineOffsetX, ...transformed, outlineCleanup, digitAnchors, hintRefinement, terminalSymbols });
     console.log(`Built ${style.name}: ${bytes.length.toLocaleString()} bytes`);
   }
   await writeFile(join(root, 'fonts/build-info.json'), JSON.stringify({

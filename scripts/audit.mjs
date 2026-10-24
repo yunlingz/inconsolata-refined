@@ -7,6 +7,7 @@ import { create } from 'fontkit';
 import { root, family, version, styles, target, weightTargets, fontFile, sourceBytes, sha256, heartbeat, tool, run } from './lib.mjs';
 import { edges, filledSpans } from './strokes.mjs';
 import { validateOutlines } from './transform.mjs';
+import { terminalSymbols } from './symbols.mjs';
 
 const done = heartbeat('Auditing size, advances, side bearings, and scanline profiles for every original glyph');
 const temporary = await mkdtemp(join(tmpdir(), 'inconsolata-glyph-audit-'));
@@ -141,13 +142,24 @@ try {
         ...(!codePoints.length && bounds ? { svg: glyph.path.toSVG() } : {}) });
     }
     const spacing = spacingAudit(font);
+    const supplementalGlyphs = terminalSymbols.map(({ code, name }) => {
+      const glyph = font.glyphForCodePoint(code), bounds = box(glyph), flags = afterValidation.states.get(name) ?? 0;
+      assert.equal(flags & ~0x20, 0, `${name}: new geometric symbol has no outline errors`);
+      assert.equal(glyph.advanceWidth, target.cellWidth);
+      assert.ok(bounds[0] >= 0 && bounds[2] <= target.cellWidth, `${name}: sort indicator fits its one-cell allocation`);
+      assert.equal(contourCount(glyph), 2);
+      assert.ok(filledSpans(glyph, 0, 250).length === 2, `${name}: hollow triangle`);
+      return { name, outputId: glyph.id, codePoints: [code], advance: glyph.advanceWidth, bounds,
+        contours: contourCount(glyph), outlineValidation: flags, strokeProfile: profile(glyph),
+        notes: ['New geometric one-cell htop sort symbol; source glyphs remain unchanged.'] };
+    });
     results.push({ style: style.name, file: `fonts/InconsolataRefined-${style.file}.ttf`, sha256: sha256(bytes),
       originalGlyphsChecked: glyphs.length, referenceGlyphsCompared: glyphs.filter(g => g.reference).length,
       sourceCoverage: original.characterSet.length, lineBox: [target.typoDescender, target.typoAscender],
       outlineValidation: { sourceMask: beforeValidation.mask, outputMask: afterValidation.mask,
         glyphsWithNewExtremaWarnings: glyphs.filter(g => g.outlineValidation.newFlags).map(g => g.name) },
       assertions: 'All original glyphs retain outlines and advance relationships; finite nondegenerate bounds fit the line box. Cleanup equivalence is checked for every output glyph during build. All alphanumeric pairs have positive sampled clearance. No new non-extrema FontForge validation flags.',
-      spacing, glyphs });
+      spacing, glyphs, supplementalGlyphs });
     console.log(`AUDIT ${style.name}: all ${glyphs.length} original glyphs, ${glyphs.filter(g => g.reference).length} paired Iosevka profiles, ${spacing.pairsChecked} spacing pairs; ${spacing.possibleOverlaps.length} expected terminal-artwork overlaps`);
   }
   await writeFile(join(root, 'docs/glyph-audit.json'), JSON.stringify({

@@ -14,9 +14,13 @@ export function hintGlyphSets(font, style) {
   const letters = new Set(font.characterSet.filter(code => /[\p{L}\p{Nd}]/u.test(String.fromCodePoint(code)))
     .map(code => font.glyphForCodePoint(code).id));
   const baseNames = new Set([...letters].map(id => font.getGlyph(id).name));
-  const exceptions = new Set(hintPolicy.styles[style.file].protectedGlyphs);
+  const exceptions = new Set([...hintPolicy.protectedGlyphs, ...hintPolicy.styles[style.file].protectedGlyphs]);
+  const naturalBases = new Set(hintPolicy.naturalLetterBases);
+  const naturalNames = new Set(font.characterSet.filter(code =>
+    naturalBases.has(String.fromCodePoint(code).normalize('NFD').replace(/\p{M}/gu, '')))
+    .map(code => font.glyphForCodePoint(code).name));
   const xHeight = font.glyphForCodePoint(120).bbox.maxY;
-  const eligible = new Set();
+  const eligible = new Set(), natural = new Set();
   for (let id = 0; id < font.numGlyphs; id++) {
     const glyph = font.getGlyph(id), base = glyph.name.split('.')[0];
     const text = letters.has(id) || baseNames.has(base) || /^(fi|fl|ffi|ffl)$/.test(base);
@@ -24,9 +28,12 @@ export function hintGlyphSets(font, style) {
     // denominator glyphs, whose tiny counters need the existing smoother fit.
     if (text && glyph.path.commands.length && glyph.advanceWidth > 0
       && glyph.bbox.maxY - glyph.bbox.minY >= xHeight * .9
-      && !exceptions.has(glyph.name) && !terminal.has(id)) eligible.add(id);
+      && !exceptions.has(glyph.name) && !exceptions.has(base) && !terminal.has(id)) {
+      if (naturalNames.has(glyph.name) || naturalNames.has(base)) natural.add(id);
+      else eligible.add(id);
+    }
   }
-  return { terminal, eligible };
+  return { terminal, eligible, natural };
 }
 
 export function hintProgram(ranges, flagCvt) {
@@ -43,12 +50,15 @@ export function hintProgram(ranges, flagCvt) {
   return Buffer.from(code);
 }
 
-export function protectedHintProgram(flagCvt, restore) {
+export function protectedHintProgram(flagCvt, restore, mode = 0) {
   // The flag is set only when our prep policy activated stronger rounding.
   // Both fragments balance the stack. No values are left underneath the
   // original glyph program, which is allowed to clear its stack.
-  return Buffer.from([0xb0, flagCvt, 0x45, 0x58,
-    0xb1, stemModeCvt, restore ? 100 : 0, 0x44, 0x59]);
+  const value = restore ? 100 : mode;
+  assert.ok([0, -100, 100].includes(value), 'Known ttfautohint stem mode');
+  const write = value < 0 ? [0xb9, 0, stemModeCvt, 0xff, 0x9c, 0x44]
+    : [0xb1, stemModeCvt, value, 0x44];
+  return Buffer.from([0xb0, flagCvt, 0x45, 0x58, ...write, 0x59]);
 }
 
 export async function refineHints(input, output, style) {
@@ -61,15 +71,16 @@ export async function refineHints(input, output, style) {
   assert.ok(prep.includes(Buffer.from([0xb9, 0, stemModeCvt, 0, 0, 0x44])), 'Expected ttfautohint mode initialization');
   const geometry = glyphGeometryHash(font);
   assert.equal(geometry, hintPolicy.geometrySha256[style.file], 'Every outline and advance agrees with v1.200');
-  const { terminal, eligible } = hintGlyphSets(font, style);
+  const { terminal, eligible, natural } = hintGlyphSets(font, style);
   const ranges = hintPolicy.styles[style.file].strongPpemRanges;
   const flagCvt = tables.get('cvt ').data.length / 2;
   const policy = hintProgram(ranges, flagCvt);
   const prefix = protectedHintProgram(flagCvt, false), suffix = protectedHintProgram(flagCvt, true);
+  const naturalPrefix = protectedHintProgram(flagCvt, false, -100);
   const loca = tables.get('loca').data, glyf = tables.get('glyf').data;
   const originalLong = tables.get('head').data.readInt16BE(50) === 1;
   const offset = id => originalLong ? loca.readUInt32BE(id * 4) : loca.readUInt16BE(id * 2) * 2;
-  const chunks = [], offsets = [0], protectedGlyphs = [], terminalGlyphs = [];
+  const chunks = [], offsets = [0], protectedGlyphs = [], terminalGlyphs = [], naturalGlyphs = [];
   let length = 0, maximumInstructions = 0;
   for (let id = 0; id < font.numGlyphs; id++) {
     const glyph = font.getGlyph(id), data = glyf.subarray(offset(id), offset(id + 1));
@@ -83,6 +94,8 @@ export async function refineHints(input, output, style) {
         // These shapes follow cell boundaries rather than text blue zones.
         // The generated programs collapse/invert their spans on DirectWrite.
         program = Buffer.alloc(0); terminalGlyphs.push(glyph.name);
+      } else if (oldLength && natural.has(id)) {
+        program = Buffer.concat([naturalPrefix, program, suffix]); naturalGlyphs.push(glyph.name);
       } else if (oldLength && glyph.path.commands.length && !eligible.has(id)) {
         program = Buffer.concat([prefix, program, suffix]); protectedGlyphs.push(glyph.name);
       }
@@ -106,6 +119,7 @@ export async function refineHints(input, output, style) {
   const refinedInfo = info.trimEnd() + '\n\nrefined-hint-policy = ' + hintPolicy.policyVersion
     + '\nrefined-strong-ppems = ' + ranges.map(([a, b]) => `${a}-${b}`).join(',')
     + '\nrefined-terminal-glyphs = ' + terminalGlyphs.length
+    + '\nrefined-natural-glyphs = ' + naturalGlyphs.length
     + '\nrefined-protected-glyphs = ' + protectedGlyphs.length + '\n';
   const result = replaceTables(bytes, {
     prep: Buffer.concat([prep, policy]),
@@ -116,6 +130,6 @@ export async function refineHints(input, output, style) {
   await writeFile(output, result);
   return { policyVersion: hintPolicy.policyVersion, strongPpemRanges: ranges, flagCvt,
     originalPrepBytes: prep.length, policyBytecodeSha256: sha256(policy),
-    eligibleGlyphs: [...eligible].map(id => font.getGlyph(id).name), protectedGlyphs, terminalGlyphs,
+    eligibleGlyphs: [...eligible].map(id => font.getGlyph(id).name), naturalGlyphs, protectedGlyphs, terminalGlyphs,
     geometrySha256: geometry, geometryAndAdvancePreservation: 'exact for every output glyph' };
 }

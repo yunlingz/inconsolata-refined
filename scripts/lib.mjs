@@ -9,7 +9,7 @@ import { create } from 'fontkit';
 
 export const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 export const family = 'Inconsolata Refined';
-export const version = '1.300';
+export const version = '1.400';
 export const styles = [
   { file: 'Regular', name: 'Regular', source: 'Regular', weight: 400, italic: false },
   { file: 'Italic', name: 'Italic', source: 'Regular', weight: 400, italic: true },
@@ -27,8 +27,8 @@ export const hintOptions = [
 ];
 
 export const sha256 = data => createHash('sha256').update(data).digest('hex');
-export const glyphGeometryHash = font => sha256(Buffer.from(JSON.stringify(
-  Array.from({ length: font.numGlyphs }, (_, id) => {
+export const glyphGeometryHash = (font, count = font.numGlyphs) => sha256(Buffer.from(JSON.stringify(
+  Array.from({ length: count }, (_, id) => {
     const glyph = font.getGlyph(id);
     return [glyph.name, glyph.advanceWidth, glyph.path.commands];
   }),

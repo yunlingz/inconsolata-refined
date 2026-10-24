@@ -9,9 +9,10 @@ import {
   sfntTables, checksum, sha256, tool, run, heartbeat,
   glyphGeometryHash, glyphInstructions, hintPolicy,
 } from './lib.mjs';
-import { measureStems } from './strokes.mjs';
+import { measureStems, filledSpans } from './strokes.mjs';
 import { measureSpacing } from './spacing.mjs';
 import { hintGlyphSets, hintProgram, protectedHintProgram } from './hinting.mjs';
+import { terminalSymbols } from './symbols.mjs';
 
 const done = heartbeat('Checking metadata, coverage, shaping, hint bytecode, and rendering');
 const temporary = await mkdtemp(join(tmpdir(), 'inconsolata-refined-check-'));
@@ -99,7 +100,9 @@ try {
       assert.ok(Math.abs(spacing.counters[character] / weightTarget.referenceSpacing.counters[character] - 1)
         <= weightTargets.maxRelativeCounterError, `${style.name} ${character}: open counter`);
     }
-    assert.deepEqual(font.characterSet, original.characterSet, 'Original Unicode coverage');
+    const addedCodes = terminalSymbols.map(symbol => symbol.code);
+    assert.deepEqual(font.characterSet, [...original.characterSet, ...addedCodes].sort((a, b) => a - b), 'Original coverage plus the two sort triangles');
+    assert.equal(font.numGlyphs, hintPolicy.preservedGlyphCount + terminalSymbols.length, 'No accidental added or removed glyphs');
     assert.deepEqual(font.availableFeatures.sort(), original.availableFeatures.sort(), 'Original OpenType features');
     assert.ok(!tables.has('fvar') && !tables.has('gvar'), 'Static face');
     const namedGlyphs = new Map(Array.from({ length: font.numGlyphs }, (_, id) => {
@@ -120,7 +123,7 @@ try {
     assert.equal(font.name.records.license.en, original.name.records.license.en);
     for (const code of font.characterSet) {
       const glyph = font.glyphForCodePoint(code), before = original.glyphForCodePoint(code);
-      assert.equal(glyph.advanceWidth, before.advanceWidth / 500 * target.cellWidth, `Advance U+${code.toString(16)}`);
+      assert.equal(glyph.advanceWidth, addedCodes.includes(code) ? target.cellWidth : before.advanceWidth / 500 * target.cellWidth, `Advance U+${code.toString(16)}`);
       if (glyph.path.commands.length === 0) {
         assert.equal(before.path.commands.length, 0, `Unexpected empty glyph U+${code.toString(16)}`);
         continue;
@@ -131,6 +134,16 @@ try {
       assert.ok(-box.minY <= os2.readUInt16BE(76), `Windows descent U+${code.toString(16)}`);
     }
     for (let code = 32; code <= 126; code++) assert.equal(font.glyphForCodePoint(code).advanceWidth, target.cellWidth);
+    for (const symbol of terminalSymbols) {
+      const glyph = font.glyphForCodePoint(symbol.code);
+      assert.equal(glyph.name, symbol.name);
+      assert.deepEqual([glyph.bbox.minX, glyph.bbox.minY, glyph.bbox.maxX, glyph.bbox.maxY], [60, 145, 440, 585]);
+      assert.equal(filledSpans(glyph, 0, 250).length, 2, 'Sort triangle retains its hollow center');
+      assert.equal(glyphInstructions(tables, glyph.id).length, 0, 'Geometric sort symbols avoid text blue-zone distortion');
+      const header = font.layout(`CPU%${String.fromCodePoint(symbol.code)}MEM%`);
+      assert.equal(header.glyphs.length, 9);
+      assert.equal(header.positions.reduce((sum, position) => sum + position.xAdvance, 0), 9 * target.cellWidth, 'htop header uses nine cells');
+    }
     for (const [code, expected] of [
       [0x2588, [0, target.typoDescender, target.cellWidth, target.typoAscender]],
       [0x2580, [0, (target.typoAscender + target.typoDescender) / 2, target.cellWidth, target.typoAscender]],
@@ -154,27 +167,37 @@ try {
     assert.match(hintInfo, /1\.8\.4/);
     const refinement = build.instances.find(instance => instance.style === style.name).hintRefinement;
     const ranges = hintPolicy.styles[style.file].strongPpemRanges;
-    assert.equal(glyphGeometryHash(font), hintPolicy.geometrySha256[style.file], 'All 966 glyph geometries and advances exactly match v1.200');
+    assert.equal(glyphGeometryHash(font, hintPolicy.preservedGlyphCount), hintPolicy.geometrySha256[style.file], 'All 966 existing glyph geometries and advances exactly match v1.200');
     assert.deepEqual(refinement.strongPpemRanges, ranges);
     assert.equal(refinement.flagCvt, tables.get('cvt ').data.length / 2 - 1);
     assert.equal(tables.get('cvt ').data.readInt16BE(refinement.flagCvt * 2), 0, 'Adaptive mode flag defaults to zero');
     const policy = hintProgram(ranges, refinement.flagCvt);
     assert.equal(sha256(policy), refinement.policyBytecodeSha256);
     assert.deepEqual(tables.get('prep').data.subarray(refinement.originalPrepBytes), policy);
-    assert.match(hintInfo, /refined-hint-policy = 1/);
-    const { terminal, eligible } = hintGlyphSets(font, style);
+    assert.ok(hintInfo.includes(`refined-hint-policy = ${hintPolicy.policyVersion}`));
+    const { terminal, eligible, natural } = hintGlyphSets(font, style);
     const prefix = protectedHintProgram(refinement.flagCvt, false), suffix = protectedHintProgram(refinement.flagCvt, true);
-    let protectedCount = 0;
+    const naturalPrefix = protectedHintProgram(refinement.flagCvt, false, -100);
+    let protectedCount = 0, naturalCount = 0;
     for (let id = 0; id < font.numGlyphs; id++) {
       const glyph = font.getGlyph(id), program = glyphInstructions(tables, id);
       if (terminal.has(id)) assert.equal(program.length, 0, `${glyph.name}: preserve cell geometry without text hinting`);
-      else if (program.length && glyph.path.commands.length && !eligible.has(id)) {
+      else if (program.length && natural.has(id)) {
+        assert.deepEqual(program.subarray(0, naturalPrefix.length), naturalPrefix, `${glyph.name}: natural curve fitting`);
+        assert.deepEqual(program.subarray(-suffix.length), suffix, `${glyph.name}: restore hint mode after curve fitting`);
+        naturalCount++;
+      } else if (program.length && glyph.path.commands.length && !eligible.has(id)) {
         assert.deepEqual(program.subarray(0, prefix.length), prefix, `${glyph.name}: protected hint mode entry`);
         assert.deepEqual(program.subarray(-suffix.length), suffix, `${glyph.name}: restore hint mode`);
         protectedCount++;
       }
     }
     assert.equal(protectedCount, refinement.protectedGlyphs.length);
+    assert.equal(naturalCount, refinement.naturalGlyphs.length);
+    for (const code of original.characterSet) {
+      const base = String.fromCodePoint(code).normalize('NFD').replace(/\p{M}/gu, '');
+      if (hintPolicy.naturalLetterBases.includes(base)) assert.ok(natural.has(font.glyphForCodePoint(code).id), `U+${code.toString(16)}: all accented s/S receive the curve policy`);
+    }
     assert.equal(terminal.size, refinement.terminalGlyphs.length);
 
     await run(tool('ots-sanitize'), [fontFile(style), join(temporary, `${style.file}-sanitized.ttf`)]);
@@ -253,10 +276,11 @@ try {
       sourceAxes: weightTarget.axes, referenceStyle: style.name, referenceStems: weightTarget.referenceStems,
       stems, strokeErrors, spacing, digitMarkPairsChecked: markPairsChecked, digitMarkOverhangs,
       hintRefinement: { policyVersion: refinement.policyVersion, strongPpemRanges: ranges,
-        eligibleGlyphs: eligible.size, protectedGlyphs: protectedCount, terminalGlyphs: terminal.size,
+        eligibleGlyphs: eligible.size, naturalGlyphs: naturalCount, protectedGlyphs: protectedCount, terminalGlyphs: terminal.size,
         geometrySha256: refinement.geometrySha256 },
       lineMetrics: { hhea: [font.ascent, font.descent, font.lineGap],
         typo: [target.typoAscender, target.typoDescender, target.typoLineGap] },
+      terminalSymbols: terminalSymbols.map(({ code, name }) => ({ codePoint: code, name, advance: target.cellWidth })),
       sanitizer: 'pass', renderingSizes: [10, 12, 14, 16, 18, 24, 32], sha256: sha256(bytes) });
     console.log(`PASS ${style.name}: ${font.characterSet.length} characters, ${font.availableFeatures.length} features, sanitizer, shaping, seven render sizes`);
   }

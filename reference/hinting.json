@@ -1,8 +1,11 @@
 {
-  "policyVersion": 1,
-  "baselineVersion": "1.200",
-  "baselineRevision": "0d3ee1f347c344df4458a2aa663c05f40cad044c",
-  "method": "Keep original geometry, advances, blue zones, and ttfautohint 1.8.4 qsq hints. Enable stronger integer stem rounding only for full-size text at measured PPEMs; retain quantized rounding for compact glyphs and symbols. Terminal artwork uses its original cell-fitted outlines without the autohinter programs that collapse or invert its vertical spans on Windows.",
+  "policyVersion": 2,
+  "baselineVersion": "1.300",
+  "baselineRevision": "38f47b105f10ca12ee0963980ddd7965e5fa830a",
+  "preservedGlyphCount": 966,
+  "method": "Keep all 966 existing glyphs' geometry, advances, and blue zones. Retain size-aware strengthening on suitable text, use natural stem widths for full-size s/S and their canonical accented/alternate forms during those ranges, and retain quantized fitting for compact glyphs, sensitive counters, eight, and alternate zero. This avoids strengthening curved ends at the expense of diagonal middles. Terminal artwork retains its cell-fitted outlines without faulty text hints. Two new one-cell htop sort triangles are appended separately.",
+  "naturalLetterBases": ["s", "S"],
+  "protectedGlyphs": ["eight", "zero.zero", "ordfeminine", "ordmasculine"],
   "geometrySha256": {
     "Regular": "7e0ae87f79d08d0627a5c3a241cd3787e1107008fb3a19ef32097ad7faae254a",
     "Italic": "ffaf59ec3796325ed092911580727b43e19b0ba473eb601da2de554835b786fa",

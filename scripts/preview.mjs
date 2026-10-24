@@ -10,7 +10,7 @@ const done = heartbeat('Rendering the font comparison and small-size specimens')
 const temporary = await mkdtemp(join(tmpdir(), 'inconsolata-refined-preview-'));
 const sample = [
   'Tasks: 55, 119 thr; 1 running   Mem: 905M/15.6G   Load: 0.01',
-  'PID USER       PRI  NI  VIRT   RES   SHR S CPU% MEM%  Command',
+  'PID USER       PRI  NI  VIRT   RES   SHR S CPU%▽MEM%  Command',
   '  1 root        20   0  162M 11708  8588 S  0.0  0.1  /sbin/init',
   'if (value != 0) { console.log("Inconsolata Refined", value); }',
   '0O 1lI | [] {} () <> == != => -> // @ # % & * ~ _',
