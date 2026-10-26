@@ -15,7 +15,7 @@ On Windows, install all four TTFs, replace the earlier versions, restart the ter
 
 [nerd-fonts/](nerd-fonts/) contains four additional TTFs with the exact family name **Inconsolata Refined Nerd**: Regular, Italic, Bold and Bold Italic. They include the complete **Nerd Fonts 3.5.1** patch set, covering all **10,995 registered icon names** plus Braille and additional patcher symbols. Every added character uses the base font's **540-unit monospace cell**.
 
-The **968 original glyphs**, their spacing, custom hints and OpenType layout remain unchanged. Each Nerd face contains **11,847 glyphs**. [Installation and build details](nerd-fonts/README.md), [a four-style preview](docs/nerd-preview.png), and [the complete coverage/preservation report](docs/nerd-validation.json) document the additions. Build with `npm run build:nerd` and verify with `npm run test:nerd`; the main build/test commands include them too.
+Nerd Fonts takes precedence wherever it supplies an existing character, replacing the **161 overlapping symbols** (the heart and box-drawing/block set). Other original characters keep their spacing, custom hints and layout. Nerd edition **1.601** contains **12,008 glyphs** per face. [Installation and build details](nerd-fonts/README.md), [a four-style preview](docs/nerd-preview.png), and [the complete coverage/preservation report](docs/nerd-validation.json) document the result. Build with `npm run build:nerd` and verify with `npm run test:nerd`; the main build/test commands include them too.
 
 ## Size, weight, and spacing
 

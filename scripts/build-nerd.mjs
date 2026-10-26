@@ -4,7 +4,7 @@ import { tmpdir } from 'node:os';
 import { join, resolve, relative } from 'node:path';
 import { create } from 'fontkit';
 import { root, styles, sources, version, fontFile, tool, run, sha256, heartbeat, target } from './lib.mjs';
-import { nerdFamily, nerdFile, nerdOptions, extractNerdSources, appendNerdGlyphs } from './nerd.mjs';
+import { nerdFamily, nerdVersion, nerdFile, nerdOptions, nerdSeedUnicodes, extractNerdSources, appendNerdGlyphs } from './nerd.mjs';
 
 const done = heartbeat('Building four complete single-cell Nerd Fonts editions');
 const temporary = await mkdtemp(join(tmpdir(), 'inconsolata-nerd-build-'));
@@ -26,16 +26,16 @@ try {
     const input = fontFile(style), base = await readFile(input);
     assert.equal(sha256(base), build.outputs.find(o => o.file.endsWith(`-${style.file}.ttf`)).sha256, 'Verified refined input');
     const plain = join(temporary, `input-${style.file}.ttf`), patchedDirectory = join(temporary, style.file);
-    // FontForge need not decompile the custom text VM: only its added icons
-    // are used. The final font takes original text bytes from input directly.
-    await run(tool('python3'), ['-m', 'fontTools.subset', input, '--glyphs=*', '--no-hinting',
+    // An ASCII-only seed prevents pre-existing symbols from suppressing any
+    // Nerd set. Original text and its custom VM come directly from base bytes.
+    await run(tool('python3'), ['-m', 'fontTools.subset', input, `--unicodes=${nerdSeedUnicodes}`, '--no-hinting',
       '--glyph-names', '--layout-features=*', '--name-IDs=*', '--name-languages=*', '--notdef-outline',
       '--drop-tables+=TTFA', `--output-file=${plain}`]);
     await run(tool('fontforge'), ['-lang=py', '-script', join(patcher, 'font-patcher'), ...options,
       '--outputdir', patchedDirectory, plain], { timeout: 180_000 });
     const files = (await readdir(patchedDirectory)).filter(f => f.endsWith('.ttf'));
     assert.equal(files.length, 1, 'One patched face');
-    const { bytes, addedGlyphs, addedCharacters } = appendNerdGlyphs(base, await readFile(join(patchedDirectory, files[0])), style);
+    const { bytes, ...patch } = appendNerdGlyphs(base, await readFile(join(patchedDirectory, files[0])), style);
     const font = create(bytes), codes = new Set(font.characterSet);
     for (const [name, glyph] of symbols) assert.ok(codes.has(parseInt(glyph.code, 16)), `Complete coverage: ${name}`);
     const file = nerdFile(style);
@@ -44,8 +44,8 @@ try {
     await copyFile(join(temporary, file), join(destination, file));
     outputs.push({ file, style: style.name, weight: style.weight, italic: style.italic,
       source: relative(root, input), sourceSha256: sha256(base), sha256: sha256(bytes), bytes: bytes.length,
-      glyphs: font.numGlyphs, characters: codes.size, addedGlyphs, addedCharacters,
-      originalGlyphsPreserved: create(base).numGlyphs, registeredIconNames: symbols.length });
+      glyphs: font.numGlyphs, characters: codes.size, ...patch,
+      originalGlyphDataPreserved: create(base).numGlyphs, registeredIconNames: symbols.length });
     console.log(`Built ${style.name}: ${font.numGlyphs.toLocaleString()} glyphs; all ${symbols.length.toLocaleString()} registered icon names covered.`);
   }
   await copyFile(join(root, 'OFL.txt'), join(destination, 'OFL.txt'));
@@ -58,8 +58,9 @@ try {
     await copyNotice(path, join(licenses, name));
   }
   await writeFile(join(destination, 'build-info.json'), JSON.stringify({
-    family: nerdFamily, version, nerdFonts: sources.nerdFonts, options,
-    iconCellWidth: target.cellWidth, originalText: 'Every original glyph ID, glyf byte, advance, hint program and layout table is preserved.',
+    family: nerdFamily, version: nerdVersion, baseVersion: version, nerdFonts: sources.nerdFonts, options,
+    seedUnicodes: nerdSeedUnicodes, overlapPolicy: 'Nerd Fonts wins at every supplied symbol code point.',
+    iconCellWidth: target.cellWidth, originalText: 'Original glyph data, advances, hints and layout tables are preserved; overlapping Unicode mappings use Nerd Fonts.',
     iconHinting: 'Unhinted Nerd Fonts outlines; the original text retains its refined hint programs.',
     outputs,
   }, null, 2) + '\n');

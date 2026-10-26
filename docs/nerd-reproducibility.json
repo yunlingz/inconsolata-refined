@@ -1,30 +1,31 @@
 {
   "family": "Inconsolata Refined Nerd",
+  "version": "1.601",
   "nerdFonts": "3.5.1",
-  "method": "A second build in a unique OS temporary output directory, from checksum-verified base TTFs and the tracked official patcher archive; no network required.",
+  "method": "A second build in a unique OS temporary output directory, from checksum-verified base TTFs and the tracked official patcher archive; no network required. Nerd Fonts takes precedence at all supplied symbol code points.",
   "outputs": [
     {
       "file": "InconsolataRefinedNerd-Regular.ttf",
-      "sha256": "2c7e66e4d674a34c49b72f07b155e7cdb62cdd854550f98b56f0dc8281c76fdd",
-      "bytes": 2566216,
+      "sha256": "09e1020bfc6f6398272c26cb13df0c8d2a2025dcb299feb75255c29a00944697",
+      "bytes": 2576720,
       "result": "byte-for-byte identical"
     },
     {
       "file": "InconsolataRefinedNerd-Italic.ttf",
-      "sha256": "e16f3b5cb6137e7d0fa251caf03f607332daa92aa01fc0fd64901578727e501d",
-      "bytes": 2587724,
+      "sha256": "db09584c05fde7281d5df4d8cd29c24a81c5a57d93ff011a4aa61e3bc585dd31",
+      "bytes": 2598232,
       "result": "byte-for-byte identical"
     },
     {
       "file": "InconsolataRefinedNerd-Bold.ttf",
-      "sha256": "0b40d61f84f638bef84fb44a6b919451d94bcf699b70b1ccbe3b8ef20e9d5f53",
-      "bytes": 2570208,
+      "sha256": "661a3acb5d1362eceea9aa838dca7fdc0e4ca6af6d14c9640d159fe7ca85fd3a",
+      "bytes": 2580712,
       "result": "byte-for-byte identical"
     },
     {
       "file": "InconsolataRefinedNerd-BoldItalic.ttf",
-      "sha256": "d63be0b093b464288bf11a7f8cf7440f6835a4f171defa1229ae98aad53b58ae",
-      "bytes": 2582688,
+      "sha256": "1abc3fd4c6eca4126b25ed68cd82340470a4b44fcbb1b598e33e860fffdf4491",
+      "bytes": 2593196,
       "result": "byte-for-byte identical"
     }
   ],

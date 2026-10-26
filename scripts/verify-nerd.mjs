@@ -5,7 +5,8 @@ import { join } from 'node:path';
 import { create } from 'fontkit';
 import { PNG } from 'pngjs';
 import { root, styles, sources, fontFile, target, sfntTables, checksum, glyphInstructions, sha256, run, tool, heartbeat } from './lib.mjs';
-import { nerdFamily, nerdFile, nerdOptions, extractNerdSources, rawGlyph, horizontalMetric, nameRecords } from './nerd.mjs';
+import { nerdFamily, nerdVersion, nerdFile, nerdOptions, nerdSeedUnicodes, extractNerdSources, rawGlyph,
+  horizontalMetric, nameRecords, expandCodePointRanges, nerdGlyphHash } from './nerd.mjs';
 
 const done = heartbeat('Checking every Nerd icon and preservation of all original glyphs and hints');
 const temporary = await mkdtemp(join(tmpdir(), 'inconsolata-nerd-check-'));
@@ -25,7 +26,9 @@ try {
   const icons = Object.entries(registry).filter(([name]) => name !== 'METADATA');
   const uniqueIcons = [...new Set(icons.map(([, g]) => parseInt(g.code, 16)))].sort((a, b) => a - b);
   const manifest = JSON.parse(await readFile(join(directory, 'build-info.json'), 'utf8'));
+  assert.ok(!manifest.options.includes('--careful'), 'Nerd Fonts must replace overlapping characters');
   assert.equal(manifest.family, nerdFamily); assert.deepEqual(manifest.nerdFonts, sources.nerdFonts);
+  assert.equal(manifest.version, nerdVersion); assert.equal(manifest.seedUnicodes, nerdSeedUnicodes);
   assert.ok(nerdOptions.every(option => manifest.options.includes(option)));
   assert.deepEqual((await readdir(directory)).filter(f => f.endsWith('.ttf')).sort(), styles.map(nerdFile).sort());
   assert.equal(await readFile(join(directory, 'OFL.txt'), 'utf8'), await readFile(join(root, 'OFL.txt'), 'utf8'));
@@ -47,6 +50,8 @@ try {
     assert.equal(font.name.records.preferredFamily.en, nerdFamily);
     assert.equal(font.name.records.preferredSubfamily.en, style.name);
     assert.equal(font.postscriptName, `InconsolataRefinedNerd-${style.file}`);
+    assert.ok(font.version.startsWith(`Version ${nerdVersion};`));
+    assert.equal(tables.get('head').data.readInt32BE(4), Math.round(Number(nerdVersion) * 65536));
     assert.ok(font.version.endsWith(`; Nerd Fonts ${sources.nerdFonts.version}`));
     for (const record of nameRecords(tables.get('name').data)) {
       if ([1, 16, 21].includes(record.id)) assert.equal(record.text, nerdFamily, 'Exact family in every platform/language');
@@ -77,7 +82,16 @@ try {
       assert.deepEqual(font.getGlyph(id).path.commands, base.getGlyph(id).path.commands);
     }
     const originalCodes = new Set(base.characterSet), added = font.characterSet.filter(c => !originalCodes.has(c));
-    for (const code of originalCodes) assert.equal(font.glyphForCodePoint(code).id, base.glyphForCodePoint(code).id);
+    const provided = expandCodePointRanges(info.providedCoverage), providedCodes = new Set(provided);
+    const replaced = provided.filter(code => originalCodes.has(code));
+    assert.deepEqual(replaced, info.replacedCodePoints, 'Every overlap is recorded');
+    assert.deepEqual(added, provided.filter(code => !originalCodes.has(code)), 'Every new character comes from Nerd Fonts');
+    assert.equal(nerdGlyphHash(font, provided), info.providedGlyphsSha256, 'Every Nerd outline matches actual patcher output, including overlaps');
+    for (const code of originalCodes) {
+      if (providedCodes.has(code)) assert.ok(font.glyphForCodePoint(code).id >= base.numGlyphs, `U+${code.toString(16)}: Nerd Fonts replaces the original`);
+      else assert.equal(font.glyphForCodePoint(code).id, base.glyphForCodePoint(code).id, 'Other original mappings preserved');
+    }
+    for (let code = 0x2500; code <= 0x259f; code++) assert.ok(providedCodes.has(code), 'Nerd Fonts provides the entire terminal-artwork set');
     assert.equal(font.numGlyphs, info.glyphs); assert.equal(font.characterSet.length, info.characters);
     assert.equal(added.length, info.addedCharacters);
     if (previousCoverage) assert.deepEqual(font.characterSet, previousCoverage, 'Same complete coverage in all styles');
@@ -86,12 +100,13 @@ try {
     for (const [name, symbol] of icons) {
       const code = parseInt(symbol.code, 16);
       assert.ok(codes.has(code), `${file}: missing ${name} U+${symbol.code}`);
+      assert.ok(providedCodes.has(code), `${name}: Nerd Fonts supplies the glyph`);
       assert.notEqual(font.glyphForCodePoint(code).id, 0, `${name}: mapped to real glyph`);
       const group = name.split('-')[0]; groups[group] = (groups[group] ?? 0) + 1;
-      if (originalCodes.has(code)) collisions.push({ name, code: symbol.code, policy: 'Original glyph retained' });
+      if (originalCodes.has(code)) collisions.push({ name, code: symbol.code, policy: 'Nerd Fonts replaces the original' });
     }
     const empty = [], bounds = { minX: Infinity, minY: Infinity, maxX: -Infinity, maxY: -Infinity };
-    for (const code of added) {
+    for (const code of provided) {
       const glyph = font.glyphForCodePoint(code);
       assert.equal(glyph.advanceWidth, target.cellWidth, `U+${code.toString(16)}: exactly one existing cell`);
       assert.equal(horizontalMetric(tables, glyph.id)[0], target.cellWidth);
@@ -109,17 +124,18 @@ try {
     assert.equal(registry['cod-blank'].code, 'ec03');
     assert.deepEqual(empty, ['2800', 'ec03'], 'Only intentional Braille and Codicons blanks are empty');
     await run(tool('ots-sanitize'), [path, join(temporary, `${style.file}-sanitized.ttf`)]);
-    const text = 'fiffl ffi 0O1lI a\u0301 3\u0302\u0323 △▽ ─│█';
+    const text = Array.from('fiffl ffi 0O1lI a\u0301 3\u0302\u0323 △▽ ─│█')
+      .filter(character => !providedCodes.has(character.codePointAt(0))).join('');
     for (const features of ['', 'ss01,ss02,ss03,zero']) {
       const args = [`--text=${text}`, '--output-format=json', ...(features ? [`--features=${features}`] : [])];
       const before = await run(tool('hb-shape'), [fontFile(style), ...args]);
       const after = await run(tool('hb-shape'), [path, ...args]);
       assert.equal(after.stdout, before.stdout, 'Original text shaping and positions unchanged');
     }
-    const rows = Array.from({ length: Math.ceil(added.length / 64) }, (_, i) => String.fromCodePoint(...added.slice(i * 64, (i + 1) * 64))).join('\n');
+    const rows = Array.from({ length: Math.ceil(provided.length / 64) }, (_, i) => String.fromCodePoint(...provided.slice(i * 64, (i + 1) * 64))).join('\n');
     for (const size of [12, 24]) await render(path, rows, size);
     const sampleCodes = [0xe0b0, 0xe0b2, 0xe5ff, 0xe700, 0xf121, 0xe200, 0x23fb, 0xf300, 0xf400, 0xea60,
-      0xe000, 0xe300, 0xf0001, 0xf0219, 0x2801, 0x28ff];
+      0xe000, 0xe300, 0xf0001, 0xf0219, 0x2801, 0x28ff, 0x2665];
     assert.ok(sampleCodes.every(c => codes.has(c)), 'Preview icons supported');
     const sample = ['git status  ~/project  branch:main',
       sampleCodes.map(c => `H${String.fromCodePoint(c)}H`).join(' '),
@@ -128,13 +144,15 @@ try {
     panels.push(await render(path, sample, 24));
     results.push({ file, sha256: sha256(bytes), sourceSha256: sha256(baseBytes), glyphs: font.numGlyphs,
       characters: font.characterSet.length, originalGlyphs: base.numGlyphs,
-      originalOutlinesAndHints: 'All glyph bytes, IDs, outlines, metrics and hint programs identical',
+      originalOutlinesAndHints: 'Original glyph data and hints retained; overlapping Unicode mappings use Nerd Fonts',
       originalLayoutAndHintTables: 'Byte for byte identical', registeredIconNames: icons.length,
       uniqueRegisteredCodePoints: uniqueIcons.length, groups, collisions, addedCharacters: added.length,
+      replacedCharacters: replaced.length, replacedCodePoints: replaced.map(code => code.toString(16)),
+      providedGlyphsSha256: info.providedGlyphsSha256,
       iconAdvance: target.cellWidth, emptyIcons: empty, bounds, sanitizer: 'pass',
-      fullIconRendering: 'Every added character rendered with FreeType/HarfBuzz at 12 and 24 px',
-      originalShaping: 'identical with default and stylistic features' });
-    console.log(`PASS ${style.name}: all ${icons.length} registry names; ${added.length} additions exactly ${target.cellWidth} units; ${base.numGlyphs} original glyphs and hints preserved.`);
+      fullIconRendering: 'Every Nerd character, including replacements, rendered with FreeType/HarfBuzz at 12 and 24 px',
+      originalShaping: 'Non-overlapping text identical with default and stylistic features' });
+    console.log(`PASS ${style.name}: ${icons.length} registry names; ${replaced.length} overlaps replaced; all ${provided.length} Nerd characters exactly ${target.cellWidth} units.`);
   }
   const width = Math.max(...panels.map(p => p.width)), height = panels.reduce((n, p) => n + p.height + 8, 8);
   const preview = new PNG({ width, height });
@@ -146,7 +164,9 @@ try {
   }
   await writeFile(join(root, 'docs/nerd-preview.png'), PNG.sync.write(preview));
   await writeFile(join(root, 'docs/nerd-validation.json'), JSON.stringify({ family: nerdFamily,
-    nerdFonts: sources.nerdFonts.version, monoPolicy: 'All added glyphs use the unchanged base cell width; original zero/multiple-cell glyphs are preserved.',
+    version: nerdVersion, nerdFonts: sources.nerdFonts.version,
+    overlapPolicy: 'Every symbol provided by Nerd Fonts replaces the original at the same code point.',
+    monoPolicy: 'All Nerd glyphs, including replacements, use the base cell width; other original zero/multiple-cell glyphs are preserved.',
     results }, null, 2) + '\n');
   console.log(`All four ${nerdFamily} faces passed.`);
 } finally {

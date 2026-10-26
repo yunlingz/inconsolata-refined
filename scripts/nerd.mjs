@@ -2,11 +2,30 @@ import assert from 'node:assert/strict';
 import { readFile, mkdir } from 'node:fs/promises';
 import { join } from 'node:path';
 import { create } from 'fontkit';
-import { family, root, sources, version, sfntTables, replaceTables, sha256, run } from './lib.mjs';
+import { family, root, sources, sfntTables, replaceTables, sha256, run } from './lib.mjs';
 
 export const nerdFamily = `${family} Nerd`;
+export const nerdVersion = '1.601';
 export const nerdFile = style => `InconsolataRefinedNerd-${style.file}.ttf`;
-export const nerdOptions = ['--complete', '--single-width-glyphs', '--careful', '--quiet', '--no-progressbars'];
+export const nerdOptions = ['--complete', '--single-width-glyphs', '--boxdrawing', '--quiet', '--no-progressbars'];
+// A neutral ASCII seed lets the official patcher supply every non-ASCII
+// symbol, including sets it would otherwise skip when already present.
+export const nerdSeedUnicodes = '20-7E';
+export const nerdSeedCodes = new Set(Array.from({ length: 95 }, (_, i) => 32 + i));
+export function codePointRanges(codes) {
+  const ranges = [];
+  for (const code of codes) {
+    if (ranges.at(-1)?.[1] === code - 1) ranges.at(-1)[1] = code;
+    else ranges.push([code, code]);
+  }
+  return ranges;
+}
+export const expandCodePointRanges = ranges => ranges.flatMap(([start, end]) =>
+  Array.from({ length: end - start + 1 }, (_, i) => start + i));
+export const nerdGlyphHash = (font, codes) => sha256(Buffer.from(JSON.stringify(codes.map(code => {
+  const glyph = font.glyphForCodePoint(code);
+  return [code, glyph.advanceWidth, glyph.path.commands];
+}))));
 
 export async function extractNerdSources(directory) {
   const source = sources.nerdFonts;
@@ -46,18 +65,19 @@ export function nameRecords(table) {
 
 function renamedTable(table, style) {
   const ps = `InconsolataRefinedNerd-${style.file}`;
-  const names = new Map([[1, nerdFamily], [2, style.name], [3, `${version};NONE;${ps}`],
+  const names = new Map([[1, nerdFamily], [2, style.name], [3, `${nerdVersion};NONE;${ps}`],
     [4, `${nerdFamily} ${style.name}`], [6, ps], [16, nerdFamily], [17, style.name],
     [18, `${nerdFamily} ${style.name}`], [21, nerdFamily], [22, style.name]]);
   const records = nameRecords(table);
   for (const record of records) {
-    const value = record.id === 5 ? `${record.text}; Nerd Fonts ${sources.nerdFonts.version}` : names.get(record.id);
+    const value = record.id === 5
+      ? `${record.text.replace(/^Version [\d.]+/, `Version ${nerdVersion}`)}; Nerd Fonts ${sources.nerdFonts.version}` : names.get(record.id);
     if (value !== undefined) record.data = record.platform === 0 || record.platform === 3
       ? Buffer.from(value, 'utf16le').swap16() : Buffer.from(value, 'latin1');
   }
   for (const platform of [1, 3]) {
     const description = `Inconsolata Refined with complete Nerd Fonts ${sources.nerdFonts.version} icons. `
-      + 'Original text outlines, advances, hint programs and layout tables preserved. '
+      + 'Nerd Fonts replaces overlapping symbol code points. Other text outlines, advances and hints are preserved. '
       + 'Icon authors and licenses are included in the licenses directory.';
     records.push({ platform, encoding: platform === 3 ? 1 : 0, language: platform === 3 ? 0x409 : 0, id: 10,
       data: platform === 3 ? Buffer.from(description, 'utf16le').swap16() : Buffer.from(description) });
@@ -120,17 +140,21 @@ function unicodeCmap(mapping, original) {
   return Buffer.concat([header, ...parts]);
 }
 
-// Append only the patcher's new, unhinted simple glyphs. Existing glyph IDs
-// and bytes stay fixed, so all original hint and OpenType references stay valid.
+// Append the patcher's unhinted symbols and give them precedence in cmap.
+// Original glyph IDs/bytes stay fixed, keeping every existing layout/hint
+// reference valid and preserving any non-overlapping Unicode aliases.
 export function appendNerdGlyphs(baseBytes, patchedBytes, style) {
   const base = create(baseBytes), patched = create(patchedBytes);
   const tables = sfntTables(baseBytes), iconTables = sfntTables(patchedBytes);
   assert.equal(patched.unitsPerEm, base.unitsPerEm);
   assert.equal(tables.get('head').data.readInt16BE(50), 1, 'Base uses long glyph locations');
   const mapping = new Map(base.characterSet.map(c => [c, base.glyphForCodePoint(c).id]));
-  const additions = [], ids = new Map();
+  const additions = [], ids = new Map(), provided = [], replacedCodePoints = [];
   for (const code of patched.characterSet) {
-    if (mapping.has(code)) continue;
+    if (nerdSeedCodes.has(code)) continue;
+    assert.ok(code > 0x7f, 'Pinned Nerd Fonts symbols are outside the ASCII seed');
+    provided.push(code);
+    if (mapping.has(code)) replacedCodePoints.push(code);
     const sourceId = patched.glyphForCodePoint(code).id;
     if (!ids.has(sourceId)) {
       ids.set(sourceId, base.numGlyphs + additions.length);
@@ -142,6 +166,7 @@ export function appendNerdGlyphs(baseBytes, patchedBytes, style) {
   assert.ok(count < 65535, 'TrueType glyph limit');
   const loca = Buffer.alloc((count + 1) * 4), hmtx = Buffer.alloc(count * 4);
   const hhea = Buffer.from(tables.get('hhea').data), head = Buffer.from(tables.get('head').data);
+  head.writeInt32BE(Math.round(Number(nerdVersion) * 65536), 4);
   const maxp = Buffer.from(tables.get('maxp').data), polygons = [];
   tables.get('loca').data.copy(loca);
   let offset = tables.get('glyf').data.length;
@@ -165,7 +190,7 @@ export function appendNerdGlyphs(baseBytes, patchedBytes, style) {
   for (let id = 0; id < count; id++) {
     const addition = additions[id - base.numGlyphs];
     const [advance, bearing] = horizontalMetric(addition ? iconTables : tables, addition ? addition.sourceId : id);
-    if (addition) assert.equal(advance, base.glyphForCodePoint(0x20).advanceWidth, 'Every added icon uses the base monospace cell');
+    if (addition) assert.equal(advance, base.glyphForCodePoint(0x20).advanceWidth, 'Every Nerd icon uses the base monospace cell');
     hmtx.writeUInt16BE(advance, id * 4); hmtx.writeInt16BE(bearing, id * 4 + 2);
     const data = addition ? addition.data : rawGlyph(tables, id);
     const width = data.length ? data.readInt16BE(6) - data.readInt16BE(2) : 0;
@@ -198,5 +223,7 @@ export function appendNerdGlyphs(baseBytes, patchedBytes, style) {
     glyf: Buffer.concat([tables.get('glyf').data, ...polygons]),
     post: Buffer.concat([postHeader, oldIndices, indices, post.subarray(34 + base.numGlyphs * 2), ...names]),
     cmap: unicodeCmap(mapping, tables.get('cmap').data), name: renamedTable(tables.get('name').data, style) });
-  return { bytes, addedGlyphs: additions.length, addedCharacters: mapping.size - base.characterSet.length };
+  assert.equal(nerdGlyphHash(create(bytes), provided), nerdGlyphHash(patched, provided), 'Every supplied Nerd symbol wins, including overlaps');
+  return { bytes, appendedGlyphs: additions.length, addedCharacters: mapping.size - base.characterSet.length,
+    replacedCodePoints, providedCoverage: codePointRanges(provided), providedGlyphsSha256: nerdGlyphHash(patched, provided) };
 }
