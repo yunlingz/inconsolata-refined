@@ -1,6 +1,6 @@
 # Development context
 
-Updated October 25, 2026. Read before changing fonts or the pipeline. [README.md](../README.md) covers installation; [REVIEW.md](REVIEW.md) explains measurements and limits. Keep this handoff current.
+Updated October 26, 2026. Read before changing fonts or the pipeline. [README.md](../README.md) covers installation; [REVIEW.md](REVIEW.md) explains measurements and limits. Keep this handoff current.
 
 ## Requirements and release state
 
@@ -13,10 +13,23 @@ Updated October 25, 2026. Read before changing fonts or the pipeline. [README.md
 ## Deliverables and sources
 
 - Exactly four tracked TTFs in fonts/: **Regular, Italic, Bold, Bold Italic**. Eight tracked WOFF/WOFF2 files, family CSS, example HTML, and license in webfonts/.
+- Four additional tracked TTFs in nerd-fonts/: the same styles, exact family **Inconsolata Refined Nerd**, without a trailing period or extra “Font”/“Mono” name suffix. Every added icon must advance exactly the base **540-unit** cell; the user explicitly required this.
 - One family, finished weights **400/700**, CSS styles **normal/italic**. Source weight-axis values are independent of finished style metadata.
 - Retain all **964 original named glyphs**, **883 original cmap entries**, and **17 feature tags**. Outputs contain **968 glyphs and 885 cmap entries**, including two standard generated empty controls and the two one-cell sort triangles.
-- [upstream/sources.json](../upstream/sources.json) pins original Inconsolata **3.100**, revision fc1fc21081558b39a2db43bfd9b65bf9acb50701, compressed source checksums, and **ttfautohint 1.8.4**, verified latest stable October 24, 2026. Only four final .ttf files are tracked; original inputs are compressed in upstream/inconsolata/.
+- [upstream/sources.json](../upstream/sources.json) pins original Inconsolata **3.100**, revision fc1fc21081558b39a2db43bfd9b65bf9acb50701, compressed source checksums, **ttfautohint 1.8.4** (verified latest stable October 24), and the official **Nerd Fonts 3.5.1** patcher archive (verified latest stable October 26). Original Inconsolata inputs are compressed in upstream/inconsolata/; the complete Nerd archive is tracked in upstream/nerd-fonts/.
 - Release timestamps are fixed to **2026-10-24T00:00:00+08:00** for reproducibility. Update version/date deliberately on later releases.
+
+## Nerd editions
+
+- scripts/build-nerd.mjs patches each verified current base TTF with the pinned official FontForge patcher. `--complete --single-width-glyphs --careful`, explicit 0:540:−308:1042 cell and TYPO metrics. Use single-width-glyphs instead of --mono, which would rewrite original zero-/multiple-cell advances.
+- scripts/nerd.mjs appends only new encoded icon glyphs. Existing IDs, raw glyf bytes, metrics, GSUB/GPOS/GDEF, cvt/fpgm/prep, TTFA and gasp remain intact. FontForge's full export would drop/alter the refined hint programs; never ship that intermediate or rerun autohinting over the base text. Added icons are unhinted. Pinned output is flattened/unhinted; upgrades violating this invariant fail instead of copying invalid component IDs or hint references.
+- Final family names (IDs 1/16 and any WWS names), style names and PostScript names are normalized independently of patcher naming. Standard 400/700 weights, italic flags, 0.54 em cell and 1.35 em natural lines are retained. Version 1.600 is unchanged because these are distinct new families, not replacement base binaries.
+- All **10,995 registry names / 10,617 unique registered code points** are supported, including plane-15 Material Design icons. Complete patching adds **10,879 mapped characters** including Braille and supplementary patcher symbols. Each face has **11,847 glyphs / 11,764 mapped characters**. The original heart U+2665 shares `oct-heart`'s code point and is retained by --careful. The only empty additions are Braille blank U+2800 and Codicons blank U+EC03.
+- Powerline seams intentionally overlap the cell by up to **32 horizontal / 7 vertical units**, while advance remains exactly **540**. Keep the base line metrics unchanged. This follows the patcher's 0.5% vertical overlap policy.
+- `npm run build:nerd` and `npm run test:nerd` handle these editions independently; the main build/test include them. Use `node scripts/build-nerd.mjs --output-dir=<owned-temp-directory>` for isolated reproducibility. No network is needed: the ZIP, registry and source glyphs are pinned/tracked. `unzip` is required. The upstream Python patcher is a third-party tool; custom project helpers remain Node.js.
+- Nerd patching has a **180-second per-face timeout** and retains the **1 GiB** FontForge address-space limit. Base outline/calibration operations keep the 30-second limit. Intermediates are in unique OS temporary directories and removed in finally blocks.
+- [nerd-validation.json](nerd-validation.json) checks all added advances/bounds, all original glyph bytes/hints/names/metrics, every registry entry, complete BMP/supplementary cmap coverage, metadata, table checksums, sanitization and original shaping. Every added character renders through FreeType/HarfBuzz at 12/24 px. [nerd-preview.png](nerd-preview.png) is visually inspected; [nerd-reproducibility.json](nerd-reproducibility.json) records isolated four-binary reproduction. Windows installation/Terminal approval remains manual.
+- [nerd-fonts/README.md](../nerd-fonts/README.md) explains installation; build-info.json pins inputs/options/hashes. Keep OFL and all supplied icon licenses with the four fonts. Base TTF/web binaries are unchanged by Nerd-only builds, so their existing native/browser evidence remains applicable to those base files.
 
 ## Reference roles and calibration
 
@@ -96,6 +109,6 @@ Core: scripts/build.mjs, refine.pe, transform.mjs, outline-balance.mjs, export-o
 - One agent unless explicitly requested otherwise. Use existing tools and Node helpers. Disposable artifacts go in unique OS temporary directories and must be cleaned.
 - Keep commentary visible about every 20–30 seconds with resumable commands and short waits. Bound network fetches; use the existing proxy configuration once after direct failure without printing credentials.
 - **Staging, committing and pushing are authorized.** master tracks origin/master; SSH remote **git@github.com:yunlingz/inconsolata-refined.git**. Use short imperative commit subjects and preserve unrelated edits.
-- Before publication: exactly four tracked TTFs/eight web fonts, matching report hashes, valid local links, clean staged whitespace, reproducibility, all required checks, and no owned temporary server/browser remaining.
+- Before publication: four base TTFs plus four Nerd TTFs/eight web fonts, matching report hashes, valid local links, clean staged whitespace, reproducibility, all required checks, and no owned temporary server/browser remaining.
 - WSL termination can leave Windows browser children. Inspect and stop only processes whose command lines contain the exact owned temporary profile path before removing that directory; never terminate unrelated Chrome sessions.
 - The 1.600 review inputs, checkpoints, and isolated rebuild workspace were disposable. Retain the tracked reports and create a new unique OS temporary directory for future work.

@@ -2,6 +2,12 @@
 
 Reviewed October 25, 2026. Inconsolata Refined **1.600** contains four TTFs and eight WOFF/WOFF2 files, rebuilt from original Inconsolata 3.100. This release enlarges the narrow proportions and changes all four stroke-weight targets to Cascadia Code.
 
+## Nerd editions, October 26
+
+Four additional TTFs use the exact family **Inconsolata Refined Nerd** and the complete pinned **Nerd Fonts 3.5.1** patcher. [Validation](nerd-validation.json) covers all **10,995 registered names**, every added character's **540-unit** advance, all original glyph bytes/hints/metrics, metadata and sanitization. Each face contains **11,847 glyphs**, with **10,879 added characters**. Every addition renders at 12/24 px through FreeType/HarfBuzz. The [preview](nerd-preview.png) was visually inspected, and an [isolated rebuild](nerd-reproducibility.json) verifies all four binaries.
+
+All 968 original glyphs and their global hint/layout tables remain byte-identical to their corresponding base face. Icons use the patcher's unhinted outlines. Powerline separators retain their small intentional seam overlaps. The original U+2665 heart is retained at the shared `oct-heart` code point. Braille U+2800 and Codicons U+EC03 are intentionally blank. These editions keep the base line/size metrics and source geometry; native Windows Terminal installation remains a manual check. [Installation and licensing](../nerd-fonts/README.md) are included with the fonts.
+
 ## Size, proportions, and weight
 
 Dimensions grow by **8%** from 1.500, with whole-unit rounding: cell/word space **540**, lowercase x height **562**, capitals **794**, letter descender **−232**, natural line **1350**, and UPM **1000**. hhea is **1042/−232/76**; typographic metrics are **1042/−308/0**; Win clipping metrics are **1042/308**. The cell-to-line ratio remains 0.4. Bearings, all six whitespace advances, mark attachment, decorations, and terminal artwork follow the new dimensions. Italics remain 9° obliques.

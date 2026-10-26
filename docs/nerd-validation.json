@@ -1,0 +1,219 @@
+{
+  "family": "Inconsolata Refined Nerd",
+  "nerdFonts": "3.5.1",
+  "monoPolicy": "All added glyphs use the unchanged base cell width; original zero/multiple-cell glyphs are preserved.",
+  "results": [
+    {
+      "file": "InconsolataRefinedNerd-Regular.ttf",
+      "sha256": "2c7e66e4d674a34c49b72f07b155e7cdb62cdd854550f98b56f0dc8281c76fdd",
+      "sourceSha256": "0b4b043904689a3f4314e45b061306b85f6852cda0fa33417f26e52549f3315a",
+      "glyphs": 11847,
+      "characters": 11764,
+      "originalGlyphs": 968,
+      "originalOutlinesAndHints": "All glyph bytes, IDs, outlines, metrics and hint programs identical",
+      "originalLayoutAndHintTables": "Byte for byte identical",
+      "registeredIconNames": 10995,
+      "uniqueRegisteredCodePoints": 10617,
+      "groups": {
+        "cod": 540,
+        "custom": 45,
+        "dev": 613,
+        "extra": 12,
+        "fa": 1818,
+        "fae": 170,
+        "iec": 5,
+        "indent": 2,
+        "indentation": 1,
+        "linux": 134,
+        "md": 6896,
+        "oct": 310,
+        "pl": 9,
+        "ple": 34,
+        "pom": 11,
+        "seti": 167,
+        "weather": 228
+      },
+      "collisions": [
+        {
+          "name": "oct-heart",
+          "code": "2665",
+          "policy": "Original glyph retained"
+        }
+      ],
+      "addedCharacters": 10879,
+      "iconAdvance": 540,
+      "emptyIcons": [
+        "2800",
+        "ec03"
+      ],
+      "bounds": {
+        "minX": -32,
+        "minY": -315,
+        "maxX": 572,
+        "maxY": 1049
+      },
+      "sanitizer": "pass",
+      "fullIconRendering": "Every added character rendered with FreeType/HarfBuzz at 12 and 24 px",
+      "originalShaping": "identical with default and stylistic features"
+    },
+    {
+      "file": "InconsolataRefinedNerd-Italic.ttf",
+      "sha256": "e16f3b5cb6137e7d0fa251caf03f607332daa92aa01fc0fd64901578727e501d",
+      "sourceSha256": "53a4b52e913ecaf8db96295f7ee3b12c69275b23cbb2e20c2323ec1ecfa486c8",
+      "glyphs": 11847,
+      "characters": 11764,
+      "originalGlyphs": 968,
+      "originalOutlinesAndHints": "All glyph bytes, IDs, outlines, metrics and hint programs identical",
+      "originalLayoutAndHintTables": "Byte for byte identical",
+      "registeredIconNames": 10995,
+      "uniqueRegisteredCodePoints": 10617,
+      "groups": {
+        "cod": 540,
+        "custom": 45,
+        "dev": 613,
+        "extra": 12,
+        "fa": 1818,
+        "fae": 170,
+        "iec": 5,
+        "indent": 2,
+        "indentation": 1,
+        "linux": 134,
+        "md": 6896,
+        "oct": 310,
+        "pl": 9,
+        "ple": 34,
+        "pom": 11,
+        "seti": 167,
+        "weather": 228
+      },
+      "collisions": [
+        {
+          "name": "oct-heart",
+          "code": "2665",
+          "policy": "Original glyph retained"
+        }
+      ],
+      "addedCharacters": 10879,
+      "iconAdvance": 540,
+      "emptyIcons": [
+        "2800",
+        "ec03"
+      ],
+      "bounds": {
+        "minX": -32,
+        "minY": -315,
+        "maxX": 572,
+        "maxY": 1049
+      },
+      "sanitizer": "pass",
+      "fullIconRendering": "Every added character rendered with FreeType/HarfBuzz at 12 and 24 px",
+      "originalShaping": "identical with default and stylistic features"
+    },
+    {
+      "file": "InconsolataRefinedNerd-Bold.ttf",
+      "sha256": "0b40d61f84f638bef84fb44a6b919451d94bcf699b70b1ccbe3b8ef20e9d5f53",
+      "sourceSha256": "78da4dc8cbcf8f5a33dfcd43a9ef488bc915548cbd8e2b4046fb0ecbb917348c",
+      "glyphs": 11847,
+      "characters": 11764,
+      "originalGlyphs": 968,
+      "originalOutlinesAndHints": "All glyph bytes, IDs, outlines, metrics and hint programs identical",
+      "originalLayoutAndHintTables": "Byte for byte identical",
+      "registeredIconNames": 10995,
+      "uniqueRegisteredCodePoints": 10617,
+      "groups": {
+        "cod": 540,
+        "custom": 45,
+        "dev": 613,
+        "extra": 12,
+        "fa": 1818,
+        "fae": 170,
+        "iec": 5,
+        "indent": 2,
+        "indentation": 1,
+        "linux": 134,
+        "md": 6896,
+        "oct": 310,
+        "pl": 9,
+        "ple": 34,
+        "pom": 11,
+        "seti": 167,
+        "weather": 228
+      },
+      "collisions": [
+        {
+          "name": "oct-heart",
+          "code": "2665",
+          "policy": "Original glyph retained"
+        }
+      ],
+      "addedCharacters": 10879,
+      "iconAdvance": 540,
+      "emptyIcons": [
+        "2800",
+        "ec03"
+      ],
+      "bounds": {
+        "minX": -32,
+        "minY": -315,
+        "maxX": 572,
+        "maxY": 1049
+      },
+      "sanitizer": "pass",
+      "fullIconRendering": "Every added character rendered with FreeType/HarfBuzz at 12 and 24 px",
+      "originalShaping": "identical with default and stylistic features"
+    },
+    {
+      "file": "InconsolataRefinedNerd-BoldItalic.ttf",
+      "sha256": "d63be0b093b464288bf11a7f8cf7440f6835a4f171defa1229ae98aad53b58ae",
+      "sourceSha256": "651a2aab96da91d1f674f99e28b83d91c00ec6b938e7a3c293a1ff3048fec222",
+      "glyphs": 11847,
+      "characters": 11764,
+      "originalGlyphs": 968,
+      "originalOutlinesAndHints": "All glyph bytes, IDs, outlines, metrics and hint programs identical",
+      "originalLayoutAndHintTables": "Byte for byte identical",
+      "registeredIconNames": 10995,
+      "uniqueRegisteredCodePoints": 10617,
+      "groups": {
+        "cod": 540,
+        "custom": 45,
+        "dev": 613,
+        "extra": 12,
+        "fa": 1818,
+        "fae": 170,
+        "iec": 5,
+        "indent": 2,
+        "indentation": 1,
+        "linux": 134,
+        "md": 6896,
+        "oct": 310,
+        "pl": 9,
+        "ple": 34,
+        "pom": 11,
+        "seti": 167,
+        "weather": 228
+      },
+      "collisions": [
+        {
+          "name": "oct-heart",
+          "code": "2665",
+          "policy": "Original glyph retained"
+        }
+      ],
+      "addedCharacters": 10879,
+      "iconAdvance": 540,
+      "emptyIcons": [
+        "2800",
+        "ec03"
+      ],
+      "bounds": {
+        "minX": -32,
+        "minY": -315,
+        "maxX": 572,
+        "maxY": 1049
+      },
+      "sanitizer": "pass",
+      "fullIconRendering": "Every added character rendered with FreeType/HarfBuzz at 12 and 24 px",
+      "originalShaping": "identical with default and stylistic features"
+    }
+  ]
+}

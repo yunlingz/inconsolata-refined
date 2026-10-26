@@ -11,6 +11,12 @@ Four static fonts rebuilt from original **Inconsolata 3.100**, with enlarged nar
 
 On Windows, install all four TTFs, replace the earlier versions, restart the terminal/editor, and select **Inconsolata Refined**. Compare it with Cascadia Code at the same font size and with application spacing overrides cleared. The four styles share one family and use standard 400/700 weights.
 
+## Nerd Fonts editions
+
+[nerd-fonts/](nerd-fonts/) contains four additional TTFs with the exact family name **Inconsolata Refined Nerd**: Regular, Italic, Bold and Bold Italic. They include the complete **Nerd Fonts 3.5.1** patch set, covering all **10,995 registered icon names** plus Braille and additional patcher symbols. Every added character uses the base font's **540-unit monospace cell**.
+
+The **968 original glyphs**, their spacing, custom hints and OpenType layout remain unchanged. Each Nerd face contains **11,847 glyphs**. [Installation and build details](nerd-fonts/README.md), [a four-style preview](docs/nerd-preview.png), and [the complete coverage/preservation report](docs/nerd-validation.json) document the additions. Build with `npm run build:nerd` and verify with `npm run test:nerd`; the main build/test commands include them too.
+
 ## Size, weight, and spacing
 
 Version 1.600 enlarges the Iosevka-derived narrow proportions by **8%**, including cells, bearings, whitespace, line height, marks, and decorations. Weight is calibrated separately to the corresponding Cascadia Code Regular, Italic, Bold, and Bold Italic. The build uses the original Inconsolata variable source and shared geometric transforms, preserving its recognizable forms and features.
@@ -84,7 +90,7 @@ FreeType/Cairo specimens and website checks run in Linux/WSL; the separate pixel
 
 ## Rebuild
 
-Node.js 22+ is required. The local bootstrap supports Debian/Ubuntu x86-64, including WSL, without sudo. It needs npm, Python 3 for the existing FontTools CLI, curl, apt indexes, dpkg-deb, tar, make, a C/C++ compiler, and runtime libraries for the font tools. It extracts/builds dependencies under ignored `.tools/`. All project helpers are JavaScript.
+Node.js 22+ is required. The local bootstrap supports Debian/Ubuntu x86-64, including WSL, without sudo. It needs npm, Python 3 for the existing FontTools CLI, curl, apt indexes, dpkg-deb, tar, unzip, make, a C/C++ compiler, and runtime libraries for the font tools. It extracts/builds dependencies under ignored `.tools/`. All project helpers are JavaScript; Nerd editions invoke the pinned upstream FontForge patcher.
 
 ```sh
 npm ci --ignore-scripts
@@ -100,8 +106,9 @@ After changing the geometric fit or autohinter inputs, regenerate the measured p
 
 On other systems, provide FontTools, FontForge, ttfautohint **1.8.4**, hb-shape, hb-view with PNG output, and ots-sanitize. Executable overrides are `PYTHON3, FONTFORGE, TTFAUTOHINT, HB_SHAPE, HB_VIEW, OTS_SANITIZE`. Browser checks use cached Playwright Chromium when available, or `CHROMIUM=/path/to/chrome`. No browser dependency is installed into this project.
 
-- `npm run build` regenerates all four TTFs and eight web fonts.
-- `npm test` runs desktop/web checks and the complete glyph audit, including 18,755 spacing pairs per style and 275 digit/mark cases per style.
+- `npm run build` regenerates four base TTFs, eight web fonts, and four Nerd TTFs.
+- `npm test` runs desktop/web checks, the complete original-glyph audit (18,755 spacing pairs and 275 digit/mark cases per style), and all Nerd icon/metadata/hint-preservation checks.
+- `npm run build:nerd` / `npm run test:nerd` handle the four single-cell Nerd editions independently, using the verified base TTFs. The official 3.5.1 patcher archive is pinned and tracked for offline builds.
 - `npm run test:browser` checks WOFF2 and forced WOFF fallback, real family faces, natural cell/line metrics, emphasis, size slider, mobile layout, and the glyph viewer.
 - `npm run test:raster` requires WSL, Windows Chrome/Edge, the local Cascadia references, and the recorded **1.400** Git baseline. It checks all **968 output glyphs/style** at every integer size from 8 through 50 px and eight pixel phases. A fresh original-source resize at the new weight and dimensions supplies the geometry/detail reference; 1.400 supplies the historical ink comparison. Compiled pixels must agree with independent fitting candidates. Visibility, bounds, resolvable details, curve balance, and dark/bright htop headers are checked. Set `WINDOWS_CHROMIUM` to override browser discovery.
 - Native raster verification can resume per style: `node scripts/check-raster.mjs --checkpoint-dir=<unique-OS-temp-directory> --style=Regular`, then `Italic`, `Bold`, and `BoldItalic`. Completed results are checksum-verified; all four are required for the combined report. Remove the owned checkpoint directory afterward.
@@ -118,3 +125,5 @@ The release uses FontTools 4.29.1 and ttfautohint 1.8.4, verified as the latest 
 Inconsolata Refined uses the [SIL Open Font License 1.1](OFL.txt). Original authorship and embedded licensing records are retained. See [AUTHORS.txt](upstream/inconsolata/AUTHORS.txt) and [source pins](upstream/sources.json).
 
 Sources: [Inconsolata](https://github.com/googlefonts/Inconsolata), [Iosevka](https://github.com/be5invis/Iosevka), [ttfautohint](https://freetype.org/ttfautohint/), and [FontForge](https://fontforge.org/).
+
+The separate Nerd editions also include [Nerd Fonts](https://github.com/ryanoasis/nerd-fonts) icons; keep their [supplied notices and licenses](nerd-fonts/licenses/) with redistributed fonts.

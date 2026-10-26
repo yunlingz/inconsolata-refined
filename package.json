@@ -10,9 +10,11 @@
   },
   "scripts": {
     "bootstrap": "node scripts/bootstrap.mjs",
-    "build": "node scripts/build.mjs && node scripts/build-web.mjs",
+    "build": "node scripts/build.mjs && node scripts/build-web.mjs && node scripts/build-nerd.mjs",
     "build:web": "node scripts/build-web.mjs",
-    "test": "node scripts/verify.mjs && node scripts/verify-web.mjs && node scripts/audit.mjs",
+    "build:nerd": "node scripts/build-nerd.mjs",
+    "test": "node scripts/verify.mjs && node scripts/verify-web.mjs && node scripts/audit.mjs && node scripts/verify-nerd.mjs",
+    "test:nerd": "node scripts/verify-nerd.mjs",
     "test:web": "node scripts/verify-web.mjs",
     "preview": "node scripts/preview.mjs",
     "calibrate": "node scripts/calibrate.mjs",

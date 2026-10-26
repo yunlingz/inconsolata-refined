@@ -1,0 +1,32 @@
+{
+  "family": "Inconsolata Refined Nerd",
+  "nerdFonts": "3.5.1",
+  "method": "A second build in a unique OS temporary output directory, from checksum-verified base TTFs and the tracked official patcher archive; no network required.",
+  "outputs": [
+    {
+      "file": "InconsolataRefinedNerd-Regular.ttf",
+      "sha256": "2c7e66e4d674a34c49b72f07b155e7cdb62cdd854550f98b56f0dc8281c76fdd",
+      "bytes": 2566216,
+      "result": "byte-for-byte identical"
+    },
+    {
+      "file": "InconsolataRefinedNerd-Italic.ttf",
+      "sha256": "e16f3b5cb6137e7d0fa251caf03f607332daa92aa01fc0fd64901578727e501d",
+      "bytes": 2587724,
+      "result": "byte-for-byte identical"
+    },
+    {
+      "file": "InconsolataRefinedNerd-Bold.ttf",
+      "sha256": "0b40d61f84f638bef84fb44a6b919451d94bcf699b70b1ccbe3b8ef20e9d5f53",
+      "bytes": 2570208,
+      "result": "byte-for-byte identical"
+    },
+    {
+      "file": "InconsolataRefinedNerd-BoldItalic.ttf",
+      "sha256": "d63be0b093b464288bf11a7f8cf7440f6835a4f171defa1229ae98aad53b58ae",
+      "bytes": 2582688,
+      "result": "byte-for-byte identical"
+    }
+  ],
+  "manifest": "byte-for-byte identical"
+}

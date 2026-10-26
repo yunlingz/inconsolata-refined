@@ -18,6 +18,15 @@
       }
     }
   },
+  "nerdFonts": {
+    "repository": "https://github.com/ryanoasis/nerd-fonts",
+    "version": "3.5.1",
+    "verifiedOn": "2026-10-26",
+    "releasePage": "https://github.com/ryanoasis/nerd-fonts/releases/tag/v3.5.1",
+    "archiveUrl": "https://github.com/ryanoasis/nerd-fonts/releases/download/v3.5.1/FontPatcher.zip",
+    "archive": "upstream/nerd-fonts/FontPatcher-3.5.1.zip",
+    "sha256": "42bcb32145499a35732274c7fc48deb434ad0d2e0e118f98527c1479c6fa251a"
+  },
   "ttfautohint": {
     "version": "1.8.4",
     "verifiedOn": "2026-10-24",

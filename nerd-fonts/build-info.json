@@ -1,0 +1,92 @@
+{
+  "family": "Inconsolata Refined Nerd",
+  "version": "1.600",
+  "nerdFonts": {
+    "repository": "https://github.com/ryanoasis/nerd-fonts",
+    "version": "3.5.1",
+    "verifiedOn": "2026-10-26",
+    "releasePage": "https://github.com/ryanoasis/nerd-fonts/releases/tag/v3.5.1",
+    "archiveUrl": "https://github.com/ryanoasis/nerd-fonts/releases/download/v3.5.1/FontPatcher.zip",
+    "archive": "upstream/nerd-fonts/FontPatcher-3.5.1.zip",
+    "sha256": "42bcb32145499a35732274c7fc48deb434ad0d2e0e118f98527c1479c6fa251a"
+  },
+  "options": [
+    "--complete",
+    "--single-width-glyphs",
+    "--careful",
+    "--quiet",
+    "--no-progressbars",
+    "--metrics=TYPO",
+    "--cell=0:540:-308:1042",
+    "--name=Refined"
+  ],
+  "iconCellWidth": 540,
+  "originalText": "Every original glyph ID, glyf byte, advance, hint program and layout table is preserved.",
+  "iconHinting": "Unhinted Nerd Fonts outlines; the original text retains its refined hint programs.",
+  "outputs": [
+    {
+      "file": "InconsolataRefinedNerd-Regular.ttf",
+      "style": "Regular",
+      "weight": 400,
+      "italic": false,
+      "source": "fonts/InconsolataRefined-Regular.ttf",
+      "sourceSha256": "0b4b043904689a3f4314e45b061306b85f6852cda0fa33417f26e52549f3315a",
+      "sha256": "2c7e66e4d674a34c49b72f07b155e7cdb62cdd854550f98b56f0dc8281c76fdd",
+      "bytes": 2566216,
+      "glyphs": 11847,
+      "characters": 11764,
+      "addedGlyphs": 10879,
+      "addedCharacters": 10879,
+      "originalGlyphsPreserved": 968,
+      "registeredIconNames": 10995
+    },
+    {
+      "file": "InconsolataRefinedNerd-Italic.ttf",
+      "style": "Italic",
+      "weight": 400,
+      "italic": true,
+      "source": "fonts/InconsolataRefined-Italic.ttf",
+      "sourceSha256": "53a4b52e913ecaf8db96295f7ee3b12c69275b23cbb2e20c2323ec1ecfa486c8",
+      "sha256": "e16f3b5cb6137e7d0fa251caf03f607332daa92aa01fc0fd64901578727e501d",
+      "bytes": 2587724,
+      "glyphs": 11847,
+      "characters": 11764,
+      "addedGlyphs": 10879,
+      "addedCharacters": 10879,
+      "originalGlyphsPreserved": 968,
+      "registeredIconNames": 10995
+    },
+    {
+      "file": "InconsolataRefinedNerd-Bold.ttf",
+      "style": "Bold",
+      "weight": 700,
+      "italic": false,
+      "source": "fonts/InconsolataRefined-Bold.ttf",
+      "sourceSha256": "78da4dc8cbcf8f5a33dfcd43a9ef488bc915548cbd8e2b4046fb0ecbb917348c",
+      "sha256": "0b40d61f84f638bef84fb44a6b919451d94bcf699b70b1ccbe3b8ef20e9d5f53",
+      "bytes": 2570208,
+      "glyphs": 11847,
+      "characters": 11764,
+      "addedGlyphs": 10879,
+      "addedCharacters": 10879,
+      "originalGlyphsPreserved": 968,
+      "registeredIconNames": 10995
+    },
+    {
+      "file": "InconsolataRefinedNerd-BoldItalic.ttf",
+      "style": "Bold Italic",
+      "weight": 700,
+      "italic": true,
+      "source": "fonts/InconsolataRefined-BoldItalic.ttf",
+      "sourceSha256": "651a2aab96da91d1f674f99e28b83d91c00ec6b938e7a3c293a1ff3048fec222",
+      "sha256": "d63be0b093b464288bf11a7f8cf7440f6835a4f171defa1229ae98aad53b58ae",
+      "bytes": 2582688,
+      "glyphs": 11847,
+      "characters": 11764,
+      "addedGlyphs": 10879,
+      "addedCharacters": 10879,
+      "originalGlyphsPreserved": 968,
+      "registeredIconNames": 10995
+    }
+  ]
+}
